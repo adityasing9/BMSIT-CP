@@ -24,8 +24,11 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
+      shell: bash
       run: |
+        set -o pipefail
         ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+        ls -la app/build/outputs/apk/debug/ || true
 
     - name: Upload Build Log (if failed or passed)
       if: always()
@@ -36,9 +39,9 @@ jobs:
         retention-days: 7
 
     - name: Upload Debug APK
-      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: continueo-auto-login-debug-apk
-        path: app/build/outputs/apk/debug/*.apk
+        path: app/build/outputs/apk/debug/
+        if-no-files-found: warn
         retention-days: 14
