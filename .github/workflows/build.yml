@@ -36,16 +36,16 @@ jobs:
         }
 
 
-    - name: Locate APK and Summary
+    - name: Prepare APK
       run: |
-        echo "## Build Artifacts" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        find app/build/outputs -type f >> $GITHUB_STEP_SUMMARY || true
-        echo '```' >> $GITHUB_STEP_SUMMARY
+        mkdir -p release-apk
+        find app/build/outputs/apk/ -name "*.apk" -exec cp {} release-apk/ \;
+        ls -la release-apk/
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: continueo-auto-login-debug-apk
-        path: app/build/outputs/apk/
+        name: continueo-auto-login-apk
+        path: release-apk/*.apk
+        if-no-files-found: error
         retention-days: 14
