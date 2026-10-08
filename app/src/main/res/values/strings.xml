@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ContinueO Auto Login</string>
+    <string name="contineo">ContinueO</string>
+    <string name="auto_login">Auto Login</string>
+
+    <!-- Setup Screen -->
+    <string name="setup_title">ContinueO Auto Login</string>
+    <string name="usn_label">USN</string>
+    <string name="usn_placeholder">Enter your USN</string>
+    <string name="dob_label">Date of Birth</string>
+    <string name="day_hint">Day</string>
+    <string name="month_hint">Month</string>
+    <string name="year_hint">Year</string>
+    <string name="id_card_label">ID Card Number</string>
+    <string name="id_card_placeholder">Enter your ID Card Number</string>
+    <string name="save_credentials">Save Credentials</string>
+    <string name="privacy_note">Your credentials are stored only on this device.</string>
+
+    <!-- Home Screen -->
+    <string name="ready_to_login">Ready to login</string>
+    <string name="login_now">LOGIN NOW 🚀</string>
+    <string name="credentials_secured">Credentials Secured</string>
+    <string name="settings">Settings</string>
+
+    <!-- Login Screen -->
+    <string name="login_title">ContinueO Login</string>
+    <string name="retry">Retry</string>
+    <string name="continue_manually">Continue Manually</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="edit_credentials">Edit Credentials</string>
+    <string name="edit_credentials_desc">Update your saved login information</string>
+    <string name="clear_credentials">Clear Saved Credentials</string>
+    <string name="clear_credentials_desc">Remove all saved credentials from this device</string>
+    <string name="clear_confirm_title">Remove Credentials?</string>
+    <string name="clear_confirm_message">Remove your saved ContinueO credentials from this device?</string>
+    <string name="cancel">Cancel</string>
+    <string name="remove">Remove</string>
+    <string name="about">About</string>
+    <string name="version">Version %1$s</string>
+    <string name="privacy">Privacy</string>
+    <string name="privacy_text">ContinueO Auto Login stores your login information locally on this device. The application does not operate a backend server and does not intentionally send your credentials to any third-party service.</string>
+
+    <!-- Automation Status -->
+    <string name="opening_portal">Opening ContinueO…</string>
+    <string name="portal_loaded">Portal loaded</string>
+    <string name="filling_login">Filling login details…</string>
+    <string name="login_filled">Login details entered</string>
+    <string name="submitting_login">Submitting login…</string>
+    <string name="waiting_id_card">Opening ID card verification…</string>
+    <string name="filling_id_card">Filling ID card number…</string>
+    <string name="id_card_filled">ID card number entered</string>
+    <string name="completing_login">Completing login…</string>
+    <string name="login_complete">Done</string>
+    <string name="manual_verification">Manual verification required.</string>
+    <string name="automation_error">Unable to continue</string>
+
+    <!-- Errors -->
+    <string name="error_usn_empty">USN is required</string>
+    <string name="error_day_empty">Day is required</string>
+    <string name="error_month_empty">Month is required</string>
+    <string name="error_year_empty">Year is required</string>
+    <string name="error_id_card_empty">ID Card Number is required</string>
+    <string name="error_no_credentials">No credentials saved. Please set up first.</string>
+    <string name="error_no_internet">No internet connection.\nContinueO requires an internet connection.</string>
+    <string name="error_page_detection">Unable to detect the ContinueO login page.\nThe portal may have changed.</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_lock_icon">Credentials secured</string>
+    <string name="cd_settings_icon">Open settings</string>
+    <string name="cd_back">Go back</string>
+    <string name="cd_success_icon">Step completed</string>
+    <string name="cd_error_icon">Step failed</string>
+</resources>

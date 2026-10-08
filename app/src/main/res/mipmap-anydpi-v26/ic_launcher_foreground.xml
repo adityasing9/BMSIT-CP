@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="#FFFFFF">
+    <!-- Lock icon representing secure login -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M54,27c-5.52,0 -10,4.48 -10,10v6h-4c-2.21,0 -4,1.79 -4,4v20c0,2.21 1.79,4 4,4h28c2.21,0 4,-1.79 4,-4v-20c0,-2.21 -1.79,-4 -4,-4h-4v-6c0,-5.52 -4.48,-10 -10,-10zM61,43h-14v-6c0,-3.87 3.13,-7 7,-7s7,3.13 7,7v6zM54,60c-2.21,0 -4,-1.79 -4,-4s1.79,-4 4,-4 4,1.79 4,4 -1.79,4 -4,4z"/>
+    <!-- Arrow/rocket indicating quick login -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M54,72l4,-4h-3v-4h-2v4h-3z"/>
+</vector>
