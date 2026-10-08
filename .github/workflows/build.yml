@@ -24,9 +24,19 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: |
+        ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+
+    - name: Upload Build Log (if failed or passed)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gradle-build-log
+        path: build.log
+        retention-days: 7
 
     - name: Upload Debug APK
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: continueo-auto-login-debug-apk
