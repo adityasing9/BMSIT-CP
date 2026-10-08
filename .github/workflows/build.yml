@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout Code
@@ -35,19 +37,31 @@ jobs:
           exit 1
         }
 
-
     - name: Prepare APK
       run: |
         mkdir -p release-apk
-        echo "=== Listing all outputs ==="
-        find app/build/ -type f || true
-        cp app/build/outputs/apk/debug/*.apk release-apk/ || cp app/build/outputs/apk/*/*.apk release-apk/ || true
+        find app/build/outputs/apk/ -name "*.apk" -type f -exec cp -v {} release-apk/ContinueO-AutoLogin.apk \; || true
         ls -la release-apk/
 
-    - name: Upload Debug APK
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: continueo-auto-login-apk
-        path: release-apk/
+        path: release-apk/ContinueO-AutoLogin.apk
         if-no-files-found: warn
         retention-days: 14
+
+    - name: Publish to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: "ContinueO Auto Login (Latest Build)"
+        body: |
+          ### ContinueO Auto Login APK
+          - Automated build generated from commit `${{ github.sha }}`
+          - Direct download available below.
+        files: release-apk/ContinueO-AutoLogin.apk
+        prerelease: false
+        generate_release_notes: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
