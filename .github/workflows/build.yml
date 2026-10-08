@@ -39,7 +39,7 @@ jobs:
     - name: Prepare APK
       run: |
         mkdir -p release-apk
-        find app/build/outputs/apk/ -name "*.apk" -exec cp {} release-apk/ \;
+        find . -name "*.apk" -type f -exec cp -v {} release-apk/ \; || true
         ls -la release-apk/
 
     - name: Upload Debug APK
