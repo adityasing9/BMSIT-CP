@@ -40,6 +40,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: continueo-auto-login-debug-apk
-        path: app/build/outputs/apk/debug/
-        if-no-files-found: warn
+        path: app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
         retention-days: 14
