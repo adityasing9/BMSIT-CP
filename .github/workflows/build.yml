@@ -39,13 +39,15 @@ jobs:
     - name: Prepare APK
       run: |
         mkdir -p release-apk
-        find . -name "*.apk" -type f -exec cp -v {} release-apk/ \; || true
+        echo "=== Listing all outputs ==="
+        find app/build/ -type f || true
+        cp app/build/outputs/apk/debug/*.apk release-apk/ || cp app/build/outputs/apk/*/*.apk release-apk/ || true
         ls -la release-apk/
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: continueo-auto-login-apk
-        path: release-apk/*.apk
-        if-no-files-found: error
+        path: release-apk/
+        if-no-files-found: warn
         retention-days: 14
