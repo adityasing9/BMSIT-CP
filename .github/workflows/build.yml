@@ -24,13 +24,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      shell: bash
-      run: |
-        ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log || {
-          echo "=== BUILD FAILED: LAST 100 LINES OF LOG ==="
-          tail -n 100 build.log
-          exit 1
-        }
+      run: ./gradlew assembleDebug --stacktrace --no-daemon
 
     - name: Upload Build Log (if failed or passed)
       if: always()
