@@ -64,11 +64,14 @@ class WebViewManager {
         }
     }
 
-    suspend fun evaluateJavascript(webView: WebView, script: String): String = suspendCoroutine { cont ->
-        webView.evaluateJavascript(script) { result ->
-            cont.resume(result ?: "")
+    suspend fun evaluateJavascript(webView: WebView, script: String): String =
+        withContext(Dispatchers.Main) {
+            suspendCoroutine { cont ->
+                webView.evaluateJavascript(script) { result ->
+                    cont.resume(result ?: "")
+                }
+            }
         }
-    }
 
     suspend fun waitForPageLoad(timeoutMs: Long): Boolean {
         var elapsed = 0L
