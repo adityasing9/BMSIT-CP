@@ -40,8 +40,13 @@ jobs:
     - name: Prepare APK
       run: |
         mkdir -p release-apk
-        find app/build/outputs/apk/ -name "*.apk" -type f -exec cp -v {} release-apk/ContinueO-AutoLogin.apk \; || true
+        echo "=== Searching for APK files ==="
+        find app/build/outputs/ -name "*.apk" -type f 2>/dev/null || echo "No APK files found!"
+        echo "=== Copying APK ==="
+        cp -v app/build/outputs/apk/debug/app-debug.apk release-apk/ContinueO-AutoLogin.apk
+        echo "=== Verifying ==="
         ls -la release-apk/
+        file release-apk/ContinueO-AutoLogin.apk
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
@@ -50,6 +55,12 @@ jobs:
         path: release-apk/ContinueO-AutoLogin.apk
         if-no-files-found: warn
         retention-days: 14
+
+    - name: Delete old release
+      run: |
+        gh release delete latest --yes --cleanup-tag 2>/dev/null || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish to GitHub Releases
       uses: softprops/action-gh-release@v2
@@ -61,6 +72,8 @@ jobs:
           - Automated build generated from commit `${{ github.sha }}`
           - Direct download available below.
         files: release-apk/ContinueO-AutoLogin.apk
+        fail_on_unmatched_files: true
+        make_latest: true
         prerelease: false
         generate_release_notes: false
       env:
