@@ -45,10 +45,10 @@ class AutomationEngine(
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     companion object {
-        private const val PAGE_LOAD_TIMEOUT = 20_000L
-        private const val ELEMENT_DETECT_TIMEOUT = 10_000L
-        private const val POST_SUBMIT_DELAY = 2_000L
-        private const val DETECTION_INTERVAL = 500L
+        private const val PAGE_LOAD_TIMEOUT = 15_000L
+        private const val ELEMENT_DETECT_TIMEOUT = 8_000L
+        private const val POST_SUBMIT_DELAY = 400L
+        private const val DETECTION_INTERVAL = 150L
     }
 
     fun attachWebView(wv: WebView) {
@@ -233,7 +233,7 @@ class AutomationEngine(
 
         var filled = false
         var lastError = "ID Card input not found"
-        val maxAttempts = 15 // 15 * 500ms = 7.5 seconds
+        val maxAttempts = 30 // 30 * 250ms = 7.5 seconds
         for (attempt in 1..maxAttempts) {
             val fillResult = executeAndParse(wv, adapter.fillIdCardPage(creds.idCardNumber))
             if (fillResult.optBoolean("success", false)) {
@@ -242,11 +242,28 @@ class AutomationEngine(
             } else {
                 lastError = fillResult.optString("error", lastError)
             }
-            delay(500)
+            delay(250)
         }
 
         if (!filled) {
-            throw AutomationException(lastError)
+            // Extract diagnostic info from the last error response for debugging
+            val diagInfo = try {
+                val lastFillResult = withContext(Dispatchers.Main) {
+                    val resultStr = webViewManager.evaluateJavascript(wv, adapter.fillIdCardPage(creds.idCardNumber))
+                    parseJsonResult(resultStr)
+                }
+                val inputCount = lastFillResult.optInt("inputCount", -1)
+                val url = lastFillResult.optString("url", "")
+                val bodyText = lastFillResult.optString("bodyText", "").take(200)
+                "[$inputCount inputs on $url] $bodyText"
+            } catch (_: Exception) { "" }
+            
+            val errorMsg = if (diagInfo.isNotEmpty()) {
+                "$lastError | Debug: $diagInfo"
+            } else {
+                lastError
+            }
+            throw AutomationException(errorMsg)
         }
         addStatus("✓ ID card number entered")
 

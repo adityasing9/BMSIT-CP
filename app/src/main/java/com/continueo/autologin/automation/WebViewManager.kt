@@ -21,6 +21,10 @@ class WebViewManager {
 
     @SuppressLint("SetJavaScriptEnabled")
     fun configureWebView(webView: WebView) {
+        webView.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+        webView.isVerticalScrollBarEnabled = true
+        webView.isHorizontalScrollBarEnabled = true
+
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
@@ -30,6 +34,8 @@ class WebViewManager {
             displayZoomControls = false
             useWideViewPort = true
             loadWithOverviewMode = true
+            cacheMode = WebSettings.LOAD_DEFAULT
+            loadsImagesAutomatically = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
@@ -88,13 +94,17 @@ class WebViewManager {
     fun setDesktopMode(webView: WebView, enabled: Boolean) {
         val settings = webView.settings
         if (enabled) {
-            settings.userAgentString = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            // Windows desktop Chrome UA
+            settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
+            // Force desktop viewport width
+            webView.setInitialScale(50) // 50% zoom to fit desktop layout on mobile
         } else {
             settings.userAgentString = null
             settings.useWideViewPort = true
             settings.loadWithOverviewMode = true
+            webView.setInitialScale(0) // Reset to default
         }
         webView.reload()
     }
