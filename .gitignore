@@ -21,6 +21,7 @@ local.properties
 *.dex
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.aar
 *.so
 *.log
