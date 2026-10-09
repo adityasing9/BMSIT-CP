@@ -1,44 +1,77 @@
 # ContinueO Auto Login
 
-A small, focused Android application that eliminates the repetitive manual login process for the BMSIT&M ContinueO Parent Portal.
+[![Build & Release APK](https://github.com/adityasing9/BMSIT-CP/actions/workflows/build.yml/badge.svg)](https://github.com/adityasing9/BMSIT-CP/actions/workflows/build.yml)
+[![Latest Release](https://img.shields.io/github/v/release/adityasing9/BMSIT-CP?color=blue&label=release)](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest)
 
-## What It Does
+A fast, modern Android application that automates the repetitive two-step login process for the **BMSIT&M ContinueO Parent Portal** (`https://student.bmsit.ac.in/parents/index.php`) and renders the portal in full desktop view.
 
-Instead of manually entering your USN, Date of Birth, and ID Card Number every time you visit the ContinueO portal, this app lets you:
+---
 
-1. **Enter your credentials once**
-2. **Tap "LOGIN NOW"**
-3. **Arrive at the logged-in ContinueO portal**
+## 📥 Download APK
 
-That's it. One tap instead of repeatedly filling the same form.
+Get the latest pre-built APK directly:
 
-## What It Does NOT Do
+- **Direct Download:** [**ContinueO-AutoLogin.apk**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk)
+- **Releases Page:** [GitHub Releases (Latest)](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest)
 
-- ❌ Bypass CAPTCHA, OTP, MFA, or any security mechanism
-- ❌ Send your credentials to any server
-- ❌ Include a backend, cloud database, or analytics
-- ❌ Recreate or scrape the ContinueO website
-- ❌ Replace the actual ContinueO portal
+---
 
-If the portal presents a security challenge (CAPTCHA, OTP, etc.), the app stops automation and lets you complete it manually.
+## ✨ Features
 
-## How It Works
+- **⚡ One-Tap 2-Step Automation:**
+  - **Step 1:** Automatically fills USN and Date of Birth (Day, Month, Year dropdowns), computes credentials, and submits.
+  - **Step 2:** Automatically detects the verification page, enters your ID Card Number, and completes login.
+- **🖥 Genuine Desktop Mode (Default):**
+  - Displays the authentic ContinueO desktop portal layout (1280px layout viewport, 2-column layout, desktop navigation and styling) instead of the cramped mobile-responsive layout.
+  - Overview mode with full pinch-to-zoom and smooth panning.
+  - Persistent preference: Remembers your mode (Desktop vs Mobile) across app restarts.
+  - One-tap toggle button in the top bar (`🖥 Desktop ON` / `📱 Mobile`) with seamless page refresh and session retention.
+- **🚀 Smooth & Fast Performance:**
+  - Hardware-accelerated WebView rendering (`LAYER_TYPE_HARDWARE`).
+  - Optimized transition delays and responsive DOM polling.
+- **🔒 Privacy & Local Security First:**
+  - Credentials are encrypted and stored **only on your device** using AndroidX Security (`EncryptedSharedPreferences` with MasterKey AES-256-GCM).
+  - No backend, no cloud database, no third-party tracking or analytics.
+  - Credentials are never logged, transmitted, or leaked in URLs.
 
-The app opens the real ContinueO website inside a WebView and automates only the repetitive form-filling steps:
+---
+
+## 🛑 What It Does NOT Do
+
+- ❌ Bypass CAPTCHA, OTP, MFA, or anti-bot security mechanisms (if prompted, automation pauses for manual completion).
+- ❌ Send credentials to any external server.
+- ❌ Scrape or store personal college data off-device.
+
+---
+
+## 🔄 How It Works
 
 ```
-Open App → LOGIN NOW → Portal loads → USN filled → DOB selected → Login submitted
-→ ID Card page loads → ID Card Number filled → Submitted → You're logged in
+Open App → Tap LOGIN NOW → Portal opens (Desktop Mode) → USN & DOB filled →
+Page 1 Submitted → ID Card page detected → ID Card Number filled →
+Page 2 Submitted → Authenticated ContinueO Dashboard loaded!
 ```
 
-## Security & Privacy
+---
 
-- Credentials are stored **locally on your device only** using Android's EncryptedSharedPreferences
-- The app does **not** operate a backend server
-- The app does **not** transmit your credentials to any third-party service
-- Credentials are **never** logged, included in URLs, or exposed in screenshots
+## 📱 Requirements
 
-## Building
+- Android 8.0 (API level 26) or higher
+- Active Internet connection
+
+---
+
+## 🛠️ Technology Stack
+
+- **UI Framework:** Jetpack Compose with Material 3
+- **Language:** Kotlin & Kotlin Coroutines / Flow
+- **Browser Engine:** Android WebView with customized `WebViewClient` and `WebChromeClient`
+- **Security:** AndroidX Security Crypto (`EncryptedSharedPreferences`)
+- **CI/CD:** GitHub Actions (Automated Gradle build & GitHub Release publishing)
+
+---
+
+## 🏗️ Building From Source
 
 ### Prerequisites
 
@@ -46,60 +79,26 @@ Open App → LOGIN NOW → Portal loads → USN filled → DOB selected → Logi
 - JDK 17
 - Android SDK 34
 
-### Steps
-
-1. Clone this repository
-2. Open in Android Studio
-3. Sync Gradle
-4. Build & run on your device
+### Build Commands
 
 ```bash
-# Command-line build
+# Clone the repository
+git clone https://github.com/adityasing9/BMSIT-CP.git
+cd BMSIT-CP
+
+# Build Debug APK
 ./gradlew assembleDebug
 
-# Install on connected device
+# Install to connected device
 ./gradlew installDebug
 ```
 
-### Release Build
+The compiled APK will be located at:
+`app/build/outputs/apk/debug/app-debug.apk`
 
-```bash
-# Generate release APK (requires signing configuration)
-./gradlew assembleRelease
-```
+---
 
-The release APK will be in `app/build/outputs/apk/release/`.
-
-> **Note:** For release builds, update the signing configuration in `app/build.gradle.kts` with your keystore.
-
-## Testing
-
-### Dummy Credentials for Testing
-
-During development, use dummy credentials:
-- USN: `1BM22CS999`
-- DOB: `01 / Jan / 2004`
-- ID Card: `TEST12345`
-
-Never use real credentials in source code, commits, or screenshots.
-
-### Manual Testing Checklist
-
-- [ ] First-time setup flow
-- [ ] Credential validation (empty fields rejected)
-- [ ] Credential persistence across app restarts
-- [ ] LOGIN NOW automation (both pages)
-- [ ] Error handling (wrong credentials, network failure)
-- [ ] Portal structure change detection
-- [ ] CAPTCHA/OTP manual intervention
-- [ ] Clear credentials functionality
-- [ ] Edit credentials functionality
-- [ ] Dark mode / Light mode
-- [ ] Back button behavior in WebView
-- [ ] No internet connection message
-- [ ] Different screen sizes
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 app/src/main/java/com/continueo/autologin/
@@ -107,49 +106,31 @@ app/src/main/java/com/continueo/autologin/
 ├── MainActivity.kt                   # Single activity entry point
 ├── models/
 │   ├── Credentials.kt                # Credential data model
-│   └── AutomationState.kt           # State machine for automation
+│   └── AutomationState.kt            # Automation state machine
 ├── security/
-│   └── CredentialManager.kt          # Encrypted local storage
+│   └── CredentialManager.kt          # Encrypted local storage & preferences
 ├── automation/
-│   ├── ContineoSelectors.kt          # Portal DOM selectors
-│   ├── ContineoAdapter.kt           # Portal-specific JS logic
-│   ├── AutomationEngine.kt          # Core automation controller
-│   └── WebViewManager.kt            # WebView setup & JS execution
+│   ├── ContineoSelectors.kt          # Portal CSS selectors & URLs
+│   ├── ContineoAdapter.kt            # DOM interaction & autofill JS scripts
+│   ├── AutomationEngine.kt           # Coroutine automation controller
+│   └── WebViewManager.kt             # WebView desktop config & viewport manager
 ├── ui/
-│   ├── theme/
-│   │   ├── Color.kt
-│   │   ├── Theme.kt
-│   │   └── Type.kt
-│   ├── navigation/
-│   │   └── NavGraph.kt
+│   ├── theme/                        # Material 3 colors, theme, and typography
+│   ├── navigation/                   # Navigation graph & routes
 │   ├── screens/
-│   │   ├── SetupScreen.kt           # First-time credential entry
-│   │   ├── HomeScreen.kt            # Main LOGIN NOW screen
-│   │   ├── LoginScreen.kt           # WebView + automation status
-│   │   └── SettingsScreen.kt        # Edit/clear credentials, about
+│   │   ├── SetupScreen.kt            # Initial credential setup
+│   │   ├── HomeScreen.kt             # "LOGIN NOW" launch screen
+│   │   ├── LoginScreen.kt            # WebView display & desktop toggle
+│   │   └── SettingsScreen.kt         # Edit credentials & app settings
 │   └── viewmodels/
-│       └── LoginViewModel.kt
+│       └── LoginViewModel.kt         # UI state & WebView coordination
 └── utils/
-    └── NetworkUtils.kt
+    └── NetworkUtils.kt               # Network connectivity monitor
 ```
 
-## Technology Stack
+---
 
-- **Language:** Kotlin
-- **UI:** Jetpack Compose + Material 3
-- **Browser:** Android WebView
-- **Storage:** EncryptedSharedPreferences (AndroidX Security Crypto)
-- **Architecture:** Single Activity + Compose Navigation
+## 📄 License & Disclaimer
 
-## Requirements
-
-- Android 8.0 (API 26) or higher
-- Internet connection (to access the ContinueO portal)
-
-## License
-
-This project is for personal educational use.
-
-## Disclaimer
-
-This application is intended for use with your own authorized BMSIT&M account. It automates form-filling convenience only and does not bypass any security mechanisms. The developers are not responsible for any misuse.
+- **License:** Educational and personal use only.
+- **Disclaimer:** This app is designed for authorized students and parents accessing their own BMSIT&M ContinueO accounts. It provides local input automation convenience only and does not circumvent any access controls or security features.
