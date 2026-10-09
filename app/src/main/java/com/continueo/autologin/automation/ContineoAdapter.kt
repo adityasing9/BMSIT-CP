@@ -204,18 +204,29 @@ class ContineoAdapter {
                             }
                         }
 
-                        // Heuristic 4: First visible non-hidden text input on the page
-                        var inputs = doc.querySelectorAll("input[type='text'], input[type='number'], input[type='password'], input:not([type])");
+                        // Heuristic 4: Any input on Page 2 that isn't hidden submit/token
+                        var inputs = doc.getElementsByTagName('input');
                         for (var j = 0; j < inputs.length; j++) {
                             var inp = inputs[j];
-                            if (inp.type !== 'hidden') {
-                                var rect = inp.getBoundingClientRect();
-                                var isVisible = inp.offsetParent !== null || (rect.width > 0 && rect.height > 0);
-                                if (isVisible) return inp;
+                            var t = (inp.type || 'text').toLowerCase();
+                            if (t !== 'hidden' && t !== 'submit' && t !== 'button' && t !== 'image') {
+                                return inp;
                             }
                         }
 
-                        // Heuristic 5: Check nested iframes
+                        // Heuristic 5: If only one text/number input exists in any form
+                        for (var f = 0; f < doc.forms.length; f++) {
+                            var formInputs = doc.forms[f].querySelectorAll('input');
+                            for (var fi = 0; fi < formInputs.length; fi++) {
+                                var finp = formInputs[fi];
+                                var ft = (finp.type || 'text').toLowerCase();
+                                if (ft !== 'hidden' && ft !== 'submit' && ft !== 'button') {
+                                    return finp;
+                                }
+                            }
+                        }
+
+                        // Heuristic 6: Check nested iframes
                         var iframes = doc.querySelectorAll('iframe, frame');
                         for (var k = 0; k < iframes.length; k++) {
                             try {
@@ -234,9 +245,14 @@ class ContineoAdapter {
                         input.focus();
                         input.value = '${escapeJs(idCardNumber)}';
                         input.setAttribute('value', '${escapeJs(idCardNumber)}');
-                        input.dispatchEvent(new Event('input', {bubbles: true}));
-                        input.dispatchEvent(new Event('change', {bubbles: true}));
-                        input.dispatchEvent(new KeyboardEvent('keyup', {bubbles: true}));
+                        
+                        // Fire all standard user interaction events
+                        ['input', 'change', 'blur'].forEach(function(evt) {
+                            input.dispatchEvent(new Event(evt, {bubbles: true}));
+                        });
+                        ['keydown', 'keypress', 'keyup'].forEach(function(evt) {
+                            input.dispatchEvent(new KeyboardEvent(evt, {bubbles: true, key: 'Enter'}));
+                        });
 
                         return JSON.stringify({success: true});
                     }

@@ -227,15 +227,26 @@ class AutomationEngine(
 
         addStatus("Opening ID card verification…")
 
-        // Fill ID card number
+        // Fill ID card number with retry loop (page may still be rendering)
         _automationState.value = AutomationState.FILLING_ID_CARD
         addStatus("Filling ID card number…")
 
-        val fillResult = executeAndParse(wv, adapter.fillIdCardPage(creds.idCardNumber))
-        if (!fillResult.optBoolean("success", false)) {
-            throw AutomationException(
-                fillResult.optString("error", "Failed to fill ID card number")
-            )
+        var filled = false
+        var lastError = "ID Card input not found"
+        val maxAttempts = 15 // 15 * 500ms = 7.5 seconds
+        for (attempt in 1..maxAttempts) {
+            val fillResult = executeAndParse(wv, adapter.fillIdCardPage(creds.idCardNumber))
+            if (fillResult.optBoolean("success", false)) {
+                filled = true
+                break
+            } else {
+                lastError = fillResult.optString("error", lastError)
+            }
+            delay(500)
+        }
+
+        if (!filled) {
+            throw AutomationException(lastError)
         }
         addStatus("✓ ID card number entered")
 
