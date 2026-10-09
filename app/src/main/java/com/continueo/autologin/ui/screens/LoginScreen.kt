@@ -47,7 +47,6 @@ fun LoginScreen(
     var showNoInternet by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     // Auto-scroll status list when new items are added
     LaunchedEffect(statusMessages.size) {
@@ -96,15 +95,29 @@ fun LoginScreen(
                     }
                 },
                 actions = {
-                    TextButton(
+                    FilledTonalButton(
                         onClick = {
                             webViewRef?.let { loginViewModel.toggleDesktopMode(it) }
-                        }
+                        },
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = if (isDesktopMode) {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                            contentColor = if (isDesktopMode) {
+                                MaterialTheme.colorScheme.onSecondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Text(
-                            text = if (isDesktopMode) "🖥 Mobile" else "📱 Desktop",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.labelLarge
+                            text = if (isDesktopMode) "🖥 Desktop ON" else "📱 Mobile",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 },

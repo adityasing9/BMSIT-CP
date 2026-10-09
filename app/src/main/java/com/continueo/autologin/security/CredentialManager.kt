@@ -44,11 +44,21 @@ class CredentialManager(context: Context) {
     }
 
     fun deleteCredentials() {
+        val desktopMode = isDesktopMode()
         sharedPreferences.edit().clear().apply()
+        setDesktopMode(desktopMode)
     }
 
     fun hasCredentials(): Boolean {
         return sharedPreferences.contains(KEY_USN)
+    }
+
+    fun isDesktopMode(): Boolean {
+        return sharedPreferences.getBoolean(KEY_DESKTOP_MODE, true)
+    }
+
+    fun setDesktopMode(enabled: Boolean) {
+        sharedPreferences.edit().putBoolean(KEY_DESKTOP_MODE, enabled).apply()
     }
 
     companion object {
@@ -58,5 +68,6 @@ class CredentialManager(context: Context) {
         private const val KEY_DOB_MONTH = "key_dob_month"
         private const val KEY_DOB_YEAR = "key_dob_year"
         private const val KEY_ID_CARD = "key_id_card"
+        private const val KEY_DESKTOP_MODE = "key_desktop_mode"
     }
 }

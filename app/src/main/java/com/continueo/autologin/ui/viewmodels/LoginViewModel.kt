@@ -28,7 +28,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Attaches the WebView to the automation engine and starts the login flow.
      */
+    private val _isDesktopMode = kotlinx.coroutines.flow.MutableStateFlow(credentialManager.isDesktopMode())
+    val isDesktopMode: StateFlow<Boolean> = _isDesktopMode
+
+    /**
+     * Attaches the WebView to the automation engine and starts the login flow.
+     */
     fun startLogin(webView: WebView) {
+        val desktopMode = _isDesktopMode.value
+        webViewManager.setDesktopMode(webView, desktopMode, reload = false)
         automationEngine.attachWebView(webView)
         val credentials = credentialManager.loadCredentials()
         if (credentials != null && credentials.isValid()) {
@@ -40,20 +48,27 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
      * Retries the automation from the beginning.
      */
     fun retry(webView: WebView) {
+        val desktopMode = _isDesktopMode.value
+        webViewManager.setDesktopMode(webView, desktopMode, reload = false)
         automationEngine.attachWebView(webView)
         automationEngine.retryAutomation()
     }
 
-    private val _isDesktopMode = kotlinx.coroutines.flow.MutableStateFlow(false)
-    val isDesktopMode: StateFlow<Boolean> = _isDesktopMode
-
     /**
-     * Toggles between mobile and desktop user-agent for the WebView.
+     * Toggles between mobile and desktop mode for the WebView.
+     * Persists the user preference and safely reloads the page.
      */
     fun toggleDesktopMode(webView: WebView) {
         val nextMode = !_isDesktopMode.value
         _isDesktopMode.value = nextMode
-        webViewManager.setDesktopMode(webView, nextMode)
+        credentialManager.setDesktopMode(nextMode)
+
+        // Cancel automation if currently running to prevent conflicts with the reload
+        if (automationEngine.automationState.value.isInProgress) {
+            automationEngine.cancelAutomation()
+        }
+
+        webViewManager.setDesktopMode(webView, nextMode, reload = true)
     }
 
     /**
