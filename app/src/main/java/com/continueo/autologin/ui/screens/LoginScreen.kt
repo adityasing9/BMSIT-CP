@@ -39,6 +39,7 @@ fun LoginScreen(
     val context = LocalContext.current
     val automationState by loginViewModel.automationState.collectAsState()
     val statusMessages by loginViewModel.statusMessages.collectAsState()
+    val isDesktopMode by loginViewModel.isDesktopMode.collectAsState()
 
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var showStatusPanel by remember { mutableStateOf(true) }
@@ -91,6 +92,19 @@ fun LoginScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
+                        )
+                    }
+                },
+                actions = {
+                    TextButton(
+                        onClick = {
+                            webViewRef?.let { loginViewModel.toggleDesktopMode(it) }
+                        }
+                    ) {
+                        Text(
+                            text = if (isDesktopMode) "🖥 Mobile" else "📱 Desktop",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelLarge
                         )
                     }
                 },

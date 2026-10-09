@@ -164,44 +164,87 @@ class ContineoAdapter {
 
     /**
      * Generates JS to find and fill the ID Card Number input on Page 2.
-     * Tries multiple selectors to find the input field.
+     * Uses comprehensive heuristics including:
+     * - Search by input id/name/placeholder patterns
+     * - Search by proximity to "Enter the ID Card Number" text
+     * - Visible text inputs inside forms or containers
+     * - Frame/iframe traversal
      */
     fun fillIdCardPage(idCardNumber: String): String {
         return """
             (function() {
                 try {
-                    var input = null;
-                    
-                    // Strategy 1: Find by placeholder/name containing 'card' or 'id'
-                    input = document.querySelector("${ContineoSelectors.ID_CARD_INPUT_FALLBACK_1}");
-                    
-                    // Strategy 2: Find by name attribute
-                    if (!input) input = document.querySelector("${ContineoSelectors.ID_CARD_INPUT_FALLBACK_2}");
-                    
-                    // Strategy 3: Find text input fields that are visible
-                    if (!input) {
-                        var inputs = document.querySelectorAll('input[type="text"], input:not([type])');
-                        for (var i = 0; i < inputs.length; i++) {
-                            var inp = inputs[i];
-                            if (inp.offsetParent !== null && inp.type !== 'hidden') {
-                                input = inp;
-                                break;
+                    function findInputInDoc(doc) {
+                        if (!doc) return null;
+                        
+                        // Heuristic 1: Look for id or name matches
+                        var explicit = doc.querySelector("input#idcard, input#id_card, input#idno, input#id_no, input#usn, input#cardno, input#card_no, input#regno, input#reg_no, input#key, input[name='idcard'], input[name='id_card'], input[name='idno'], input[name='id_no'], input[name='cardno'], input[name='card_no'], input[name='id'], input[name='card']");
+                        if (explicit && explicit.type !== 'hidden') return explicit;
+
+                        // Heuristic 2: Placeholder or aria matches
+                        var selectorMatch = doc.querySelector("${ContineoSelectors.ID_CARD_INPUT_FALLBACK_1}, ${ContineoSelectors.ID_CARD_INPUT_FALLBACK_2}");
+                        if (selectorMatch && selectorMatch.type !== 'hidden') return selectorMatch;
+
+                        // Heuristic 3: Proximity to "Enter the ID Card Number" or "ID Card"
+                        var allElements = doc.querySelectorAll('*');
+                        for (var i = 0; i < allElements.length; i++) {
+                            var el = allElements[i];
+                            var text = el.innerText || el.textContent || '';
+                            if (text.indexOf('Enter the ID Card Number') !== -1 || text.indexOf('ID Card') !== -1) {
+                                // Search downward inside this container
+                                var insideInput = el.querySelector("input[type='text'], input[type='password'], input[type='number'], input:not([type])");
+                                if (insideInput && insideInput.type !== 'hidden') return insideInput;
+
+                                // Search siblings / parent container
+                                var parent = el.parentElement;
+                                if (parent) {
+                                    var parentInput = parent.querySelector("input[type='text'], input[type='password'], input[type='number'], input:not([type])");
+                                    if (parentInput && parentInput.type !== 'hidden') return parentInput;
+                                }
                             }
                         }
+
+                        // Heuristic 4: First visible non-hidden text input on the page
+                        var inputs = doc.querySelectorAll("input[type='text'], input[type='number'], input[type='password'], input:not([type])");
+                        for (var j = 0; j < inputs.length; j++) {
+                            var inp = inputs[j];
+                            if (inp.type !== 'hidden') {
+                                var rect = inp.getBoundingClientRect();
+                                var isVisible = inp.offsetParent !== null || (rect.width > 0 && rect.height > 0);
+                                if (isVisible) return inp;
+                            }
+                        }
+
+                        // Heuristic 5: Check nested iframes
+                        var iframes = doc.querySelectorAll('iframe, frame');
+                        for (var k = 0; k < iframes.length; k++) {
+                            try {
+                                var frameDoc = iframes[k].contentDocument || iframes[k].contentWindow.document;
+                                var res = findInputInDoc(frameDoc);
+                                if (res) return res;
+                            } catch(err) {}
+                        }
+
+                        return null;
                     }
-                    
+
+                    var input = findInputInDoc(document);
+
                     if (input) {
+                        input.focus();
                         input.value = '${escapeJs(idCardNumber)}';
+                        input.setAttribute('value', '${escapeJs(idCardNumber)}');
                         input.dispatchEvent(new Event('input', {bubbles: true}));
                         input.dispatchEvent(new Event('change', {bubbles: true}));
-                        
-                        if (input.value === '${escapeJs(idCardNumber)}') {
-                            return JSON.stringify({success: true});
-                        } else {
-                            return JSON.stringify({success: false, error: 'Value not set correctly'});
-                        }
+                        input.dispatchEvent(new KeyboardEvent('keyup', {bubbles: true}));
+
+                        return JSON.stringify({success: true});
                     }
-                    return JSON.stringify({success: false, error: 'ID Card input not found'});
+
+                    return JSON.stringify({
+                        success: false, 
+                        error: 'ID Card input not found'
+                    });
                 } catch(e) {
                     return JSON.stringify({success: false, error: e.toString()});
                 }
@@ -216,28 +259,48 @@ class ContineoAdapter {
         return """
             (function() {
                 try {
-                    // Try submit button first
-                    var btn = document.querySelector("${ContineoSelectors.ID_CARD_SUBMIT_BUTTON}");
+                    function findSubmitBtn(doc) {
+                        if (!doc) return null;
+
+                        // 1. Buttons with value or text "SUBMIT" / "Submit"
+                        var buttons = doc.querySelectorAll("input[type='submit'], input[type='button'], button, a.btn, a.button");
+                        for (var i = 0; i < buttons.length; i++) {
+                            var b = buttons[i];
+                            var val = (b.value || b.innerText || b.textContent || '').trim().toUpperCase();
+                            if (val === 'SUBMIT' || val.indexOf('SUBMIT') !== -1 || val === 'LOGIN') {
+                                return b;
+                            }
+                        }
+
+                        // 2. Any submit input/button
+                        var defaultBtn = doc.querySelector("${ContineoSelectors.ID_CARD_SUBMIT_BUTTON}");
+                        if (defaultBtn) return defaultBtn;
+
+                        // 3. Search in iframes
+                        var iframes = doc.querySelectorAll('iframe, frame');
+                        for (var k = 0; k < iframes.length; k++) {
+                            try {
+                                var frameDoc = iframes[k].contentDocument || iframes[k].contentWindow.document;
+                                var bRes = findSubmitBtn(frameDoc);
+                                if (bRes) return bRes;
+                            } catch(err) {}
+                        }
+                        return null;
+                    }
+
+                    var btn = findSubmitBtn(document);
                     if (btn) {
                         btn.click();
                         return JSON.stringify({success: true});
                     }
-                    
-                    // Fallback: find the form containing the ID card input and submit it
-                    var input = document.querySelector("${ContineoSelectors.ID_CARD_INPUT_FALLBACK_1}") || 
-                                document.querySelector("${ContineoSelectors.ID_CARD_INPUT_FALLBACK_2}");
-                    if (input && input.form) {
-                        input.form.submit();
-                        return JSON.stringify({success: true});
-                    }
-                    
-                    // Last resort: find any form on the page and submit
+
+                    // Fallback to form submission
                     var forms = document.forms;
-                    if (forms.length > 0) {
+                    if (forms && forms.length > 0) {
                         forms[0].submit();
                         return JSON.stringify({success: true});
                     }
-                    
+
                     return JSON.stringify({success: false, error: 'Submit button or form not found'});
                 } catch(e) {
                     return JSON.stringify({success: false, error: e.toString()});

@@ -44,6 +44,18 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         automationEngine.retryAutomation()
     }
 
+    private val _isDesktopMode = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val isDesktopMode: StateFlow<Boolean> = _isDesktopMode
+
+    /**
+     * Toggles between mobile and desktop user-agent for the WebView.
+     */
+    fun toggleDesktopMode(webView: WebView) {
+        val nextMode = !_isDesktopMode.value
+        _isDesktopMode.value = nextMode
+        webViewManager.setDesktopMode(webView, nextMode)
+    }
+
     /**
      * Cancels the running automation.
      */

@@ -28,6 +28,8 @@ class WebViewManager {
             setSupportZoom(true)
             builtInZoomControls = true
             displayZoomControls = false
+            useWideViewPort = true
+            loadWithOverviewMode = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
@@ -81,5 +83,19 @@ class WebViewManager {
             elapsed += interval
         }
         return _pageLoaded.value
+    }
+
+    fun setDesktopMode(webView: WebView, enabled: Boolean) {
+        val settings = webView.settings
+        if (enabled) {
+            settings.userAgentString = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+        } else {
+            settings.userAgentString = null
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+        }
+        webView.reload()
     }
 }
