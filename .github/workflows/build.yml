@@ -28,25 +28,40 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
+      shell: bash
       run: |
-        ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log || {
-          echo "## Build Failed" >> $GITHUB_STEP_SUMMARY
+        set -o pipefail
+        ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+        BUILD_STATUS=${PIPESTATUS[0]}
+        if [ $BUILD_STATUS -ne 0 ]; then
+          echo "## Build Failed with exit code $BUILD_STATUS" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -n 50 build.log >> $GITHUB_STEP_SUMMARY
+          tail -n 100 build.log >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          exit 1
-        }
+          exit $BUILD_STATUS
+        fi
 
     - name: Prepare APK
+      shell: bash
       run: |
         mkdir -p release-apk
-        echo "=== Searching for APK files ==="
-        find app/build/outputs/ -name "*.apk" -type f 2>/dev/null || echo "No APK files found!"
-        echo "=== Copying APK ==="
-        cp -v app/build/outputs/apk/debug/app-debug.apk release-apk/ContinueO-AutoLogin.apk
-        echo "=== Verifying ==="
-        ls -la release-apk/
-        file release-apk/ContinueO-AutoLogin.apk
+        echo "=== Listing all outputs ==="
+        find app/build/outputs/ -type f || true
+        
+        APK_FILE=$(find app/build/outputs/apk/debug/ -name "*.apk" -type f | head -n 1)
+        if [ -z "$APK_FILE" ]; then
+          echo "No APK found in app/build/outputs/apk/debug/! Searching everywhere..."
+          APK_FILE=$(find . -name "*.apk" -type f | head -n 1)
+        fi
+
+        if [ -n "$APK_FILE" ] && [ -f "$APK_FILE" ]; then
+          echo "Found APK at: $APK_FILE"
+          cp -v "$APK_FILE" release-apk/ContinueO-AutoLogin.apk
+          ls -lh release-apk/
+        else
+          echo "ERROR: No APK file was generated during build!"
+          exit 1
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
