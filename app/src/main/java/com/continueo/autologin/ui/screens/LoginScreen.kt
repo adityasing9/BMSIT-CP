@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -95,6 +96,17 @@ fun LoginScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = {
+                            webViewRef?.let { loginViewModel.refresh(it) }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh page",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                     FilledTonalButton(
                         onClick = {
                             webViewRef?.let { loginViewModel.toggleDesktopMode(it) }

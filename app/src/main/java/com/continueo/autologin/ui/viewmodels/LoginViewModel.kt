@@ -72,6 +72,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
+     * Refreshes the current WebView page safely.
+     */
+    fun refresh(webView: WebView) {
+        if (automationEngine.automationState.value.isInProgress) {
+            automationEngine.cancelAutomation()
+        }
+        webView.reload()
+    }
+
+    /**
      * Cancels the running automation.
      */
     fun cancel() {
