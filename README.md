@@ -31,6 +31,7 @@ Furthermore, mobile browsers often render the portal in a cramped, single-column
 **ContinueO Auto Login** eliminates this friction:
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
 - Renders the portal in its **full desktop layout** by default, allowing effortless pinch-to-zoom, smooth scrolling, and complete access to all features.
+- Dedicated **one-tap Refresh button** in the top bar to instantly update attendance, marks, and notices without losing your session.
 - All credentials stay **100% on your device**, encrypted with military-grade **AES-256-GCM**.
 
 ---
@@ -57,6 +58,7 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 | **Date of Birth Entry** | 3 tedious HTML select dropdowns | **Automated background composition** |
 | **Step 2 (ID Card)** | Waiting for page reload + manual typing | **Automated detection & instant entry** |
 | **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with zoom** |
+| **Page Refresh** | Reloads from scratch or loses session | **Dedicated one-tap refresh (keeps session)** |
 | **Session Control** | Manual cookies & frequent session timeouts | **Seamless desktop/mobile toggle** |
 | **Cloud Dependency** | None | **Zero Cloud — 100% On-Device** |
 
@@ -76,12 +78,17 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 - **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar with a clean, controlled reload that keeps your login session active.
 - **Persistent Choice:** Your chosen mode is saved locally and remembered whenever you reopen the app.
 
-### 🚀 3. Speed & Performance Optimizations
+### 🔄 3. Instant One-Tap Page Refresh
+- **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar to update grades, attendance, circulars, or timetables at any moment.
+- **Session Preservation:** Reloads the current page safely using existing authenticated cookies without prompting you to log in again.
+- **Race Condition Safe:** Cancels any active automation jobs in the background prior to reloading, ensuring smooth execution without conflicting scripts.
+
+### 🚀 4. Speed & Performance Optimizations
 - **Hardware-Accelerated WebView:** Enabled `LAYER_TYPE_HARDWARE` for fluid scrolling and 60fps animations.
 - **Optimized Delay Pipelines:** Eliminated artificial wait times, utilizing reactive coroutines and low-latency element detection (150ms intervals).
 - **Intelligent Caching:** Configured with `LOAD_DEFAULT` caching and automatic image decoding for immediate page loads.
 
-### 🔒 4. Security & Privacy First
+### 🔒 5. Security & Privacy First
 - **Zero Cloud Architecture:** There is **no backend server**, **no telemetry**, **no analytics**, and **no third-party tracking**.
 - **AndroidX Security Crypto:** Your USN, Date of Birth, and ID Card Number are encrypted using Google's `EncryptedSharedPreferences` backed by an Android Keystore `MasterKey` (AES-256-GCM / AES-256-SIV).
 - **No Log Leaks:** Credential strings are never written to Logcat, included in URLs, or exposed in UI status cards.
@@ -115,6 +122,7 @@ flowchart TD
     L -- CAPTCHA / OTP Required --> P[Pause & Enable Manual Interaction]
     
     O --> Q[Display Authenticated Desktop Portal]
+    Q --> R[One-Tap Refresh / Desktop Toggle]
 ```
 
 ---
@@ -196,10 +204,10 @@ app/src/main/java/com/continueo/autologin/
 │   ├── screens/
 │   │   ├── SetupScreen.kt            # First-time credentials entry form
 │   │   ├── HomeScreen.kt             # Main launch screen with "LOGIN NOW" button
-│   │   ├── LoginScreen.kt            # WebView display, status timeline & desktop toggle
+│   │   ├── LoginScreen.kt            # WebView display, status timeline, refresh & desktop toggle
 │   │   └── SettingsScreen.kt         # Manage / clear credentials and app details
 │   └── viewmodels/
-│       └── LoginViewModel.kt         # UI state orchestration & automation bridge
+│       └── LoginViewModel.kt         # UI state orchestration & automation bridge (refresh & toggle)
 │
 └── utils/
     └── NetworkUtils.kt               # Real-time network availability checker
@@ -220,12 +228,17 @@ The app is built to adhere strictly to security best practices. If an anti-bot c
 </details>
 
 <details>
-<summary><b>3. How do I switch between Desktop and Mobile layout?</b></summary>
+<summary><b>3. How do I refresh the portal to check for new marks or attendance?</b></summary>
+Simply tap the <b>Refresh</b> icon located in the top app bar anytime. The portal page reloads immediately while keeping your authenticated session active.
+</details>
+
+<details>
+<summary><b>4. How do I switch between Desktop and Mobile layout?</b></summary>
 At the top right of the login screen, tap the <b>🖥 Desktop ON / 📱 Mobile</b> button. The app will immediately adjust the user-agent and viewport and reload the page while preserving your authenticated session.
 </details>
 
 <details>
-<summary><b>4. How do I update or delete my saved credentials?</b></summary>
+<summary><b>5. How do I update or delete my saved credentials?</b></summary>
 From the main screen, tap <b>Settings</b> at the bottom. You can either select <b>Edit Credentials</b> to modify your USN, DOB, or ID card, or choose <b>Clear Saved Credentials</b> to wipe all stored data from the encrypted vault.
 </details>
 
