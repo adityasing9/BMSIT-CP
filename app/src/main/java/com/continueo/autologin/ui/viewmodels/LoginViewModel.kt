@@ -25,6 +25,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     val automationState: StateFlow<AutomationState> = automationEngine.automationState
     val statusMessages: StateFlow<List<StatusMessage>> = automationEngine.statusMessages
 
+    val activeAccount: com.continueo.autologin.models.AccountProfile?
+        get() = credentialManager.getActiveAccount()
+
     /**
      * Attaches the WebView to the automation engine and starts the login flow.
      */

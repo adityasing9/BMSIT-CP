@@ -9,7 +9,7 @@
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Security](https://img.shields.io/badge/Storage-AES--256--GCM%20Encrypted-green?logo=securityscorecard&logoColor=white)](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 
-**A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal and delivers an authentic, responsive desktop portal experience on mobile devices.**
+**A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, and features automated in-app updates.**
 
 [📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source)
 
@@ -30,9 +30,11 @@ Furthermore, mobile browsers often render the portal in a cramped, single-column
 
 **ContinueO Auto Login** eliminates this friction:
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
-- Renders the portal in its **full desktop layout** by default, allowing effortless pinch-to-zoom, smooth scrolling, and complete access to all features.
-- Dedicated **one-tap Refresh button** in the top bar to instantly update attendance, marks, and notices without losing your session.
-- All credentials stay **100% on your device**, encrypted with military-grade **AES-256-GCM**.
+- **Multiple Accounts:** Store multiple profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
+- **Auto Update:** Checks for new releases directly from GitHub, downloads APK updates in-app with live progress, and triggers installation seamlessly.
+- **Full Desktop Layout:** Renders the portal in its authentic desktop view by default (1280px viewport), with full pinch-to-zoom and smooth panning.
+- **One-Tap Refresh:** Dedicated reload button in the top bar to update attendance, marks, and notices without losing your login session.
+- **100% Local Security:** All credentials stay encrypted on your device with hardware-backed **AES-256-GCM**.
 
 ---
 
@@ -54,41 +56,56 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 | Feature / Experience | Standard Web Browser | With ContinueO Auto Login |
 | :--- | :--- | :--- |
 | **Login Time** | 45–60 seconds of repetitive typing | **~2–3 seconds (Single Tap)** |
-| **Credential Storage** | Manual typing or clunky browser autofill | **Encrypted local hardware keystore** |
+| **Multiple Accounts** | Log out, retype USN + DOB + ID Card | **Instant 1-tap account switching** |
+| **Credential Storage** | Manual typing or clunky browser autofill | **Encrypted local hardware keystore (AES-256)** |
 | **Date of Birth Entry** | 3 tedious HTML select dropdowns | **Automated background composition** |
 | **Step 2 (ID Card)** | Waiting for page reload + manual typing | **Automated detection & instant entry** |
 | **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with zoom** |
 | **Page Refresh** | Reloads from scratch or loses session | **Dedicated one-tap refresh (keeps session)** |
-| **Session Control** | Manual cookies & frequent session timeouts | **Seamless desktop/mobile toggle** |
+| **App Updates** | Manual website check & re-download | **Automated in-app check, download & install** |
 | **Cloud Dependency** | None | **Zero Cloud — 100% On-Device** |
 
 ---
 
 ## ✨ Key Features
 
-### ⚡ 1. Intelligent Two-Step Automation
-- **Step 1 (USN & DOB):** Automatically populates `#username`, chooses the exact Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes the portal's internal `putdate()` computation, sets the hidden password field, and triggers form validation.
-- **Step 2 (ID Card Verification):** Automatically polls the DOM for the subsequent verification view, locates the input field (even across nested forms, dynamic elements, and iframes), injects the ID card number using native prototype setters, and submits.
-- **Graceful Error Handling:** If the portal issues a CAPTCHA challenge or one-time password (OTP), automation pauses and gives you a single-tap **Continue Manually** option without interrupting your session.
+### 👥 1. Multiple Account Support
+- **Multi-Profile Management:** Store credentials for multiple students or accounts simultaneously.
+- **Custom Account Labels:** Assign friendly names (e.g., "Aditya", "Sister", "Ward 1") to easily distinguish between accounts.
+- **Instant Account Switcher:** Switch the active account right from the Home Screen with a single tap before logging in.
+- **Account Management in Settings:** Add, edit, switch, or delete accounts individually with confirmation safeguards.
+- **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the new multi-account architecture without data loss.
 
-### 🖥️ 2. Genuine Desktop Mode (Default: ON)
+### 🔄 2. In-App Auto Updates
+- **Automated Update Detection:** Checks GitHub Releases (`adityasing9/BMSIT-CP`) in the background on startup or on demand in Settings.
+- **In-App Download with Progress:** Downloads the latest update directly inside the app with a real-time progress bar.
+- **Seamless Package Installation:** Integrates Android `FileProvider` and package installer intent to install updates smoothly.
+- **Release Notes Preview:** Read changelog highlights and what's new before updating.
+- **Browser Fallback:** Direct browser download link available at all times.
+
+### ⚡ 3. Intelligent Two-Step Automation
+- **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
+- **Step 2 (ID Card Verification):** Automatically polls the DOM for the verification view, locates the input field (even across nested forms, dynamic elements, and iframes), injects the ID card number using native prototype setters, and submits.
+- **Graceful Error Handling:** If the portal issues a CAPTCHA challenge or OTP, automation pauses and gives you a single-tap **Continue Manually** option without interrupting your session.
+
+### 🖥️ 4. Genuine Desktop Mode (Default: ON)
 - **Authentic 1280px Viewport:** Bypasses mobile screen-width constraints (`<meta name="viewport" content="width=device-width">`) by reconfiguring the layout viewport to 1280px on page render.
 - **Desktop Grid Breakpoints:** Triggers the portal's native UIkit desktop styles (`@media (min-width: 992px)` and `@l: 1200px`), showing the two-column dashboard layout (notice board on the left, login/dashboard on the right).
 - **Smooth Navigation:** Built-in overview mode automatically scales the 1280px canvas to fit your phone screen, supported by full pinch-to-zoom and multi-touch gestures.
 - **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar with a clean, controlled reload that keeps your login session active.
 - **Persistent Choice:** Your chosen mode is saved locally and remembered whenever you reopen the app.
 
-### 🔄 3. Instant One-Tap Page Refresh
+### 🔄 5. Instant One-Tap Page Refresh
 - **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar to update grades, attendance, circulars, or timetables at any moment.
 - **Session Preservation:** Reloads the current page safely using existing authenticated cookies without prompting you to log in again.
 - **Race Condition Safe:** Cancels any active automation jobs in the background prior to reloading, ensuring smooth execution without conflicting scripts.
 
-### 🚀 4. Speed & Performance Optimizations
+### 🚀 6. Speed & Performance Optimizations
 - **Hardware-Accelerated WebView:** Enabled `LAYER_TYPE_HARDWARE` for fluid scrolling and 60fps animations.
 - **Optimized Delay Pipelines:** Eliminated artificial wait times, utilizing reactive coroutines and low-latency element detection (150ms intervals).
 - **Intelligent Caching:** Configured with `LOAD_DEFAULT` caching and automatic image decoding for immediate page loads.
 
-### 🔒 5. Security & Privacy First
+### 🔒 7. Security & Privacy First
 - **Zero Cloud Architecture:** There is **no backend server**, **no telemetry**, **no analytics**, and **no third-party tracking**.
 - **AndroidX Security Crypto:** Your USN, Date of Birth, and ID Card Number are encrypted using Google's `EncryptedSharedPreferences` backed by an Android Keystore `MasterKey` (AES-256-GCM / AES-256-SIV).
 - **No Log Leaks:** Credential strings are never written to Logcat, included in URLs, or exposed in UI status cards.
@@ -99,30 +116,37 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 
 ```mermaid
 flowchart TD
-    A[Launch App] --> B{Credentials Saved?}
-    B -- No --> C[Setup Screen: Enter USN, DOB, ID Card]
+    A[Launch App] --> B{Accounts Saved?}
+    B -- No --> C[Setup Screen: Enter Label, USN, DOB, ID Card]
     C --> D[Save to EncryptedSharedPreferences]
     D --> E[Home Screen]
     B -- Yes --> E[Home Screen]
     
-    E --> F[Tap LOGIN NOW]
-    F --> G[Initialize WebView in Desktop Mode 1280px]
-    G --> H[Open student.bmsit.ac.in/parents]
+    E --> F[Check GitHub for Updates in Background]
+    F -- Update Found --> G[Show Update Banner with Download & Install]
     
-    H --> I[Detect Page 1: USN & DOB Form]
-    I --> J[Inject USN & Select DD/MM/YYYY]
-    J --> K[Submit Login Form]
+    E --> H{Switch Account?}
+    H -- Yes --> I[Select from Saved Accounts / Add New]
+    I --> E
     
-    K --> L{Check Next Page}
-    L -- ID Card Page --> M[Detect Page 2 Input Field]
-    M --> N[Inject ID Card Number & Submit]
-    N --> O[Verify Success Page]
+    E --> J[Tap LOGIN NOW]
+    J --> K[Initialize WebView in Desktop Mode 1280px]
+    K --> L[Open student.bmsit.ac.in/parents]
     
-    L -- Already Logged In --> O[Verify Success Page]
-    L -- CAPTCHA / OTP Required --> P[Pause & Enable Manual Interaction]
+    L --> M[Detect Page 1: USN & DOB Form]
+    M --> N[Inject Active Account USN & DD/MM/YYYY]
+    N --> O[Submit Login Form]
     
-    O --> Q[Display Authenticated Desktop Portal]
-    Q --> R[One-Tap Refresh / Desktop Toggle]
+    O --> P{Check Next Page}
+    P -- ID Card Page --> Q[Detect Page 2 Input Field]
+    Q --> R[Inject Active Account ID Card & Submit]
+    R --> S[Verify Success Page]
+    
+    P -- Already Logged In --> S[Verify Success Page]
+    P -- CAPTCHA / OTP Required --> T[Pause & Enable Manual Interaction]
+    
+    S --> U[Display Authenticated Desktop Portal]
+    U --> V[One-Tap Refresh / Desktop Toggle]
 ```
 
 ---
@@ -135,7 +159,7 @@ flowchart TD
 | **Target SDK** | Android 14 (API level 34) |
 | **Architecture** | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
 | **Connectivity** | Active Internet connection (WiFi / Mobile Data) |
-| **Permissions** | `android.permission.INTERNET` |
+| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE`, `REQUEST_INSTALL_PACKAGES` |
 
 ---
 
@@ -145,6 +169,7 @@ flowchart TD
 - **State & Concurrency:** Kotlin Coroutines, `StateFlow`, and Android Architecture Components (`ViewModel`)
 - **Web Automation:** Android `WebView`, custom `WebViewClient`, `WebChromeClient`, and dynamic DOM JavaScript evaluation
 - **Storage & Cryptography:** AndroidX Security (`androidx.security:security-crypto:1.1.0-alpha06`)
+- **Package Installation:** Android `FileProvider` with content URIs
 - **Build System:** Gradle Kotlin DSL (`build.gradle.kts`)
 - **Continuous Integration:** GitHub Actions (`.github/workflows/build.yml`)
 
@@ -167,7 +192,10 @@ cd BMSIT-CP
 # 2. Compile Debug APK using the Gradle Wrapper
 ./gradlew assembleDebug
 
-# 3. (Optional) Install directly to an attached Android phone or emulator
+# 3. (Optional) Run Unit Tests
+./gradlew testDebugUnitTest
+
+# 4. (Optional) Install directly to an attached Android phone or emulator
 ./gradlew installDebug
 ```
 
@@ -183,14 +211,14 @@ app/build/outputs/apk/debug/app-debug.apk
 ```
 app/src/main/java/com/continueo/autologin/
 ├── ContineoApp.kt                    # Application class
-├── MainActivity.kt                   # Edge-to-edge single activity entry point
+├── MainActivity.kt                   # Single activity entry point & navigation router
 │
 ├── models/
-│   ├── Credentials.kt                # Secure credentials data model & masked formatter
+│   ├── Credentials.kt                # Credentials & AccountProfile data models
 │   └── AutomationState.kt            # Automation state machine definitions
 │
 ├── security/
-│   └── CredentialManager.kt          # EncryptedSharedPreferences (AES-256-GCM) & preferences
+│   └── CredentialManager.kt          # Multi-account AES-256 storage & migration manager
 │
 ├── automation/
 │   ├── ContineoSelectors.kt          # Portal DOM selectors, URLs, and timing constants
@@ -202,15 +230,16 @@ app/src/main/java/com/continueo/autologin/
 │   ├── theme/                        # Material 3 color palettes, typography, and theme
 │   ├── navigation/                   # Compose Navigation graph & destinations
 │   ├── screens/
-│   │   ├── SetupScreen.kt            # First-time credentials entry form
-│   │   ├── HomeScreen.kt             # Main launch screen with "LOGIN NOW" button
+│   │   ├── SetupScreen.kt            # Add / edit credentials and account profiles
+│   │   ├── HomeScreen.kt             # Account switcher, update banner & "LOGIN NOW"
 │   │   ├── LoginScreen.kt            # WebView display, status timeline, refresh & desktop toggle
-│   │   └── SettingsScreen.kt         # Manage / clear credentials and app details
+│   │   └── SettingsScreen.kt         # Account management, check updates & app details
 │   └── viewmodels/
-│       └── LoginViewModel.kt         # UI state orchestration & automation bridge (refresh & toggle)
+│       └── LoginViewModel.kt         # UI state orchestration & automation bridge
 │
 └── utils/
-    └── NetworkUtils.kt               # Real-time network availability checker
+    ├── NetworkUtils.kt               # Real-time network connectivity monitor
+    └── UpdateManager.kt              # In-app GitHub release checker, downloader & installer
 ```
 
 ---
@@ -218,28 +247,38 @@ app/src/main/java/com/continueo/autologin/
 ## ❓ Frequently Asked Questions (FAQ)
 
 <details>
-<summary><b>1. Are my college credentials safe?</b></summary>
+<summary><b>1. How does multiple account login work?</b></summary>
+You can save as many accounts as you need (e.g. for multiple siblings or wards). Each account has its own USN, Date of Birth, ID Card Number, and an optional display label. On the Home Screen, simply tap the account card or the "Switch" button to pick which account you want to use. Tapping "LOGIN NOW" will immediately log in with the selected account.
+</details>
+
+<details>
+<summary><b>2. How does the in-app auto update work?</b></summary>
+On startup or via "Check for Updates" in Settings, ContinueO checks GitHub Releases for new APK builds. If an update is found, an update banner appears with release highlights. Tapping "Update Now" downloads the APK directly with a live progress bar and launches the package installer. A direct browser download link is also available.
+</details>
+
+<details>
+<summary><b>3. Are my college credentials safe?</b></summary>
 Yes, 100%. Your credentials never leave your physical device. They are encrypted using the Android Keystore system with AES-256-GCM encryption. The app has no backend servers, no analytics SDKs, and no tracking code.
 </details>
 
 <details>
-<summary><b>2. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
+<summary><b>4. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
 The app is built to adhere strictly to security best practices. If an anti-bot check or OTP appears, the automated sequence pauses immediately, flags the step, and offers a <b>Continue Manually</b> button so you can solve it yourself in the WebView.
 </details>
 
 <details>
-<summary><b>3. How do I refresh the portal to check for new marks or attendance?</b></summary>
+<summary><b>5. How do I refresh the portal to check for new marks or attendance?</b></summary>
 Simply tap the <b>Refresh</b> icon located in the top app bar anytime. The portal page reloads immediately while keeping your authenticated session active.
 </details>
 
 <details>
-<summary><b>4. How do I switch between Desktop and Mobile layout?</b></summary>
+<summary><b>6. How do I switch between Desktop and Mobile layout?</b></summary>
 At the top right of the login screen, tap the <b>🖥 Desktop ON / 📱 Mobile</b> button. The app will immediately adjust the user-agent and viewport and reload the page while preserving your authenticated session.
 </details>
 
 <details>
-<summary><b>5. How do I update or delete my saved credentials?</b></summary>
-From the main screen, tap <b>Settings</b> at the bottom. You can either select <b>Edit Credentials</b> to modify your USN, DOB, or ID card, or choose <b>Clear Saved Credentials</b> to wipe all stored data from the encrypted vault.
+<summary><b>7. How do I edit or delete saved accounts?</b></summary>
+From the main screen, tap <b>Settings</b> at the bottom. Under "Saved Accounts", you can view all accounts, edit credentials, set a new active account, or delete an account.
 </details>
 
 ---

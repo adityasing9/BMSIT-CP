@@ -6,12 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.navigation.Screen
 import com.continueo.autologin.ui.screens.HomeScreen
@@ -41,6 +41,8 @@ fun AppNavigation() {
     val credentialManager = remember { CredentialManager(context) }
     val hasCredentials = remember { credentialManager.hasCredentials() }
 
+    var editingAccount by remember { mutableStateOf<AccountProfile?>(null) }
+
     val startDestination = if (hasCredentials) Screen.Home.route else Screen.Setup.route
 
     NavHost(
@@ -48,14 +50,23 @@ fun AppNavigation() {
         startDestination = startDestination
     ) {
         composable(Screen.Setup.route) {
-            val existing = remember { credentialManager.loadCredentials() }
+            val allAccounts = credentialManager.getAllAccounts()
+            val canGoBack = allAccounts.isNotEmpty()
+
             SetupScreen(
                 onNavigateToHome = {
+                    editingAccount = null
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Setup.route) { inclusive = true }
                     }
                 },
-                existingCredentials = existing
+                onNavigateBack = if (canGoBack) {
+                    {
+                        editingAccount = null
+                        navController.popBackStack()
+                    }
+                } else null,
+                accountToEdit = editingAccount
             )
         }
 
@@ -66,6 +77,10 @@ fun AppNavigation() {
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
+                },
+                onNavigateToAddAccount = {
+                    editingAccount = null
+                    navController.navigate(Screen.Setup.route)
                 }
             )
         }
@@ -83,10 +98,16 @@ fun AppNavigation() {
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onNavigateToEditCredentials = {
+                onNavigateToAddAccount = {
+                    editingAccount = null
+                    navController.navigate(Screen.Setup.route)
+                },
+                onNavigateToEditAccount = { account ->
+                    editingAccount = account
                     navController.navigate(Screen.Setup.route)
                 },
                 onCredentialsCleared = {
+                    editingAccount = null
                     navController.navigate(Screen.Setup.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }

@@ -48,6 +48,7 @@ fun LoginScreen(
     var showNoInternet by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
+    val activeAccount = remember { loginViewModel.activeAccount }
 
     // Auto-scroll status list when new items are added
     LaunchedEffect(statusMessages.size) {
@@ -79,7 +80,18 @@ fun LoginScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("ContinueO Login") },
+                title = {
+                    Column {
+                        Text("ContinueO Login", style = MaterialTheme.typography.titleMedium)
+                        activeAccount?.let { acc ->
+                            Text(
+                                acc.getDisplayName(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         val wv = webViewRef

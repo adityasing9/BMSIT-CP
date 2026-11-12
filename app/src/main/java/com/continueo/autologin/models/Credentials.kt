@@ -29,3 +29,21 @@ data class Credentials(
         return "USN: $maskedUsn | ID: $maskedId"
     }
 }
+
+data class AccountProfile(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val label: String = "",
+    val credentials: Credentials
+) {
+    fun getDisplayName(): String {
+        return if (label.isNotBlank()) label.trim() else credentials.usn.trim()
+    }
+
+    fun maskedSummary(): String {
+        return if (label.isNotBlank()) {
+            "${label.trim()} • ${credentials.maskedSummary()}"
+        } else {
+            credentials.maskedSummary()
+        }
+    }
+}
