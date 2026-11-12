@@ -38,7 +38,6 @@ fun HomeScreen(
     onNavigateToAddAccount: () -> Unit
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val credentialManager = remember { CredentialManager(context) }
 
     var accounts by remember { mutableStateOf(credentialManager.getAllAccounts()) }
@@ -49,10 +48,6 @@ fun HomeScreen(
     // Auto-update states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
-    var isDownloadingUpdate by remember { mutableStateOf(false) }
-    var downloadProgress by remember { mutableStateOf(0) }
-    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
-    var showPermissionDialog by remember { mutableStateOf(false) }
 
     // Check for updates on screen launch
     LaunchedEffect(Unit) {
@@ -139,68 +134,24 @@ fun HomeScreen(
                             )
                         }
 
-                        if (isDownloadingUpdate) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            if (downloadProgress >= 0) {
-                                LinearProgressIndicator(
-                                    progress = { downloadProgress / 100f },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Downloading APK: $downloadProgress%",
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            } else {
-                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Downloading APK...",
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextButton(
+                                onClick = { isUpdateDismissed = true }
                             ) {
-                                TextButton(
-                                    onClick = { UpdateManager.openBrowserDownload(context, update.downloadUrl) }
-                                ) {
-                                    Text("Browser Link")
+                                Text("Later")
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    UpdateManager.openBrowserDownload(context, update.downloadUrl)
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Button(
-                                    onClick = {
-                                        isDownloadingUpdate = true
-                                        coroutineScope.launch {
-                                            val downloadResult = UpdateManager.downloadApk(
-                                                context,
-                                                update.downloadUrl
-                                            ) { percent, _, _ ->
-                                                downloadProgress = percent
-                                            }
-                                            isDownloadingUpdate = false
-                                            downloadResult.onSuccess { apkFile ->
-                                                downloadedApkFile = apkFile
-                                                if (!UpdateManager.canRequestPackageInstalls(context)) {
-                                                    showPermissionDialog = true
-                                                } else {
-                                                    val installResult = UpdateManager.installApk(context, apkFile)
-                                                    if (installResult.isFailure) {
-                                                        Toast.makeText(context, "Failed to start install: ${installResult.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
-                                                    }
-                                                }
-                                            }.onFailure { err ->
-                                                Toast.makeText(context, "Download failed: ${err.message}", Toast.LENGTH_LONG).show()
-                                            }
-                                        }
-                                    }
-                                ) {
-                                    Text("Update Now")
-                                }
+                            ) {
+                                Text("Update Now")
                             }
                         }
                     }
@@ -436,37 +387,6 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = { showAccountSwitcher = false }) {
                     Text("Close")
-                }
-            }
-        )
-    }
-
-    // Install Permission Dialog
-    if (showPermissionDialog) {
-        AlertDialog(
-            onDismissRequest = { showPermissionDialog = false },
-            title = { Text("Permission Required") },
-            text = {
-                Text("Android requires permission to install APK updates from this app. Please enable \"Allow from this source\" in the next screen, then tap the APK to install.")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showPermissionDialog = false
-                        UpdateManager.openInstallPermissionSettings(context)
-                    }
-                ) {
-                    Text("Open Settings")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showPermissionDialog = false
-                        downloadedApkFile?.let { UpdateManager.installApk(context, it) }
-                    }
-                ) {
-                    Text("Try Install Anyway")
                 }
             }
         )
