@@ -47,14 +47,20 @@ object UpdateManager {
     suspend fun checkForUpdates(context: Context): Result<UpdateInfo> = withContext(Dispatchers.IO) {
         val currentVersion = getCurrentVersionName(context)
 
+        var fallbackInfo: UpdateInfo? = null
+
         // Strategy 1: Check raw version.json (Fastly CDN, zero rate limit, immune to GitHub 403 API rate limiting)
         try {
-            val rawUrl = URL("https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/main/version.json")
+            val timestamp = System.currentTimeMillis()
+            val rawUrl = URL("https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/main/version.json?_t=$timestamp")
             val conn = (rawUrl.openConnection() as HttpURLConnection).apply {
                 connectTimeout = 6000
                 readTimeout = 6000
+                useCaches = false
                 requestMethod = "GET"
                 setRequestProperty("User-Agent", "ContinueO-Android")
+                setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+                setRequestProperty("Pragma", "no-cache")
             }
             if (conn.responseCode in 200..299) {
                 val text = conn.inputStream.bufferedReader().use { it.readText() }
@@ -66,16 +72,19 @@ object UpdateManager {
                 val html = json.optString("htmlUrl", RELEASES_PAGE_URL)
 
                 val hasUpdate = isNewerVersion(remoteVersion, currentVersion)
-                return@withContext Result.success(
-                    UpdateInfo(
-                        latestVersionName = remoteVersion.ifBlank { "Latest" },
-                        releaseTitle = title,
-                        releaseNotes = notes,
-                        downloadUrl = download,
-                        htmlUrl = html,
-                        isUpdateAvailable = hasUpdate
-                    )
+                val info = UpdateInfo(
+                    latestVersionName = remoteVersion.ifBlank { "Latest" },
+                    releaseTitle = title,
+                    releaseNotes = notes,
+                    downloadUrl = download,
+                    htmlUrl = html,
+                    isUpdateAvailable = hasUpdate
                 )
+                if (hasUpdate) {
+                    return@withContext Result.success(info)
+                }
+                // Save as fallback in case subsequent strategies also find no update
+                fallbackInfo = info
             }
         } catch (_: Exception) {}
 
@@ -92,19 +101,39 @@ object UpdateManager {
             val location = conn.getHeaderField("Location") ?: ""
             if (location.isNotBlank()) {
                 val tag = location.substringAfterLast("/")
-                val versionCandidate = extractVersionString(tag)
+                var versionCandidate = extractVersionString(tag)
+
+                // If tag is generic (e.g. "latest"), fetch the release HTML page to extract version from heading
+                if (versionCandidate.isBlank()) {
+                    try {
+                        val pageConn = (URL(location).openConnection() as HttpURLConnection).apply {
+                            connectTimeout = 5000
+                            readTimeout = 5000
+                            setRequestProperty("User-Agent", "Mozilla/5.0 (Android)")
+                        }
+                        if (pageConn.responseCode in 200..299) {
+                            val html = pageConn.inputStream.bufferedReader().use { it.readText() }
+                            versionCandidate = extractVersionString(html)
+                        }
+                    } catch (_: Exception) {}
+                }
+
                 if (versionCandidate.isNotBlank()) {
                     val hasUpdate = isNewerVersion(versionCandidate, currentVersion)
-                    return@withContext Result.success(
-                        UpdateInfo(
-                            latestVersionName = versionCandidate,
-                            releaseTitle = "ContinueO Auto Login v$versionCandidate",
-                            releaseNotes = "New release available on GitHub.",
-                            downloadUrl = DIRECT_APK_URL,
-                            htmlUrl = location,
-                            isUpdateAvailable = hasUpdate
-                        )
+                    val info = UpdateInfo(
+                        latestVersionName = versionCandidate,
+                        releaseTitle = "ContinueO Auto Login v$versionCandidate",
+                        releaseNotes = "New release available on GitHub.",
+                        downloadUrl = DIRECT_APK_URL,
+                        htmlUrl = location,
+                        isUpdateAvailable = hasUpdate
                     )
+                    if (hasUpdate) {
+                        return@withContext Result.success(info)
+                    }
+                    if (fallbackInfo == null) {
+                        fallbackInfo = info
+                    }
                 }
             }
         } catch (_: Exception) {}
@@ -173,6 +202,7 @@ object UpdateManager {
                 )
             )
         } catch (e: Exception) {
+            fallbackInfo?.let { return@withContext Result.success(it) }
             Result.failure(e)
         }
     }
