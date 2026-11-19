@@ -133,12 +133,20 @@ object UpdateManager {
         return match?.groupValues?.get(1) ?: ""
     }
 
-    fun openBrowserDownload(context: Context, urlString: String = DIRECT_APK_URL) {
+    fun openInBrowser(context: Context, urlString: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlString)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+            try {
+                android.widget.Toast.makeText(context, "No browser found to open link", android.widget.Toast.LENGTH_SHORT).show()
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun openBrowserDownload(context: Context, urlString: String = DIRECT_APK_URL) {
+        openInBrowser(context, urlString)
     }
 }

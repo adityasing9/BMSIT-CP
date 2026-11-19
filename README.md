@@ -31,7 +31,8 @@ Furthermore, mobile browsers often render the portal in a cramped, single-column
 **ContinueO Auto Login** eliminates this friction:
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
 - **Multiple Accounts:** Store multiple profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
-- **Auto Update:** Checks for new releases directly from GitHub, downloads APK updates in-app with live progress, and triggers installation seamlessly.
+- **Over-The-Air (OTA) Updates:** Seamlessly checks GitHub Releases for new builds, displays an update banner with changelog highlights, and lets you update wirelessly.
+- **Open in External Browser:** One-tap option to launch the portal in your phone's default browser (Chrome, Firefox, Brave) from both the Home Screen and the WebView top bar.
 - **Full Desktop Layout:** Renders the portal in its authentic desktop view by default (1280px viewport), with full pinch-to-zoom and smooth panning.
 - **One-Tap Refresh:** Dedicated reload button in the top bar to update attendance, marks, and notices without losing your login session.
 - **100% Local Security:** All credentials stay encrypted on your device with hardware-backed **AES-256-GCM**.
@@ -61,8 +62,9 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 | **Date of Birth Entry** | 3 tedious HTML select dropdowns | **Automated background composition** |
 | **Step 2 (ID Card)** | Waiting for page reload + manual typing | **Automated detection & instant entry** |
 | **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with zoom** |
+| **External Browser** | Manual URL copy & paste | **1-tap launch in Chrome / Firefox / Brave** |
 | **Page Refresh** | Reloads from scratch or loses session | **Dedicated one-tap refresh (keeps session)** |
-| **App Updates** | Manual website check & re-download | **Automated in-app check, download & install** |
+| **App Updates** | Manual website check & re-download | **Automated Over-The-Air (OTA) update alerts** |
 | **Cloud Dependency** | None | **Zero Cloud — 100% On-Device** |
 
 ---
@@ -76,12 +78,17 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 - **Account Management in Settings:** Add, edit, switch, or delete accounts individually with confirmation safeguards.
 - **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the new multi-account architecture without data loss.
 
-### 🔄 2. In-App Auto Updates
-- **Automated Update Detection:** Checks GitHub Releases (`adityasing9/BMSIT-CP`) in the background on startup or on demand in Settings.
-- **In-App Download with Progress:** Downloads the latest update directly inside the app with a real-time progress bar.
-- **Seamless Package Installation:** Integrates Android `FileProvider` and package installer intent to install updates smoothly.
-- **Release Notes Preview:** Read changelog highlights and what's new before updating.
-- **Browser Fallback:** Direct browser download link available at all times.
+### 🔄 2. Over-The-Air (OTA) In-App Updates
+- **Automated Update Detection:** Queries GitHub Releases (`adityasing9/BMSIT-CP`) automatically in the background on startup and manually via "Check Now" in Settings.
+- **Version Comparison Engine:** Compares semantic versions (`isNewerVersion`) to detect newer builds instantly.
+- **In-App Notification Banner:** Presents release version and release notes preview directly on the Home Screen.
+- **Seamless Wireless Download:** Tapping "Update Now" downloads the official release APK wirelessly over the air (Wi-Fi/cellular) without needing a PC or USB cable.
+- **Play Protect Friendly:** Bypasses aggressive dropper heuristics by routing the installation through standard system package mechanisms.
+
+### 🌐 3. Open in External Browser
+- **Home Screen Quick Action:** Dedicated "Open Portal in Browser" button allows you to launch the BMSIT portal directly in your default browser (Chrome, Firefox, Samsung Internet, Brave) without going through the WebView.
+- **WebView Top App Bar Action:** Prominent browser icon button in the top navigation bar lets you transfer the current portal page to your external browser at any time.
+- **Zero Friction:** Perfect for downloading PDFs, printing grade cards, sharing portal links, or leveraging external browser extensions.
 
 ### ⚡ 3. Intelligent Two-Step Automation
 - **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
@@ -159,7 +166,7 @@ flowchart TD
 | **Target SDK** | Android 14 (API level 34) |
 | **Architecture** | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
 | **Connectivity** | Active Internet connection (WiFi / Mobile Data) |
-| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE`, `REQUEST_INSTALL_PACKAGES` |
+| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE` |
 
 ---
 
@@ -169,9 +176,8 @@ flowchart TD
 - **State & Concurrency:** Kotlin Coroutines, `StateFlow`, and Android Architecture Components (`ViewModel`)
 - **Web Automation:** Android `WebView`, custom `WebViewClient`, `WebChromeClient`, and dynamic DOM JavaScript evaluation
 - **Storage & Cryptography:** AndroidX Security (`androidx.security:security-crypto:1.1.0-alpha06`)
-- **Package Installation:** Android `FileProvider` with content URIs
 - **Build System:** Gradle Kotlin DSL (`build.gradle.kts`)
-- **Continuous Integration:** GitHub Actions (`.github/workflows/build.yml`)
+- **Continuous Integration & OTA Deployment:** GitHub Actions (`.github/workflows/build.yml`)
 
 ---
 

@@ -20,14 +20,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.continueo.autologin.R
 import com.continueo.autologin.automation.AutomationState
+import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.automation.StatusMessage
 import com.continueo.autologin.ui.viewmodels.LoginViewModel
 import com.continueo.autologin.utils.NetworkUtils
+import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,6 +120,19 @@ fun LoginScreen(
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh page",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            val currentUrl = webViewRef?.url?.takeIf { it.isNotBlank() }
+                                ?: ContineoSelectors.PORTAL_URL
+                            UpdateManager.openInBrowser(context, currentUrl)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_open_in_browser),
+                            contentDescription = "Open in external browser",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }

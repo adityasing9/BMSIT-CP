@@ -60,6 +60,14 @@ jobs:
         if-no-files-found: warn
         retention-days: 14
 
+    - name: Extract App Version
+      id: get_version
+      shell: bash
+      run: |
+        VERSION=$(grep 'versionName = ' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Detected app version: $VERSION"
+
     - name: Delete old release
       run: |
         gh release delete latest --yes --cleanup-tag 2>/dev/null || true
@@ -70,11 +78,11 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: latest
-        name: "ContinueO Auto Login (Latest Build)"
+        name: "ContinueO Auto Login v${{ steps.get_version.outputs.version }}"
         body: |
-          ### ContinueO Auto Login APK
-          - Automated build generated from commit `${{ github.sha }}`
-          - Direct download available below.
+          ### ContinueO Auto Login v${{ steps.get_version.outputs.version }}
+          - Automated OTA build generated from commit `${{ github.sha }}`
+          - Direct APK download available below.
         files: release-apk/ContinueO-AutoLogin.apk
         fail_on_unmatched_files: true
         make_latest: true

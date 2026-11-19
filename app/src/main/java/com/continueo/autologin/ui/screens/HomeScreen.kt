@@ -273,6 +273,24 @@ fun HomeScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Open in External Browser Button
+        OutlinedButton(
+            onClick = {
+                UpdateManager.openInBrowser(context, com.continueo.autologin.automation.ContineoSelectors.PORTAL_URL)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = androidx.compose.ui.res.painterResource(id = com.continueo.autologin.R.drawable.ic_open_in_browser),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Open Portal in Browser")
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         TextButton(
