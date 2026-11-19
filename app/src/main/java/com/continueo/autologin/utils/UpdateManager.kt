@@ -45,13 +45,78 @@ object UpdateManager {
     }
 
     suspend fun checkForUpdates(context: Context): Result<UpdateInfo> = withContext(Dispatchers.IO) {
+        val currentVersion = getCurrentVersionName(context)
+
+        // Strategy 1: Check raw version.json (Fastly CDN, zero rate limit, immune to GitHub 403 API rate limiting)
+        try {
+            val rawUrl = URL("https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/main/version.json")
+            val conn = (rawUrl.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 6000
+                readTimeout = 6000
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", "ContinueO-Android")
+            }
+            if (conn.responseCode in 200..299) {
+                val text = conn.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(text)
+                val remoteVersion = json.optString("versionName", "")
+                val title = json.optString("releaseTitle", "Version $remoteVersion")
+                val notes = json.optString("releaseNotes", "")
+                val download = json.optString("downloadUrl", DIRECT_APK_URL)
+                val html = json.optString("htmlUrl", RELEASES_PAGE_URL)
+
+                val hasUpdate = isNewerVersion(remoteVersion, currentVersion)
+                return@withContext Result.success(
+                    UpdateInfo(
+                        latestVersionName = remoteVersion.ifBlank { "Latest" },
+                        releaseTitle = title,
+                        releaseNotes = notes,
+                        downloadUrl = download,
+                        htmlUrl = html,
+                        isUpdateAvailable = hasUpdate
+                    )
+                )
+            }
+        } catch (_: Exception) {}
+
+        // Strategy 2: Check GitHub Releases web redirect (No 60 req/hr API rate limit)
+        try {
+            val redirectUrl = URL("https://github.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/latest")
+            val conn = (redirectUrl.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 6000
+                readTimeout = 6000
+                instanceFollowRedirects = false
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", "Mozilla/5.0 (Android)")
+            }
+            val location = conn.getHeaderField("Location") ?: ""
+            if (location.isNotBlank()) {
+                val tag = location.substringAfterLast("/")
+                val versionCandidate = extractVersionString(tag)
+                if (versionCandidate.isNotBlank()) {
+                    val hasUpdate = isNewerVersion(versionCandidate, currentVersion)
+                    return@withContext Result.success(
+                        UpdateInfo(
+                            latestVersionName = versionCandidate,
+                            releaseTitle = "ContinueO Auto Login v$versionCandidate",
+                            releaseNotes = "New release available on GitHub.",
+                            downloadUrl = DIRECT_APK_URL,
+                            htmlUrl = location,
+                            isUpdateAvailable = hasUpdate
+                        )
+                    )
+                }
+            }
+        } catch (_: Exception) {}
+
+        // Strategy 3: Fallback to GitHub REST API
         try {
             val url = URL(GITHUB_API_URL)
             val connection = (url.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 8000
-                readTimeout = 8000
+                connectTimeout = 6000
+                readTimeout = 6000
                 requestMethod = "GET"
-                setRequestProperty("User-Agent", "ContinueO-App")
+                setRequestProperty("User-Agent", "ContinueO-App-Android")
                 setRequestProperty("Accept", "application/vnd.github.v3+json")
             }
 
@@ -85,7 +150,6 @@ object UpdateManager {
             }
 
             // Extract semantic version
-            val currentVersion = getCurrentVersionName(context)
             val versionCandidate = extractVersionString(tagName).ifBlank {
                 extractVersionString(releaseTitle)
             }
