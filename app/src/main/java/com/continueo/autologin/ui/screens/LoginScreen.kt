@@ -1,8 +1,11 @@
 package com.continueo.autologin.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -123,18 +126,18 @@ fun LoginScreen(
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            val currentUrl = webViewRef?.url?.takeIf { it.isNotBlank() }
-                                ?: ContineoSelectors.PORTAL_URL
-                            UpdateManager.openInBrowser(context, currentUrl)
+                    if (automationState == AutomationState.SUCCESS) {
+                        IconButton(
+                            onClick = {
+                                openLoggedInBrowser(context, webViewRef)
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                contentDescription = "Open in external browser (logged in)",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
                         }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_open_in_browser),
-                            contentDescription = "Open in external browser",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
                     }
                     FilledTonalButton(
                         onClick = {
@@ -257,14 +260,37 @@ fun LoginScreen(
                             }
                         }
 
-                        // Success state — option to hide panel
+                        // Success state — option to open in browser (logged in) & hide panel
                         if (automationState == AutomationState.SUCCESS) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            TextButton(
-                                onClick = { showStatusPanel = false },
-                                modifier = Modifier.align(Alignment.End)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Dismiss")
+                                FilledTonalButton(
+                                    onClick = {
+                                        openLoggedInBrowser(context, webViewRef)
+                                    },
+                                    colors = ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Open in Browser (Logged In)")
+                                }
+                                TextButton(
+                                    onClick = { showStatusPanel = false }
+                                ) {
+                                    Text("Dismiss")
+                                }
                             }
                         }
                     }
@@ -323,4 +349,39 @@ private fun StatusMessageItem(message: StatusMessage) {
             fontWeight = if (!message.isSuccess) FontWeight.Medium else FontWeight.Normal
         )
     }
+}
+
+/**
+ * Opens the external browser passing the active authenticated session cookie (PHPSESSID)
+ * so the browser opens directly into the logged-in dashboard without asking for credentials again.
+ */
+private fun openLoggedInBrowser(context: Context, webView: WebView?) {
+    val currentUrl = webView?.url?.takeIf { it.isNotBlank() } ?: ContineoSelectors.PORTAL_URL
+
+    // Extract active session cookies from WebView's CookieManager
+    val cookieManager = CookieManager.getInstance()
+    val cookies = cookieManager.getCookie(currentUrl) ?: ""
+
+    // Find PHPSESSID in the cookies
+    val phpSessionId = cookies.split(";")
+        .map { it.trim() }
+        .firstOrNull { it.startsWith("PHPSESSID=", ignoreCase = true) }
+        ?.substringAfter("=")
+        ?.trim()
+
+    // Construct the authenticated URL with session ID propagation
+    val targetUrl = if (!phpSessionId.isNullOrBlank()) {
+        if (currentUrl.contains("PHPSESSID=")) {
+            currentUrl
+        } else if (currentUrl.contains("?")) {
+            "$currentUrl&PHPSESSID=$phpSessionId"
+        } else {
+            "$currentUrl?PHPSESSID=$phpSessionId"
+        }
+    } else {
+        currentUrl
+    }
+
+    Toast.makeText(context, "Opening logged-in session in browser...", Toast.LENGTH_SHORT).show()
+    UpdateManager.openInBrowser(context, targetUrl)
 }

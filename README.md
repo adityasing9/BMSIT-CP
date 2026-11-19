@@ -85,10 +85,13 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 - **Seamless Wireless Download:** Tapping "Update Now" downloads the official release APK wirelessly over the air (Wi-Fi/cellular) without needing a PC or USB cable.
 - **Play Protect Friendly:** Bypasses aggressive dropper heuristics by routing the installation through standard system package mechanisms.
 
-### 🌐 3. Open in External Browser
-- **Home Screen Quick Action:** Dedicated "Open Portal in Browser" button allows you to launch the BMSIT portal directly in your default browser (Chrome, Firefox, Samsung Internet, Brave) without going through the WebView.
-- **WebView Top App Bar Action:** Prominent browser icon button in the top navigation bar lets you transfer the current portal page to your external browser at any time.
-- **Zero Friction:** Perfect for downloading PDFs, printing grade cards, sharing portal links, or leveraging external browser extensions.
+### 🌐 3. Open in External Browser (Authenticated Session Transfer)
+- **Strictly Post-Login:** The option to open in an external browser is only enabled **after** the automated login successfully authenticates. The portal cannot be opened in a logged-out state from the app.
+- **Authenticated Session Propagation:** Automatically extracts the active `PHPSESSID` session cookie from the WebView's `CookieManager` and passes it to the target URL so your default browser (Chrome, Firefox, Brave, Samsung Internet) opens directly into your authenticated student dashboard.
+- **Two Seamless Launch Points:**
+  - **Status Card Action:** A prominent `"Open in Browser (Logged In)"` button appears on the success banner as soon as login completes.
+  - **Top App Bar Action:** A browser icon appears in the top navigation bar when viewing the logged-in portal.
+- **Zero Friction:** Download grade sheets, save PDF receipts, print circulars, or use desktop browser features without ever having to re-enter your credentials into Chrome manually.
 
 ### ⚡ 3. Intelligent Two-Step Automation
 - **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
@@ -154,6 +157,7 @@ flowchart TD
     
     S --> U[Display Authenticated Desktop Portal]
     U --> V[One-Tap Refresh / Desktop Toggle]
+    U --> W[Open in Browser with Authenticated Session]
 ```
 
 ---
