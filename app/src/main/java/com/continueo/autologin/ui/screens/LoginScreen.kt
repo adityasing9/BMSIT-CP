@@ -53,7 +53,6 @@ fun LoginScreen(
     var showStatusPanel by remember { mutableStateOf(true) }
     var hasStarted by remember { mutableStateOf(false) }
     var showNoInternet by remember { mutableStateOf(false) }
-    var showExternalBrowserNotice by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
     val activeAccount = remember { loginViewModel.activeAccount }
@@ -134,19 +133,6 @@ fun LoginScreen(
                             contentDescription = "Refresh page",
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
-                    }
-                    if (automationState == AutomationState.SUCCESS) {
-                        IconButton(
-                            onClick = {
-                                showExternalBrowserNotice = true
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                contentDescription = "Open in external browser notice",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
                     }
                     FilledTonalButton(
                         onClick = {
@@ -269,25 +255,14 @@ fun LoginScreen(
                             }
                         }
 
-                        // Success state — option to view dashboard or external browser notice
+                        // Success state — option to view dashboard
                         if (automationState == AutomationState.SUCCESS) {
                             Spacer(modifier = Modifier.height(10.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                            Button(
+                                onClick = { showStatusPanel = false },
+                                modifier = Modifier.align(Alignment.End)
                             ) {
-                                TextButton(
-                                    onClick = { showExternalBrowserNotice = true }
-                                ) {
-                                    Text("Open in Chrome/Brave")
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Button(
-                                    onClick = { showStatusPanel = false }
-                                ) {
-                                    Text("View Dashboard")
-                                }
+                                Text("View Dashboard")
                             }
                         }
                     }
@@ -313,69 +288,6 @@ fun LoginScreen(
                     .weight(1f)
             )
         }
-    }
-
-    // External Browser Notice Dialog
-    if (showExternalBrowserNotice) {
-        val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
-        AlertDialog(
-            onDismissRequest = { showExternalBrowserNotice = false },
-            title = {
-                Text("External Browser Notice")
-            },
-            text = {
-                Column {
-                    Text(
-                        text = "Because of Android's app sandbox security and BMSIT server cookie restrictions, external browsers (Brave, Chrome) cannot share your login session.\n\nContinueO is already displaying your full authenticated desktop portal with download and refresh capabilities.\n\nIf you still wish to open in Chrome or Brave, tap below to copy your credentials to your clipboard and open the portal:",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    activeAccount?.let { acc ->
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(10.dp)) {
-                                Text(
-                                    text = "USN: ${acc.credentials.usn}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "DOB: ${acc.credentials.dobDay}/${acc.credentials.dobMonth}/${acc.credentials.dobYear}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "ID Card: ${acc.credentials.idCardNumber}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        activeAccount?.let { acc ->
-                            val credText = "USN: ${acc.credentials.usn}\nDOB: ${acc.credentials.dobDay}-${acc.credentials.dobMonth}-${acc.credentials.dobYear}\nID Card: ${acc.credentials.idCardNumber}"
-                            clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(credText))
-                            Toast.makeText(context, "Credentials copied to clipboard!", Toast.LENGTH_SHORT).show()
-                        }
-                        showExternalBrowserNotice = false
-                        UpdateManager.openInBrowser(context, ContineoSelectors.PORTAL_URL)
-                    }
-                ) {
-                    Text("Copy & Open Browser")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showExternalBrowserNotice = false }) {
-                    Text("Stay in ContinueO")
-                }
-            }
-        )
     }
 }
 

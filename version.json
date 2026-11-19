@@ -1,8 +1,8 @@
 {
-  "versionCode": 4,
-  "versionName": "1.2.1",
-  "releaseTitle": "ContinueO Auto Login v1.2.1",
-  "releaseNotes": "• Full in-app file downloads for [NOTES], syllabus & circulars\n• Permanent release keystore (resolves package conflicts)\n• Data backup Export & Import in Settings\n• Full-screen dashboard auto-reveal",
+  "versionCode": 5,
+  "versionName": "1.2.2",
+  "releaseTitle": "ContinueO Auto Login v1.2.2",
+  "releaseNotes": "• Restored native POST form authentication for portal login\n• Removed external browser redirects and clipboard prompts\n• Auto-reveals full authenticated desktop dashboard\n• Full in-app file download support\n• Permanent release keystore for seamless updates",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/tag/latest"
 }

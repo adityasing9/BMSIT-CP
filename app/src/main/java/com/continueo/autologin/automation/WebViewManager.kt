@@ -59,8 +59,6 @@ class WebViewManager {
             loadsImagesAutomatically = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             userAgentString = if (isDesktopMode) DESKTOP_USER_AGENT else defaultUserAgent
-            javaScriptCanOpenWindowsAutomatically = true
-            setSupportMultipleWindows(true)
             allowFileAccess = true
             allowContentAccess = true
         }
@@ -116,39 +114,6 @@ class WebViewManager {
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                 return super.onConsoleMessage(consoleMessage)
-            }
-
-            override fun onCreateWindow(
-                view: WebView?,
-                isDialog: Boolean,
-                isUserGesture: Boolean,
-                resultMsg: android.os.Message?
-            ): Boolean {
-                val tempWebView = WebView(view!!.context)
-                tempWebView.settings.javaScriptEnabled = true
-                tempWebView.webViewClient = object : WebViewClient() {
-                    override fun shouldOverrideUrlLoading(newView: WebView?, request: WebResourceRequest?): Boolean {
-                        val targetUrl = request?.url?.toString() ?: return false
-                        handleUrlOrDownload(webView, targetUrl)
-                        return true
-                    }
-
-                    @Suppress("DEPRECATION")
-                    override fun shouldOverrideUrlLoading(newView: WebView?, targetUrl: String?): Boolean {
-                        if (targetUrl == null) return false
-                        handleUrlOrDownload(webView, targetUrl)
-                        return true
-                    }
-
-                    override fun onPageStarted(newView: WebView?, targetUrl: String?, favicon: Bitmap?) {
-                        targetUrl?.let { handleUrlOrDownload(webView, it) }
-                    }
-                }
-
-                val transport = resultMsg?.obj as? WebView.WebViewTransport
-                transport?.webView = tempWebView
-                resultMsg?.sendToTarget()
-                return true
             }
         }
 
@@ -277,11 +242,9 @@ class WebViewManager {
             return true
         }
 
-        // Normal web page: let the main webview load it
-        if (webView.url != url) {
-            webView.loadUrl(url)
-            return true
-        }
+        // Return false for normal portal web pages and form POST submissions.
+        // This ensures Android WebView processes POST requests natively with their
+        // form body, headers, and cookies, avoiding login breakage.
         return false
     }
 
@@ -339,9 +302,11 @@ class WebViewManager {
             ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".zip", ".rar",
             ".csv", ".pptx", ".ppt", ".txt", ".tar", ".gz", ".7z"
         )
-        if (fileExtensions.any { lower.contains(it) }) return true
-        if (lower.contains("download") || lower.contains("getnotes") || lower.contains("viewnotes") ||
-            lower.contains("download_file") || lower.contains("get_file") || lower.contains("export")) {
+        val cleanUrl = lower.substringBefore("?").substringBefore("#")
+        if (fileExtensions.any { ext -> cleanUrl.endsWith(ext) || lower.contains("$ext?") }) {
+            return true
+        }
+        if (lower.contains("download_file") || lower.contains("get_file") || lower.contains("action=download")) {
             return true
         }
         return false
