@@ -414,13 +414,29 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
-                        updateDialogInfo = null
+                Row {
+                    OutlinedButton(
+                        onClick = {
+                            UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                            updateDialogInfo = null
+                        }
+                    ) {
+                        Text("Browser")
                     }
-                ) {
-                    Text("Download Update")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            val id = UpdateManager.startOtaDownload(context, update.downloadUrl, update.latestVersionName)
+                            if (id != -1L) {
+                                Toast.makeText(context, "OTA download started! Check notification bar for progress.", Toast.LENGTH_LONG).show()
+                            } else {
+                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                            }
+                            updateDialogInfo = null
+                        }
+                    ) {
+                        Text("Update (OTA)")
+                    }
                 }
             },
             dismissButton = {

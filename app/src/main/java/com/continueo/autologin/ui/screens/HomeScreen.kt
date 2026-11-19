@@ -1,5 +1,11 @@
 package com.continueo.autologin.ui.screens
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
@@ -48,6 +54,38 @@ fun HomeScreen(
     // Auto-update states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
+    var isDownloadingOta by remember { mutableStateOf(false) }
+    var downloadId by remember { mutableStateOf(-1L) }
+    var isDownloadComplete by remember { mutableStateOf(false) }
+
+    // Listen for DownloadManager completion broadcast
+    DisposableEffect(context, downloadId) {
+        if (downloadId == -1L) return@DisposableEffect onDispose {}
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent?) {
+                val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
+                if (id == downloadId) {
+                    isDownloadComplete = true
+                    Toast.makeText(context, "OTA Download complete! Opening installer...", Toast.LENGTH_SHORT).show()
+                    UpdateManager.openDownloadedApk(context, downloadId)
+                }
+            }
+        }
+
+        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
+
+        onDispose {
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (_: Exception) {}
+        }
+    }
 
     // Check for updates on screen launch
     LaunchedEffect(Unit) {
@@ -134,24 +172,74 @@ fun HomeScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextButton(
-                                onClick = { isUpdateDismissed = true }
+                        if (isDownloadingOta) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = if (isDownloadComplete) {
+                                    "✅ Download finished! Tap 'Install Now' below."
+                                } else {
+                                    "⏳ Downloading update in background... Check status bar for progress."
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Later")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                TextButton(
+                                    onClick = { UpdateManager.openBrowserDownload(context, update.downloadUrl) }
+                                ) {
+                                    Text("Open in Browser")
                                 }
+                                if (isDownloadComplete) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Button(
+                                        onClick = { UpdateManager.openDownloadedApk(context, downloadId) }
+                                    ) {
+                                        Text("Install Now")
+                                    }
+                                }
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Update Now")
+                                TextButton(
+                                    onClick = { isUpdateDismissed = true }
+                                ) {
+                                    Text("Later")
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                    }
+                                ) {
+                                    Text("Browser")
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Button(
+                                    onClick = {
+                                        val id = UpdateManager.startOtaDownload(context, update.downloadUrl, update.latestVersionName)
+                                        if (id != -1L) {
+                                            downloadId = id
+                                            isDownloadingOta = true
+                                            Toast.makeText(context, "OTA download started! Check notification bar.", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                        }
+                                    }
+                                ) {
+                                    Text("Update (OTA)")
+                                }
                             }
                         }
                     }

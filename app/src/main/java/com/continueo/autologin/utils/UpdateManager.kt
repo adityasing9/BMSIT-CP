@@ -1,10 +1,12 @@
 package com.continueo.autologin.utils
 
+import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -148,5 +150,53 @@ object UpdateManager {
 
     fun openBrowserDownload(context: Context, urlString: String = DIRECT_APK_URL) {
         openInBrowser(context, urlString)
+    }
+
+    /**
+     * Initiates an Over-The-Air (OTA) APK download using Android's system DownloadManager.
+     * Displays real-time download progress in the status bar notification.
+     * When completed, tapping the system notification triggers package installation.
+     * Returns the system download ID, or -1L if initiating the download fails.
+     */
+    fun startOtaDownload(context: Context, downloadUrl: String, versionName: String): Long {
+        return try {
+            val destinationFileName = "ContinueO-AutoLogin-v$versionName.apk"
+            val request = DownloadManager.Request(Uri.parse(downloadUrl)).apply {
+                setTitle("ContinueO Auto Login v$versionName")
+                setDescription("Downloading Over-The-Air update...")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, destinationFileName)
+                setMimeType("application/vnd.android.package-archive")
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+            }
+            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            dm.enqueue(request)
+        } catch (_: Exception) {
+            -1L
+        }
+    }
+
+    /**
+     * Directly launches the system package installer for an APK downloaded via DownloadManager.
+     */
+    fun openDownloadedApk(context: Context, downloadId: Long): Boolean {
+        return try {
+            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val fileUri = dm.getUriForDownloadedFile(downloadId)
+            if (fileUri != null) {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(fileUri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(intent)
+                true
+            } else {
+                false
+            }
+        } catch (_: Exception) {
+            false
+        }
     }
 }
