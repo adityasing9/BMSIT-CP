@@ -32,6 +32,7 @@ local.properties
 *.jks
 *.keystore
 !debug.keystore
+!app/release.keystore
 /release/
 /app/release/
 .idea/

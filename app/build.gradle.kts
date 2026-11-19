@@ -11,8 +11,8 @@ android {
         applicationId = "com.continueo.autologin"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,13 +23,18 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("release.keystore")
-            storePassword = "password"
-            keyAlias = "alias"
-            keyPassword = "password"
+            storePassword = "continueo123"
+            keyAlias = "continueo"
+            keyPassword = "continueo123"
         }
     }
 
     buildTypes {
+        debug {
+            if (file("release.keystore").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(

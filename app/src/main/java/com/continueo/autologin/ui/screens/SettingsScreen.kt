@@ -1,5 +1,6 @@
 package com.continueo.autologin.ui.screens
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,9 +20,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.continueo.autologin.R
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.utils.UpdateInfo
@@ -46,6 +51,13 @@ fun SettingsScreen(
 
     var showClearAllDialog by remember { mutableStateOf(false) }
     var accountToDelete by remember { mutableStateOf<AccountProfile?>(null) }
+
+    // Export & Import states
+    val clipboardManager = LocalClipboardManager.current
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showImportDialog by remember { mutableStateOf(false) }
+    var importInputText by remember { mutableStateOf("") }
+    var importErrorMessage by remember { mutableStateOf<String?>(null) }
 
     // Auto-update states
     var isCheckingUpdate by remember { mutableStateOf(false) }
@@ -215,6 +227,51 @@ fun SettingsScreen(
                 )
                 HorizontalDivider()
             }
+
+            // Data Management Section
+            Text(
+                text = "Data Management (Backup & Restore)",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Export Accounts Backup") },
+                supportingContent = { Text("Export all saved accounts to JSON for backup or device transfer") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                modifier = Modifier.clickable {
+                    showExportDialog = true
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Import Accounts Backup") },
+                supportingContent = { Text("Restore accounts from a previously exported JSON backup") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                modifier = Modifier.clickable {
+                    importInputText = ""
+                    importErrorMessage = null
+                    showImportDialog = true
+                }
+            )
+
+            HorizontalDivider()
 
             // Updates Section
             Text(
@@ -442,6 +499,158 @@ fun SettingsScreen(
             dismissButton = {
                 TextButton(onClick = { updateDialogInfo = null }) {
                     Text("Later")
+                }
+            }
+        )
+    }
+
+    // Export Accounts Dialog
+    if (showExportDialog) {
+        val exportJson = remember(accounts) { credentialManager.exportBackupJson() }
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = {
+                Text("Export Accounts Backup")
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Backup of ${accounts.size} account(s). You can copy the JSON data to your clipboard or share it to save in Drive, Notes, or WhatsApp.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = exportJson,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        textStyle = MaterialTheme.typography.bodySmall
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        clipboardManager.setText(AnnotatedString(exportJson))
+                        Toast.makeText(context, "Backup copied to clipboard!", Toast.LENGTH_SHORT).show()
+                        showExportDialog = false
+                    }
+                ) {
+                    Text("Copy to Clipboard")
+                }
+            },
+            dismissButton = {
+                Row {
+                    OutlinedButton(
+                        onClick = {
+                            try {
+                                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                    putExtra(Intent.EXTRA_TEXT, exportJson)
+                                    type = "text/plain"
+                                }
+                                val shareIntent = Intent.createChooser(sendIntent, "Share Accounts Backup")
+                                context.startActivity(shareIntent)
+                            } catch (_: Exception) {
+                                Toast.makeText(context, "Unable to open share sheet", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    ) {
+                        Text("Share / Save")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = { showExportDialog = false }) {
+                        Text("Close")
+                    }
+                }
+            }
+        )
+    }
+
+    // Import Accounts Dialog
+    if (showImportDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showImportDialog = false
+                importInputText = ""
+                importErrorMessage = null
+            },
+            title = {
+                Text("Import Accounts Backup")
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Paste your exported JSON backup data below to restore your accounts:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = importInputText,
+                        onValueChange = {
+                            importInputText = it
+                            importErrorMessage = null
+                        },
+                        placeholder = { Text("Paste JSON here...") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        textStyle = MaterialTheme.typography.bodySmall,
+                        isError = importErrorMessage != null
+                    )
+                    if (importErrorMessage != null) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = importErrorMessage ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = {
+                            val clip = clipboardManager.getText()
+                            if (clip != null && clip.text.isNotBlank()) {
+                                importInputText = clip.text
+                                importErrorMessage = null
+                            } else {
+                                Toast.makeText(context, "Clipboard is empty", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    ) {
+                        Text("Paste from Clipboard")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val result = credentialManager.importBackupJson(importInputText)
+                        result.onSuccess { count ->
+                            refreshAccounts()
+                            Toast.makeText(context, "Successfully imported $count account(s)!", Toast.LENGTH_SHORT).show()
+                            showImportDialog = false
+                            importInputText = ""
+                            importErrorMessage = null
+                        }.onFailure { err ->
+                            importErrorMessage = err.message ?: "Failed to import backup"
+                        }
+                    },
+                    enabled = importInputText.isNotBlank()
+                ) {
+                    Text("Import")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showImportDialog = false
+                        importInputText = ""
+                        importErrorMessage = null
+                    }
+                ) {
+                    Text("Cancel")
                 }
             }
         )

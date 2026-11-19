@@ -199,6 +199,87 @@ class CredentialManager(context: Context) {
         sharedPreferences.edit().putBoolean(KEY_DESKTOP_MODE, enabled).apply()
     }
 
+    /**
+     * Exports all saved accounts and preferences as a portable, formatted JSON string.
+     */
+    fun exportBackupJson(): String {
+        val accounts = getAllAccounts()
+        val root = JSONObject().apply {
+            put("app", "ContinueO Auto Login")
+            put("version", 1)
+            put("timestamp", System.currentTimeMillis())
+            val array = JSONArray()
+            for (acc in accounts) {
+                val obj = JSONObject().apply {
+                    put("id", acc.id)
+                    put("label", acc.label)
+                    put("usn", acc.credentials.usn)
+                    put("dobDay", acc.credentials.dobDay)
+                    put("dobMonth", acc.credentials.dobMonth)
+                    put("dobYear", acc.credentials.dobYear)
+                    put("idCardNumber", acc.credentials.idCardNumber)
+                }
+                array.put(obj)
+            }
+            put("accounts", array)
+        }
+        return root.toString(2)
+    }
+
+    /**
+     * Imports accounts from a backup JSON string.
+     * Merges imported accounts with existing ones (avoiding duplicate USNs).
+     * Returns the number of successfully imported/merged accounts.
+     */
+    fun importBackupJson(jsonStr: String): Result<Int> {
+        return try {
+            val trimmed = jsonStr.trim()
+            val accountsArray = if (trimmed.startsWith("{")) {
+                val root = JSONObject(trimmed)
+                if (root.has("accounts")) {
+                    root.getJSONArray("accounts")
+                } else {
+                    return Result.failure(Exception("Invalid backup format: 'accounts' field missing"))
+                }
+            } else if (trimmed.startsWith("[")) {
+                JSONArray(trimmed)
+            } else {
+                return Result.failure(Exception("Invalid JSON format"))
+            }
+
+            val imported = deserializeAccounts(accountsArray.toString())
+            if (imported.isEmpty()) {
+                return Result.failure(Exception("No valid accounts found in backup"))
+            }
+
+            val existing = getAllAccounts().toMutableList()
+            var count = 0
+            for (acc in imported) {
+                val idx = existing.indexOfFirst {
+                    it.credentials.usn.equals(acc.credentials.usn, ignoreCase = true)
+                }
+                if (idx >= 0) {
+                    existing[idx] = acc
+                } else {
+                    existing.add(acc)
+                }
+                count++
+            }
+
+            sharedPreferences.edit()
+                .putString(KEY_ACCOUNTS_JSON, serializeAccounts(existing))
+                .apply()
+
+            if (getActiveAccount() == null && existing.isNotEmpty()) {
+                setActiveAccountId(existing.first().id)
+            }
+
+            Result.success(count)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun serializeAccounts(accounts: List<AccountProfile>): String {
         val array = JSONArray()
         for (acc in accounts) {

@@ -93,6 +93,11 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
   - **Top App Bar Action:** A browser icon appears in the top navigation bar when viewing the logged-in portal.
 - **Zero Friction:** Download grade sheets, save PDF receipts, print circulars, or use desktop browser features without ever having to re-enter your credentials into Chrome manually.
 
+### 💾 4. Data Export & Import (Backup & Restore)
+- **Portable JSON Backup:** Easily export all your configured accounts to a portable, formatted JSON structure with a single tap.
+- **Direct Clipboard & Share Support:** Copy the backup text directly to your clipboard or use Android's native share sheet to save your backup in Google Drive, Notes, WhatsApp, or Email.
+- **Safe Import & Merge:** Restore or transfer accounts to any device with automatic deduplication, ensuring you never lose your saved profiles when changing phones or reinstalling.
+
 ### ⚡ 3. Intelligent Two-Step Automation
 - **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
 - **Step 2 (ID Card Verification):** Automatically polls the DOM for the verification view, locates the input field (even across nested forms, dynamic elements, and iframes), injects the ID card number using native prototype setters, and submits.
@@ -289,6 +294,25 @@ At the top right of the login screen, tap the <b>🖥 Desktop ON / 📱 Mobile</
 <details>
 <summary><b>7. How do I edit or delete saved accounts?</b></summary>
 From the main screen, tap <b>Settings</b> at the bottom. Under "Saved Accounts", you can view all accounts, edit credentials, set a new active account, or delete an account.
+</details>
+
+<details>
+<summary><b>8. Why does Android show "App not installed as package conflicts with an existing package"?</b></summary>
+Android requires every app update to be signed with the <b>exact same cryptographic key</b> as the installed app. Earlier automated CI builds used temporary runner keys that changed with every run. Starting from <b>v1.2.0</b>, a permanent release keystore is committed to the repository so all future updates share the exact same signature. 
+
+To migrate to the permanent key:
+1. Open <b>Settings → Data Management → Export Accounts Backup</b> and tap <b>Copy to Clipboard</b> (or Share).
+2. Uninstall the old conflicting app from your device (one-time requirement).
+3. Install the new <b>v1.2.0 APK</b> from GitHub Releases.
+4. Open <b>Settings → Import Accounts Backup</b>, paste your data, and tap <b>Import</b>.
+All future updates will now install seamlessly over the air with zero signature conflicts.
+</details>
+
+<details>
+<summary><b>9. How do I backup or transfer my accounts to another phone?</b></summary>
+Go to <b>Settings → Data Management</b>:
+- Tap <b>Export Accounts Backup</b> to copy or share your JSON backup.
+- On your new device, tap <b>Import Accounts Backup</b>, paste the text, and tap <b>Import</b>. Your accounts will be restored immediately without re-typing.
 </details>
 
 ---
