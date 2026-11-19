@@ -59,15 +59,33 @@ class WebViewManager {
             loadsImagesAutomatically = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             userAgentString = if (isDesktopMode) DESKTOP_USER_AGENT else defaultUserAgent
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
+            allowFileAccess = true
+            allowContentAccess = true
         }
 
         webView.setInitialScale(0)
+
+        // Register Blob download bridge for client-side blob: URLs
+        webView.addJavascriptInterface(BlobDownloadBridge(webView.context), "AndroidBlobDownloader")
 
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, true)
 
         webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url?.toString() ?: return false
+                return handleUrlOrDownload(webView, url)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url == null) return false
+                return handleUrlOrDownload(webView, url)
+            }
+
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 url?.let { _currentUrl.value = it }
@@ -99,32 +117,50 @@ class WebViewManager {
             override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
                 return super.onConsoleMessage(consoleMessage)
             }
+
+            override fun onCreateWindow(
+                view: WebView?,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: android.os.Message?
+            ): Boolean {
+                val tempWebView = WebView(view!!.context)
+                tempWebView.settings.javaScriptEnabled = true
+                tempWebView.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(newView: WebView?, request: WebResourceRequest?): Boolean {
+                        val targetUrl = request?.url?.toString() ?: return false
+                        handleUrlOrDownload(webView, targetUrl)
+                        return true
+                    }
+
+                    @Suppress("DEPRECATION")
+                    override fun shouldOverrideUrlLoading(newView: WebView?, targetUrl: String?): Boolean {
+                        if (targetUrl == null) return false
+                        handleUrlOrDownload(webView, targetUrl)
+                        return true
+                    }
+
+                    override fun onPageStarted(newView: WebView?, targetUrl: String?, favicon: Bitmap?) {
+                        targetUrl?.let { handleUrlOrDownload(webView, it) }
+                    }
+                }
+
+                val transport = resultMsg?.obj as? WebView.WebViewTransport
+                transport?.webView = tempWebView
+                resultMsg?.sendToTarget()
+                return true
+            }
         }
 
         webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
-            try {
-                val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
-                val request = DownloadManager.Request(Uri.parse(url)).apply {
-                    setMimeType(mimetype)
-                    val cookies = CookieManager.getInstance().getCookie(url)
-                    if (!cookies.isNullOrBlank()) {
-                        addRequestHeader("Cookie", cookies)
-                    }
-                    addRequestHeader("User-Agent", userAgent)
-                    setDescription("Downloading file from ContinueO...")
-                    setTitle(filename)
-                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                    setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
-                }
-                val dm = webView.context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                dm.enqueue(request)
-                Toast.makeText(webView.context, "Downloading $filename...", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    webView.context.startActivity(intent)
-                } catch (_: Exception) {}
-            }
+            triggerFileDownload(
+                context = webView.context,
+                url = url,
+                userAgent = userAgent,
+                contentDisposition = contentDisposition,
+                mimetype = mimetype,
+                currentPortalUrl = webView.url
+            )
         }
     }
 
@@ -206,5 +242,209 @@ class WebViewManager {
         if (reload) {
             webView.reload()
         }
+    }
+
+    fun handleUrlOrDownload(webView: WebView, url: String): Boolean {
+        if (url.startsWith("blob:")) {
+            downloadBlobUrl(webView, url)
+            return true
+        }
+
+        if (url.startsWith("data:")) {
+            downloadDataUrl(webView.context, url)
+            return true
+        }
+
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                webView.context.startActivity(intent)
+                return true
+            } catch (_: Exception) {
+                return false
+            }
+        }
+
+        if (isDownloadableFile(url)) {
+            triggerFileDownload(
+                context = webView.context,
+                url = url,
+                userAgent = webView.settings.userAgentString,
+                contentDisposition = "",
+                mimetype = guessMimeType(url),
+                currentPortalUrl = webView.url
+            )
+            return true
+        }
+
+        // Normal web page: let the main webview load it
+        if (webView.url != url) {
+            webView.loadUrl(url)
+            return true
+        }
+        return false
+    }
+
+    fun triggerFileDownload(
+        context: Context,
+        url: String,
+        userAgent: String,
+        contentDisposition: String = "",
+        mimetype: String = "",
+        currentPortalUrl: String? = null
+    ) {
+        try {
+            var filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
+            if (filename.endsWith(".bin", ignoreCase = true) && mimetype.contains("pdf", ignoreCase = true)) {
+                filename = filename.substringBeforeLast(".") + ".pdf"
+            }
+            if (url.contains(".pdf", ignoreCase = true) && !filename.endsWith(".pdf", ignoreCase = true)) {
+                filename = "$filename.pdf"
+            }
+
+            val request = DownloadManager.Request(Uri.parse(url)).apply {
+                if (mimetype.isNotBlank()) {
+                    setMimeType(mimetype)
+                }
+                val cookies = CookieManager.getInstance().getCookie(url)
+                    ?: CookieManager.getInstance().getCookie("https://student.bmsit.ac.in/")
+                if (!cookies.isNullOrBlank()) {
+                    addRequestHeader("Cookie", cookies)
+                }
+                addRequestHeader("User-Agent", userAgent)
+                currentPortalUrl?.let { addRequestHeader("Referer", it) }
+                setDescription("Downloading file from BMSIT portal...")
+                setTitle(filename)
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
+                setAllowedOverMetered(true)
+                setAllowedOverRoaming(true)
+            }
+            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            dm.enqueue(request)
+            Toast.makeText(context, "Downloading $filename to Downloads...", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+            } catch (_: Exception) {
+                Toast.makeText(context, "Download failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun isDownloadableFile(url: String): Boolean {
+        val lower = url.lowercase()
+        val fileExtensions = listOf(
+            ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".zip", ".rar",
+            ".csv", ".pptx", ".ppt", ".txt", ".tar", ".gz", ".7z"
+        )
+        if (fileExtensions.any { lower.contains(it) }) return true
+        if (lower.contains("download") || lower.contains("getnotes") || lower.contains("viewnotes") ||
+            lower.contains("download_file") || lower.contains("get_file") || lower.contains("export")) {
+            return true
+        }
+        return false
+    }
+
+    fun guessMimeType(url: String): String {
+        val lower = url.lowercase()
+        return when {
+            lower.contains(".pdf") -> "application/pdf"
+            lower.contains(".docx") -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            lower.contains(".doc") -> "application/msword"
+            lower.contains(".xlsx") -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            lower.contains(".xls") -> "application/vnd.ms-excel"
+            lower.contains(".zip") -> "application/zip"
+            else -> "*/*"
+        }
+    }
+
+    class BlobDownloadBridge(private val context: Context) {
+        @JavascriptInterface
+        fun processBlob(base64Data: String, mimeType: String, suggestedName: String) {
+            try {
+                val cleanBase64 = if (base64Data.contains(",")) {
+                    base64Data.substringAfter(",")
+                } else {
+                    base64Data
+                }
+                val fileBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT)
+                val fileName = if (suggestedName.isNotBlank()) suggestedName else "BMSIT_Document.pdf"
+
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val outputFile = java.io.File(downloadsDir, fileName)
+                outputFile.writeBytes(fileBytes)
+
+                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                dm.addCompletedDownload(
+                    fileName,
+                    "Downloaded from ContinueO Portal",
+                    true,
+                    mimeType.ifBlank { "application/pdf" },
+                    outputFile.absolutePath,
+                    fileBytes.size.toLong(),
+                    true
+                )
+
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    Toast.makeText(context, "Downloaded $fileName to Downloads folder!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    Toast.makeText(context, "Download error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun downloadBlobUrl(webView: WebView, blobUrl: String, filename: String = "BMSIT_Document.pdf") {
+        val script = """
+            (function() {
+                try {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '$blobUrl', true);
+                    xhr.responseType = 'blob';
+                    xhr.onload = function() {
+                        if (this.status === 200 || this.status === 0) {
+                            var reader = new FileReader();
+                            reader.readAsDataURL(this.response);
+                            reader.onloadend = function() {
+                                if (window.AndroidBlobDownloader) {
+                                    window.AndroidBlobDownloader.processBlob(reader.result, 'application/pdf', '$filename');
+                                }
+                            };
+                        }
+                    };
+                    xhr.send();
+                } catch(e) {}
+            })();
+        """.trimIndent()
+        webView.evaluateJavascript(script, null)
+    }
+
+    fun downloadDataUrl(context: Context, dataUrl: String) {
+        try {
+            val base64Data = dataUrl.substringAfter(",")
+            val mimeType = dataUrl.substringBefore(";").substringAfter("data:")
+            val ext = if (mimeType.contains("pdf")) "pdf" else "bin"
+            val fileName = "BMSIT_Document_${System.currentTimeMillis()}.$ext"
+            val fileBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT)
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val outputFile = java.io.File(downloadsDir, fileName)
+            outputFile.writeBytes(fileBytes)
+
+            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            dm.addCompletedDownload(
+                fileName,
+                "Downloaded from ContinueO Portal",
+                true,
+                mimeType,
+                outputFile.absolutePath,
+                fileBytes.size.toLong(),
+                true
+            )
+            Toast.makeText(context, "Downloaded $fileName to Downloads folder!", Toast.LENGTH_SHORT).show()
+        } catch (_: Exception) {}
     }
 }
