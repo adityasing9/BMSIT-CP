@@ -53,6 +53,7 @@ fun LoginScreen(
     var showStatusPanel by remember { mutableStateOf(true) }
     var hasStarted by remember { mutableStateOf(false) }
     var showNoInternet by remember { mutableStateOf(false) }
+    var showExternalBrowserNotice by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
     val activeAccount = remember { loginViewModel.activeAccount }
@@ -61,6 +62,14 @@ fun LoginScreen(
     LaunchedEffect(statusMessages.size) {
         if (statusMessages.isNotEmpty()) {
             listState.animateScrollToItem(statusMessages.size - 1)
+        }
+    }
+
+    // Auto-minimize status panel once logged in so user sees full desktop dashboard
+    LaunchedEffect(automationState) {
+        if (automationState == AutomationState.SUCCESS) {
+            kotlinx.coroutines.delay(1500)
+            showStatusPanel = false
         }
     }
 
@@ -129,12 +138,12 @@ fun LoginScreen(
                     if (automationState == AutomationState.SUCCESS) {
                         IconButton(
                             onClick = {
-                                openLoggedInBrowser(context, webViewRef)
+                                showExternalBrowserNotice = true
                             }
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                contentDescription = "Open in external browser (logged in)",
+                                contentDescription = "Open in external browser notice",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -260,36 +269,24 @@ fun LoginScreen(
                             }
                         }
 
-                        // Success state — option to open in browser (logged in) & hide panel
+                        // Success state — option to view dashboard or external browser notice
                         if (automationState == AutomationState.SUCCESS) {
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                FilledTonalButton(
-                                    onClick = {
-                                        openLoggedInBrowser(context, webViewRef)
-                                    },
-                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    ),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Open in Browser (Logged In)")
-                                }
                                 TextButton(
+                                    onClick = { showExternalBrowserNotice = true }
+                                ) {
+                                    Text("Open in Chrome/Brave")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
                                     onClick = { showStatusPanel = false }
                                 ) {
-                                    Text("Dismiss")
+                                    Text("View Dashboard")
                                 }
                             }
                         }
@@ -316,6 +313,69 @@ fun LoginScreen(
                     .weight(1f)
             )
         }
+    }
+
+    // External Browser Notice Dialog
+    if (showExternalBrowserNotice) {
+        val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+        AlertDialog(
+            onDismissRequest = { showExternalBrowserNotice = false },
+            title = {
+                Text("External Browser Notice")
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Because of Android's app sandbox security and BMSIT server cookie restrictions, external browsers (Brave, Chrome) cannot share your login session.\n\nContinueO is already displaying your full authenticated desktop portal with download and refresh capabilities.\n\nIf you still wish to open in Chrome or Brave, tap below to copy your credentials to your clipboard and open the portal:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    activeAccount?.let { acc ->
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    text = "USN: ${acc.credentials.usn}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "DOB: ${acc.credentials.dobDay}/${acc.credentials.dobMonth}/${acc.credentials.dobYear}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "ID Card: ${acc.credentials.idCardNumber}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        activeAccount?.let { acc ->
+                            val credText = "USN: ${acc.credentials.usn}\nDOB: ${acc.credentials.dobDay}-${acc.credentials.dobMonth}-${acc.credentials.dobYear}\nID Card: ${acc.credentials.idCardNumber}"
+                            clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(credText))
+                            Toast.makeText(context, "Credentials copied to clipboard!", Toast.LENGTH_SHORT).show()
+                        }
+                        showExternalBrowserNotice = false
+                        UpdateManager.openInBrowser(context, ContineoSelectors.PORTAL_URL)
+                    }
+                ) {
+                    Text("Copy & Open Browser")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExternalBrowserNotice = false }) {
+                    Text("Stay in ContinueO")
+                }
+            }
+        )
     }
 }
 
@@ -349,39 +409,4 @@ private fun StatusMessageItem(message: StatusMessage) {
             fontWeight = if (!message.isSuccess) FontWeight.Medium else FontWeight.Normal
         )
     }
-}
-
-/**
- * Opens the external browser passing the active authenticated session cookie (PHPSESSID)
- * so the browser opens directly into the logged-in dashboard without asking for credentials again.
- */
-private fun openLoggedInBrowser(context: Context, webView: WebView?) {
-    val currentUrl = webView?.url?.takeIf { it.isNotBlank() } ?: ContineoSelectors.PORTAL_URL
-
-    // Extract active session cookies from WebView's CookieManager
-    val cookieManager = CookieManager.getInstance()
-    val cookies = cookieManager.getCookie(currentUrl) ?: ""
-
-    // Find PHPSESSID in the cookies
-    val phpSessionId = cookies.split(";")
-        .map { it.trim() }
-        .firstOrNull { it.startsWith("PHPSESSID=", ignoreCase = true) }
-        ?.substringAfter("=")
-        ?.trim()
-
-    // Construct the authenticated URL with session ID propagation
-    val targetUrl = if (!phpSessionId.isNullOrBlank()) {
-        if (currentUrl.contains("PHPSESSID=")) {
-            currentUrl
-        } else if (currentUrl.contains("?")) {
-            "$currentUrl&PHPSESSID=$phpSessionId"
-        } else {
-            "$currentUrl?PHPSESSID=$phpSessionId"
-        }
-    } else {
-        currentUrl
-    }
-
-    Toast.makeText(context, "Opening logged-in session in browser...", Toast.LENGTH_SHORT).show()
-    UpdateManager.openInBrowser(context, targetUrl)
 }
