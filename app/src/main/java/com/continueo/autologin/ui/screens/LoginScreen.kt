@@ -134,6 +134,18 @@ fun LoginScreen(
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
+                    IconButton(
+                        onClick = {
+                            val currentUrl = webViewRef?.url?.ifBlank { ContineoSelectors.PORTAL_URL } ?: ContineoSelectors.PORTAL_URL
+                            UpdateManager.openInBrowser(context, currentUrl)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_open_in_browser),
+                            contentDescription = "Open in browser",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                     FilledTonalButton(
                         onClick = {
                             webViewRef?.let { loginViewModel.toggleDesktopMode(it) }
@@ -255,14 +267,34 @@ fun LoginScreen(
                             }
                         }
 
-                        // Success state — option to view dashboard
+                        // Success state — option to view dashboard or open in browser
                         if (automationState == AutomationState.SUCCESS) {
                             Spacer(modifier = Modifier.height(10.dp))
-                            Button(
-                                onClick = { showStatusPanel = false },
-                                modifier = Modifier.align(Alignment.End)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("View Dashboard")
+                                TextButton(
+                                    onClick = {
+                                        val currentUrl = webViewRef?.url?.ifBlank { ContineoSelectors.PORTAL_URL } ?: ContineoSelectors.PORTAL_URL
+                                        UpdateManager.openInBrowser(context, currentUrl)
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Open in Browser")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = { showStatusPanel = false }
+                                ) {
+                                    Text("View Dashboard")
+                                }
                             }
                         }
                     }

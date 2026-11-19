@@ -25,10 +25,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.continueo.autologin.R
+import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.utils.UpdateInfo
@@ -359,6 +362,24 @@ fun HomeScreen(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Open Contineo in Browser Button
+        OutlinedButton(
+            onClick = {
+                UpdateManager.openInBrowser(context, ContineoSelectors.PORTAL_URL)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_open_in_browser),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Open Contineo in Browser")
         }
 
         Spacer(modifier = Modifier.weight(1f))
