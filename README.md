@@ -9,9 +9,9 @@
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Security](https://img.shields.io/badge/Storage-AES--256--GCM%20Encrypted-green?logo=securityscorecard&logoColor=white)](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 
-**A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, and features automated in-app updates.**
+**A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, in-app file downloads, and features automated wireless updates.**
 
-[📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source)
+[📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source) • [❓ FAQ](#-frequently-asked-questions-faq)
 
 </div>
 
@@ -30,25 +30,27 @@ Furthermore, mobile browsers often render the portal in a cramped, single-column
 
 **ContinueO Auto Login** eliminates this friction:
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
-- **Multiple Accounts:** Store multiple profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
-- **Over-The-Air (OTA) Updates:** Seamlessly checks GitHub Releases for new builds, displays an update banner with changelog highlights, and lets you update wirelessly.
-- **Open in External Browser:** One-tap option to launch the portal in your phone's default browser (Chrome, Firefox, Brave) from both the Home Screen and the WebView top bar.
+- **Multiple Accounts:** Store multiple student profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
+- **Full In-App File Downloads:** Download subject notes (`[NOTES]`), circulars, and syllabus PDFs directly through Android's native `DownloadManager` with session cookies preserved.
+- **Open in External Browser:** One-tap option to launch the portal in your preferred browser (Chrome, Brave, Firefox) directly from the Home Screen or from the top navigation bar.
+- **Over-The-Air (OTA) Updates:** Seamlessly checks for new builds via Fastly CDN & GitHub Releases with zero rate-limit issues, and installs updates wirelessly.
 - **Full Desktop Layout:** Renders the portal in its authentic desktop view by default (1280px viewport), with full pinch-to-zoom and smooth panning.
 - **One-Tap Refresh:** Dedicated reload button in the top bar to update attendance, marks, and notices without losing your login session.
+- **Permanent Release Keystore:** Signed with a unified, permanent keystore to guarantee conflict-free Over-The-Air updates.
 - **100% Local Security:** All credentials stay encrypted on your device with hardware-backed **AES-256-GCM**.
 
 ---
 
 ## 📥 Direct Download
 
-Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHub Releases:
+Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`ContinueO-AutoLogin.apk`** | Latest compiled Android APK | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk) |
+| **`ContinueO-AutoLogin.apk`** | Latest compiled Android APK (`v1.2.3`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
-> **Note for Installation:** Since this APK is distributed directly outside the Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. Enable this toggle to proceed with installation.
+> **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
 
 ---
 
@@ -62,7 +64,8 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 | **Date of Birth Entry** | 3 tedious HTML select dropdowns | **Automated background composition** |
 | **Step 2 (ID Card)** | Waiting for page reload + manual typing | **Automated detection & instant entry** |
 | **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with zoom** |
-| **External Browser** | Manual URL copy & paste | **1-tap launch in Chrome / Firefox / Brave** |
+| **In-App Downloads** | Often blocked or fails without cookies | **Native DownloadManager with cookies & referers** |
+| **External Browser** | Manual URL copy & paste | **1-tap launch in Chrome / Brave / Firefox** |
 | **Page Refresh** | Reloads from scratch or loses session | **Dedicated one-tap refresh (keeps session)** |
 | **App Updates** | Manual website check & re-download | **Automated Over-The-Air (OTA) update alerts** |
 | **Cloud Dependency** | None | **Zero Cloud — 100% On-Device** |
@@ -76,51 +79,56 @@ Ready to use? Grab the latest pre-compiled debug/release APK directly from GitHu
 - **Custom Account Labels:** Assign friendly names (e.g., "Aditya", "Sister", "Ward 1") to easily distinguish between accounts.
 - **Instant Account Switcher:** Switch the active account right from the Home Screen with a single tap before logging in.
 - **Account Management in Settings:** Add, edit, switch, or delete accounts individually with confirmation safeguards.
-- **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the new multi-account architecture without data loss.
+- **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the multi-account architecture without data loss.
 
 ### 🔄 2. Over-The-Air (OTA) In-App Updates
-- **Automated Update Detection:** Queries GitHub Releases (`adityasing9/BMSIT-CP`) automatically in the background on startup and manually via "Check Now" in Settings.
-- **Version Comparison Engine:** Compares semantic versions (`isNewerVersion`) to detect newer builds instantly.
+- **Multi-Tier Update Engine:** Checks updates via Fastly CDN (`raw.githubusercontent.com`), HTTP 302 release redirects, and the GitHub REST API. Immune to GitHub API 403 rate limits on mobile networks (Jio, Airtel).
+- **Cache-Busting Fallthrough:** Ensures newly pushed releases are detected immediately without waiting for CDN cache expiration.
 - **In-App Notification Banner:** Presents release version and release notes preview directly on the Home Screen.
-- **Seamless Wireless Download:** Tapping "Update Now" downloads the official release APK wirelessly over the air (Wi-Fi/cellular) without needing a PC or USB cable.
-- **Play Protect Friendly:** Bypasses aggressive dropper heuristics by routing the installation through standard system package mechanisms.
+- **Seamless Wireless Download:** Tapping "Update (OTA)" downloads the official release APK wirelessly through Android's `DownloadManager` and launches the system installer.
+- **Permanent Release Keystore:** Signed with a permanent 10,000-day keystore, eliminating signature mismatch conflicts across updates.
 
-### 🌐 3. Open in External Browser (Authenticated Session Transfer)
-- **Strictly Post-Login:** The option to open in an external browser is only enabled **after** the automated login successfully authenticates. The portal cannot be opened in a logged-out state from the app.
-- **Authenticated Session Propagation:** Automatically extracts the active `PHPSESSID` session cookie from the WebView's `CookieManager` and passes it to the target URL so your default browser (Chrome, Firefox, Brave, Samsung Internet) opens directly into your authenticated student dashboard.
-- **Two Seamless Launch Points:**
-  - **Status Card Action:** A prominent `"Open in Browser (Logged In)"` button appears on the success banner as soon as login completes.
-  - **Top App Bar Action:** A browser icon appears in the top navigation bar when viewing the logged-in portal.
-- **Zero Friction:** Download grade sheets, save PDF receipts, print circulars, or use desktop browser features without ever having to re-enter your credentials into Chrome manually.
+### 🌐 3. Open Contineo in External Browser
+- **Home Screen Access:** A dedicated **"Open Contineo in Browser"** button right below the main **"LOGIN NOW 🚀"** button for quick, direct portal access in your default browser.
+- **Top App Bar Action:** An **Open in Browser** icon in the Login Screen top bar allows you to open the currently viewed portal page in your device's browser at any time.
+- **Post-Login Action:** An **"Open in Browser"** button appears next to "View Dashboard" as soon as authentication completes.
+- **Zero Intermediaries:** Directly opens your browser without clipboard copying prompts or annoying redirect dialogs.
 
-### 💾 4. Data Export & Import (Backup & Restore)
-- **Portable JSON Backup:** Easily export all your configured accounts to a portable, formatted JSON structure with a single tap.
+### 📥 4. Direct In-App File Downloads ([NOTES], Syllabus & Circulars)
+- **Native Android DownloadManager:** Downloads PDF notes, syllabus files, and circulars directly to your device's public `Downloads` directory.
+- **Session Cookie Propagation:** Injects active `PHPSESSID` session cookies and `Referer` headers so authenticated downloads succeed without 403 or redirect errors.
+- **MIME & Extension Correction:** Automatically resolves proper `.pdf` extensions even when the portal serves files with `.bin` or generic headers.
+- **Blob & Data URL Support:** Client-side JavaScript bridge handles dynamic `blob:` and base64 `data:` downloads seamlessly.
+
+### 💾 5. Data Export & Import (Backup & Restore)
+- **Portable JSON Backup:** Easily export all your configured accounts to a structured JSON format with a single tap.
 - **Direct Clipboard & Share Support:** Copy the backup text directly to your clipboard or use Android's native share sheet to save your backup in Google Drive, Notes, WhatsApp, or Email.
 - **Safe Import & Merge:** Restore or transfer accounts to any device with automatic deduplication, ensuring you never lose your saved profiles when changing phones or reinstalling.
 
-### ⚡ 3. Intelligent Two-Step Automation
-- **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value trailing whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
-- **Step 2 (ID Card Verification):** Automatically polls the DOM for the verification view, locates the input field (even across nested forms, dynamic elements, and iframes), injects the ID card number using native prototype setters, and submits.
+### ⚡ 6. Intelligent Two-Step Automation
+- **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
+- **Step 2 (ID Card Verification):** Automatically polls the DOM for the verification view, locates the input field, injects the ID card number using native prototype setters, and submits.
+- **Native POST Form Preservation:** Web navigation preserves HTTP `POST` requests and form parameters without converting them to blank `GET` requests.
 - **Graceful Error Handling:** If the portal issues a CAPTCHA challenge or OTP, automation pauses and gives you a single-tap **Continue Manually** option without interrupting your session.
 
-### 🖥️ 4. Genuine Desktop Mode (Default: ON)
+### 🖥️ 7. Genuine Desktop Mode (Default: ON)
 - **Authentic 1280px Viewport:** Bypasses mobile screen-width constraints (`<meta name="viewport" content="width=device-width">`) by reconfiguring the layout viewport to 1280px on page render.
 - **Desktop Grid Breakpoints:** Triggers the portal's native UIkit desktop styles (`@media (min-width: 992px)` and `@l: 1200px`), showing the two-column dashboard layout (notice board on the left, login/dashboard on the right).
 - **Smooth Navigation:** Built-in overview mode automatically scales the 1280px canvas to fit your phone screen, supported by full pinch-to-zoom and multi-touch gestures.
 - **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar with a clean, controlled reload that keeps your login session active.
 - **Persistent Choice:** Your chosen mode is saved locally and remembered whenever you reopen the app.
 
-### 🔄 5. Instant One-Tap Page Refresh
+### 🔄 8. Instant One-Tap Page Refresh
 - **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar to update grades, attendance, circulars, or timetables at any moment.
 - **Session Preservation:** Reloads the current page safely using existing authenticated cookies without prompting you to log in again.
 - **Race Condition Safe:** Cancels any active automation jobs in the background prior to reloading, ensuring smooth execution without conflicting scripts.
 
-### 🚀 6. Speed & Performance Optimizations
+### 🚀 9. Speed & Performance Optimizations
 - **Hardware-Accelerated WebView:** Enabled `LAYER_TYPE_HARDWARE` for fluid scrolling and 60fps animations.
-- **Optimized Delay Pipelines:** Eliminated artificial wait times, utilizing reactive coroutines and low-latency element detection (150ms intervals).
+- **Optimized Delay Pipelines:** Low-latency element detection (150ms intervals) and reactive coroutines.
 - **Intelligent Caching:** Configured with `LOAD_DEFAULT` caching and automatic image decoding for immediate page loads.
 
-### 🔒 7. Security & Privacy First
+### 🔒 10. Security & Privacy First
 - **Zero Cloud Architecture:** There is **no backend server**, **no telemetry**, **no analytics**, and **no third-party tracking**.
 - **AndroidX Security Crypto:** Your USN, Date of Birth, and ID Card Number are encrypted using Google's `EncryptedSharedPreferences` backed by an Android Keystore `MasterKey` (AES-256-GCM / AES-256-SIV).
 - **No Log Leaks:** Credential strings are never written to Logcat, included in URLs, or exposed in UI status cards.
@@ -137,20 +145,19 @@ flowchart TD
     D --> E[Home Screen]
     B -- Yes --> E[Home Screen]
     
-    E --> F[Check GitHub for Updates in Background]
-    F -- Update Found --> G[Show Update Banner with Download & Install]
+    E --> F[Check for Updates in Background]
+    F -- Update Found --> G[Show Update Banner with OTA Download]
     
-    E --> H{Switch Account?}
-    H -- Yes --> I[Select from Saved Accounts / Add New]
+    E --> H{User Action}
+    H -- Switch Account --> I[Select from Saved Accounts / Add New]
     I --> E
+    H -- Open in Browser --> J[Launch Portal in External Browser]
+    H -- Tap LOGIN NOW --> K[Initialize WebView in Desktop Mode 1280px]
     
-    E --> J[Tap LOGIN NOW]
-    J --> K[Initialize WebView in Desktop Mode 1280px]
     K --> L[Open student.bmsit.ac.in/parents]
-    
     L --> M[Detect Page 1: USN & DOB Form]
     M --> N[Inject Active Account USN & DD/MM/YYYY]
-    N --> O[Submit Login Form]
+    N --> O[Submit Login Form via Native POST]
     
     O --> P{Check Next Page}
     P -- ID Card Page --> Q[Detect Page 2 Input Field]
@@ -162,7 +169,8 @@ flowchart TD
     
     S --> U[Display Authenticated Desktop Portal]
     U --> V[One-Tap Refresh / Desktop Toggle]
-    U --> W[Open in Browser with Authenticated Session]
+    U --> W[In-App Downloads: Notes, Syllabus, Circulars]
+    U --> X[Open Current Page in External Browser]
 ```
 
 ---
@@ -174,8 +182,8 @@ flowchart TD
 | **Operating System** | Android 8.0 Oreo (API level 26) or newer |
 | **Target SDK** | Android 14 (API level 34) |
 | **Architecture** | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
-| **Connectivity** | Active Internet connection (WiFi / Mobile Data) |
-| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE` |
+| **Connectivity** | Active Internet connection (Wi-Fi / Mobile Data) |
+| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE`, `WRITE_EXTERNAL_STORAGE` (max API 28) |
 
 ---
 
@@ -184,7 +192,9 @@ flowchart TD
 - **UI & Architecture:** [Jetpack Compose](https://developer.android.com/jetpack/compose) with [Material 3](https://m3.material.io/) design system
 - **State & Concurrency:** Kotlin Coroutines, `StateFlow`, and Android Architecture Components (`ViewModel`)
 - **Web Automation:** Android `WebView`, custom `WebViewClient`, `WebChromeClient`, and dynamic DOM JavaScript evaluation
-- **Storage & Cryptography:** AndroidX Security (`androidx.security:security-crypto:1.1.0-alpha06`)
+- **File Downloads:** Android `DownloadManager` with session cookies, referer headers, and blob JavaScript bridge
+- **Storage & Cryptography:** AndroidX Security (`androidx.security:security-crypto:1.1.0-alpha06`) with Android Keystore `MasterKey`
+- **Signing:** Dedicated 2048-bit RSA permanent release keystore
 - **Build System:** Gradle Kotlin DSL (`build.gradle.kts`)
 - **Continuous Integration & OTA Deployment:** GitHub Actions (`.github/workflows/build.yml`)
 
@@ -239,7 +249,7 @@ app/src/main/java/com/continueo/autologin/
 │   ├── ContineoSelectors.kt          # Portal DOM selectors, URLs, and timing constants
 │   ├── ContineoAdapter.kt            # Robust JavaScript generators for form autofill
 │   ├── AutomationEngine.kt           # Coroutine-based automation state manager
-│   └── WebViewManager.kt             # WebView desktop mode, viewport & JS execution bridge
+│   └── WebViewManager.kt             # WebView desktop mode, download pipeline & JS bridge
 │
 ├── ui/
 │   ├── theme/                        # Material 3 color palettes, typography, and theme
@@ -254,7 +264,7 @@ app/src/main/java/com/continueo/autologin/
 │
 └── utils/
     ├── NetworkUtils.kt               # Real-time network connectivity monitor
-    └── UpdateManager.kt              # In-app GitHub release checker, downloader & installer
+    └── UpdateManager.kt              # Multi-tier GitHub release checker, OTA downloader & installer
 ```
 
 ---
@@ -268,7 +278,7 @@ You can save as many accounts as you need (e.g. for multiple siblings or wards).
 
 <details>
 <summary><b>2. How does the in-app auto update work?</b></summary>
-On startup or via "Check for Updates" in Settings, ContinueO checks GitHub Releases for new APK builds. If an update is found, an update banner appears with release highlights. Tapping "Update Now" downloads the APK directly with a live progress bar and launches the package installer. A direct browser download link is also available.
+On startup or via "Check for Updates" in Settings, ContinueO checks for new APK builds. If an update is found, an update banner appears with release highlights. Tapping "Update (OTA)" downloads the APK directly with a live progress notification and launches the package installer. A direct browser download link is also available.
 </details>
 
 <details>
@@ -277,35 +287,31 @@ Yes, 100%. Your credentials never leave your physical device. They are encrypted
 </details>
 
 <details>
-<summary><b>4. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
+<summary><b>4. Can I download subject notes and circulars inside the app?</b></summary>
+Yes! Tapping <b>[NOTES]</b> or any PDF/circular download link downloads the file directly to your phone's <b>Downloads</b> folder using Android's native <code>DownloadManager</code>. Session cookies and referer headers are forwarded automatically so authenticated files download without permission errors.
+</details>
+
+<details>
+<summary><b>5. How do I open Contineo in an external browser (Chrome / Brave)?</b></summary>
+There are three convenient ways:
+1. <b>Home Screen:</b> Tap <b>"Open Contineo in Browser"</b> directly below the "LOGIN NOW" button.
+2. <b>Login Screen Top Bar:</b> Tap the <b>Open in Browser</b> icon anytime while viewing the portal.
+3. <b>Login Complete:</b> Tap <b>"Open in Browser"</b> on the completion card once authenticated.
+</details>
+
+<details>
+<summary><b>6. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
 The app is built to adhere strictly to security best practices. If an anti-bot check or OTP appears, the automated sequence pauses immediately, flags the step, and offers a <b>Continue Manually</b> button so you can solve it yourself in the WebView.
 </details>
 
 <details>
-<summary><b>5. How do I refresh the portal to check for new marks or attendance?</b></summary>
+<summary><b>7. How do I refresh the portal to check for new marks or attendance?</b></summary>
 Simply tap the <b>Refresh</b> icon located in the top app bar anytime. The portal page reloads immediately while keeping your authenticated session active.
 </details>
 
 <details>
-<summary><b>6. How do I switch between Desktop and Mobile layout?</b></summary>
+<summary><b>8. How do I switch between Desktop and Mobile layout?</b></summary>
 At the top right of the login screen, tap the <b>🖥 Desktop ON / 📱 Mobile</b> button. The app will immediately adjust the user-agent and viewport and reload the page while preserving your authenticated session.
-</details>
-
-<details>
-<summary><b>7. How do I edit or delete saved accounts?</b></summary>
-From the main screen, tap <b>Settings</b> at the bottom. Under "Saved Accounts", you can view all accounts, edit credentials, set a new active account, or delete an account.
-</details>
-
-<details>
-<summary><b>8. Why does Android show "App not installed as package conflicts with an existing package"?</b></summary>
-Android requires every app update to be signed with the <b>exact same cryptographic key</b> as the installed app. Earlier automated CI builds used temporary runner keys that changed with every run. Starting from <b>v1.2.0</b>, a permanent release keystore is committed to the repository so all future updates share the exact same signature. 
-
-To migrate to the permanent key:
-1. Open <b>Settings → Data Management → Export Accounts Backup</b> and tap <b>Copy to Clipboard</b> (or Share).
-2. Uninstall the old conflicting app from your device (one-time requirement).
-3. Install the new <b>v1.2.0 APK</b> from GitHub Releases.
-4. Open <b>Settings → Import Accounts Backup</b>, paste your data, and tap <b>Import</b>.
-All future updates will now install seamlessly over the air with zero signature conflicts.
 </details>
 
 <details>
@@ -313,6 +319,25 @@ All future updates will now install seamlessly over the air with zero signature 
 Go to <b>Settings → Data Management</b>:
 - Tap <b>Export Accounts Backup</b> to copy or share your JSON backup.
 - On your new device, tap <b>Import Accounts Backup</b>, paste the text, and tap <b>Import</b>. Your accounts will be restored immediately without re-typing.
+</details>
+
+<details>
+<summary><b>10. Why does Google Play Protect show "Harmful app blocked"?</b></summary>
+Because ContinueO is an open-source, sideloaded app that is self-signed and not hosted on the Google Play Store, Google Play Protect displays a generic warning for unrecognized application signatures. 
+
+To proceed with installation, simply tap <b>"Install anyway"</b> (located right above the blue "Got it" button).
+</details>
+
+<details>
+<summary><b>11. Why does Android show "App not installed as package conflicts with an existing package"?</b></summary>
+Android requires every app update to be signed with the <b>exact same cryptographic key</b> as the installed app. Earlier automated CI builds used temporary runner keys that changed with every build. Starting from <b>v1.2.0</b>, a permanent release keystore is embedded in the repository so all updates share the exact same signature.
+
+If updating from a pre-v1.2.0 version:
+1. Open <b>Settings → Data Management → Export Accounts Backup</b> and tap <b>Copy to Clipboard</b> (or Share).
+2. Uninstall the old conflicting app from your device (one-time requirement).
+3. Install the latest <b>v1.2.3 APK</b> from GitHub Releases.
+4. Open <b>Settings → Import Accounts Backup</b>, paste your data, and tap <b>Import</b>.
+All future updates will now install seamlessly over the air with zero signature conflicts.
 </details>
 
 ---
