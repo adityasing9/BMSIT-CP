@@ -1,25 +1,35 @@
 package com.continueo.autologin.ui.screens
 
 import android.content.Intent
+import android.os.Build
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import com.continueo.autologin.R
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
+import com.continueo.autologin.ui.theme.AppThemeMode
+import com.continueo.autologin.ui.theme.ColorAccent
+import com.continueo.autologin.ui.theme.ThemeManager
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
@@ -40,7 +53,8 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddAccount: () -> Unit,
     onNavigateToEditAccount: (AccountProfile) -> Unit,
-    onCredentialsCleared: () -> Unit
+    onCredentialsCleared: () -> Unit,
+    themeManager: ThemeManager
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -51,6 +65,10 @@ fun SettingsScreen(
 
     var showClearAllDialog by remember { mutableStateOf(false) }
     var accountToDelete by remember { mutableStateOf<AccountProfile?>(null) }
+
+    // Theme states
+    var showThemeDialog by remember { mutableStateOf(false) }
+    val themeSettings by themeManager.themeSettings.collectAsState()
 
     // Export & Import states
     val clipboardManager = LocalClipboardManager.current
@@ -227,6 +245,152 @@ fun SettingsScreen(
                 )
                 HorizontalDivider()
             }
+
+            // Appearance & Theme Section
+            Text(
+                text = "Appearance & Theme",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            // Theme Mode
+            ListItem(
+                headlineContent = { Text("Theme Mode") },
+                supportingContent = {
+                    Text(themeSettings.themeMode.title)
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = when (themeSettings.themeMode) {
+                            AppThemeMode.LIGHT -> Icons.Default.LightMode
+                            AppThemeMode.DARK -> Icons.Default.DarkMode
+                            AppThemeMode.SYSTEM -> Icons.Default.BrightnessMedium
+                        },
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    TextButton(onClick = { showThemeDialog = true }) {
+                        Text("Change")
+                    }
+                },
+                modifier = Modifier.clickable { showThemeDialog = true }
+            )
+
+            HorizontalDivider()
+
+            // Color Accent Selection (5 vibrant chips)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Palette,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Color Accent",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = if (themeSettings.dynamicColor) "Material You (Wallpaper)" else themeSettings.colorAccent.title,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Color accent chips
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ColorAccent.values().forEach { accent ->
+                        val isSelected = !themeSettings.dynamicColor && themeSettings.colorAccent == accent
+                        Surface(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .clickable {
+                                    themeManager.setColorAccent(accent)
+                                },
+                            shape = CircleShape,
+                            color = Color(accent.primaryColor),
+                            border = if (isSelected) BorderStroke(3.dp, MaterialTheme.colorScheme.onSurface) else null,
+                            shadowElevation = if (isSelected) 4.dp else 1.dp
+                        ) {
+                            if (isSelected) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Selected",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
+            // Dynamic Colors (Android 12+)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                ListItem(
+                    headlineContent = { Text("Material You (Dynamic Colors)") },
+                    supportingContent = { Text("Extract theme colors from device wallpaper") },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.ColorLens,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    trailingContent = {
+                        Switch(
+                            checked = themeSettings.dynamicColor,
+                            onCheckedChange = { themeManager.setDynamicColor(it) }
+                        )
+                    }
+                )
+                HorizontalDivider()
+            }
+
+            // AMOLED Pure Black
+            ListItem(
+                headlineContent = { Text("AMOLED Pure Black") },
+                supportingContent = { Text("Pitch-black background in dark mode to save battery on OLED screens") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Contrast,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    Switch(
+                        checked = themeSettings.amoledDark,
+                        onCheckedChange = { themeManager.setAmoledDark(it) }
+                    )
+                }
+            )
+
+            HorizontalDivider()
 
             // Data Management Section
             Text(
@@ -651,6 +815,71 @@ fun SettingsScreen(
                     }
                 ) {
                     Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Theme Mode Selection Dialog
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Palette,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Select Theme Mode")
+                }
+            },
+            text = {
+                Column {
+                    AppThemeMode.values().forEach { mode ->
+                        val isSelected = themeSettings.themeMode == mode
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    themeManager.setThemeMode(mode)
+                                    showThemeDialog = false
+                                }
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = {
+                                    themeManager.setThemeMode(mode)
+                                    showThemeDialog = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = mode.title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                                Text(
+                                    text = when (mode) {
+                                        AppThemeMode.SYSTEM -> "Matches your Android system display setting"
+                                        AppThemeMode.LIGHT -> "Always light appearance"
+                                        AppThemeMode.DARK -> "Always dark appearance"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showThemeDialog = false }) {
+                    Text("Close")
                 }
             }
         )

@@ -19,15 +19,18 @@ import com.continueo.autologin.ui.screens.LoginScreen
 import com.continueo.autologin.ui.screens.SettingsScreen
 import com.continueo.autologin.ui.screens.SetupScreen
 import com.continueo.autologin.ui.theme.ContineoAutoLoginTheme
+import com.continueo.autologin.ui.theme.ThemeManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val themeManager = ThemeManager(applicationContext)
         setContent {
-            ContineoAutoLoginTheme {
+            val themeSettings by themeManager.themeSettings.collectAsState()
+            ContineoAutoLoginTheme(themeSettings = themeSettings) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppNavigation()
+                    AppNavigation(themeManager = themeManager)
                 }
             }
         }
@@ -35,7 +38,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(themeManager: ThemeManager) {
     val navController = rememberNavController()
     val context = androidx.compose.ui.platform.LocalContext.current
     val credentialManager = remember { CredentialManager(context) }
@@ -81,7 +84,8 @@ fun AppNavigation() {
                 onNavigateToAddAccount = {
                     editingAccount = null
                     navController.navigate(Screen.Setup.route)
-                }
+                },
+                themeManager = themeManager
             )
         }
 
@@ -111,7 +115,8 @@ fun AppNavigation() {
                     navController.navigate(Screen.Setup.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
-                }
+                },
+                themeManager = themeManager
             )
         }
     }

@@ -48,7 +48,7 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`ContinueO-AutoLogin.apk`** | Latest compiled Android APK (`v1.2.3`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk) |
+| **`ContinueO-AutoLogin.apk`** | Latest compiled Android APK (`v1.2.4`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
 > **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
@@ -133,6 +133,13 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 - **Zero Cloud Architecture:** There is **no backend server**, **no telemetry**, **no analytics**, and **no third-party tracking**.
 - **AndroidX Security Crypto:** Your USN, Date of Birth, and ID Card Number are encrypted using Google's `EncryptedSharedPreferences` backed by an Android Keystore `MasterKey` (AES-256-GCM / AES-256-SIV).
 - **No Log Leaks:** Credential strings are never written to Logcat, included in URLs, or exposed in UI status cards.
+
+### 🎨 11. Theme & Appearance Engine
+- **Theme Modes:** Choose between **Follow System**, **Light Theme**, or **Dark Theme**.
+- **5 Accent Color Palettes:** Personalize with **Classic Blue**, **Emerald Green**, **Royal Purple**, **Crimson Red**, or **Sunset Amber**.
+- **AMOLED Pure Black:** Optional pitch-black dark mode to maximize battery savings on OLED displays.
+- **Material You Dynamic Colors:** Seamlessly extract and adapt theme colors from your device wallpaper on Android 12+.
+- **Quick Home Screen Toggle:** Tap the theme icon directly on the Home Screen to cycle themes on the fly.
 
 ---
 

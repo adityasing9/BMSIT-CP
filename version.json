@@ -1,8 +1,8 @@
 {
-  "versionCode": 6,
-  "versionName": "1.2.3",
-  "releaseTitle": "ContinueO Auto Login v1.2.3",
-  "releaseNotes": "• Direct option to open Contineo in external browser from Home & Login screens\n• Restored native POST form authentication for portal login\n• Enhanced update checker with fallback and cache-busting\n• Permanent release keystore for seamless updates",
+  "versionCode": 7,
+  "versionName": "1.2.4",
+  "releaseTitle": "ContinueO Auto Login v1.2.4",
+  "releaseNotes": "• Complete Theme Engine: Follow System, Light, and Dark themes\n• 5 Color Accent Palettes: Classic Blue, Emerald, Royal Purple, Crimson, Amber\n• Pure Black AMOLED mode for OLED battery saving\n• Material You Dynamic Colors on Android 12+\n• Quick theme toggle on Home Screen",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/tag/latest"
 }

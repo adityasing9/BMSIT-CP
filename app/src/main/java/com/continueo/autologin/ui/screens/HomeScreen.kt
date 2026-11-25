@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,6 +37,8 @@ import com.continueo.autologin.R
 import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
+import com.continueo.autologin.ui.theme.AppThemeMode
+import com.continueo.autologin.ui.theme.ThemeManager
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
@@ -44,7 +49,8 @@ import java.io.File
 fun HomeScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToAddAccount: () -> Unit
+    onNavigateToAddAccount: () -> Unit,
+    themeManager: ThemeManager
 ) {
     val context = LocalContext.current
     val credentialManager = remember { CredentialManager(context) }
@@ -261,20 +267,51 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Security badge
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = "Secured",
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = "Credentials Secured On-Device",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
-            )
+        // Security badge and quick theme toggle
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Secured",
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "Credentials Secured On-Device",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            val themeSettings by themeManager.themeSettings.collectAsState()
+            IconButton(
+                onClick = {
+                    val nextMode = when (themeSettings.themeMode) {
+                        AppThemeMode.SYSTEM -> AppThemeMode.LIGHT
+                        AppThemeMode.LIGHT -> AppThemeMode.DARK
+                        AppThemeMode.DARK -> AppThemeMode.SYSTEM
+                    }
+                    themeManager.setThemeMode(nextMode)
+                    Toast.makeText(context, "Theme: ${nextMode.title}", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = when (themeSettings.themeMode) {
+                        AppThemeMode.LIGHT -> Icons.Default.LightMode
+                        AppThemeMode.DARK -> Icons.Default.DarkMode
+                        AppThemeMode.SYSTEM -> Icons.Default.BrightnessMedium
+                    },
+                    contentDescription = "Toggle Theme",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(28.dp))
