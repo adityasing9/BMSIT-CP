@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -647,6 +649,60 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable {
                     ShareUtils.openExtensionPage(context)
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Star on GitHub ⭐") },
+                supportingContent = { Text("If you want to say thank you or are happy, star this repo!") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Star on GitHub",
+                        tint = Color(0xFFFFB800),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            UpdateManager.openInBrowser(context, "https://github.com/adityasing9/BMSIT-CP")
+                        }
+                    ) {
+                        Text("Star ⭐")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    UpdateManager.openInBrowser(context, "https://github.com/adityasing9/BMSIT-CP")
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Follow Developer") },
+                supportingContent = { Text("Follow @adityasing9 for more interesting open-source projects!") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Follow Developer",
+                        tint = Color(0xFFE91E63),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            UpdateManager.openInBrowser(context, "https://github.com/adityasing9")
+                        }
+                    ) {
+                        Text("Follow ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    UpdateManager.openInBrowser(context, "https://github.com/adityasing9")
                 }
             )
 

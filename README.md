@@ -350,6 +350,15 @@ All future updates will now install seamlessly over the air with zero signature 
 
 ---
 
+## ⭐ Say Thank You & Show Support
+
+If you want to say thank you or you are happy with **ContinueO**, please consider:
+- **Giving this repository a ⭐ star!** It helps more BMSIT students and parents discover the utility.
+- **[Following @adityasing9 on GitHub](https://github.com/adityasing9)** for more interesting tools, utilities, and open-source projects!
+- **Sharing ContinueO** with your classmates, batchmates, and friends via WhatsApp!
+
+---
+
 ## 📄 License & Disclaimer
 
 - **License:** Distributed for educational and personal productivity purposes.

@@ -51,6 +51,9 @@ object ShareUtils {
             
             🧩 Desktop Chrome Extension:
             $EXTENSION_URL
+            
+            ⭐ If you want to say thank you or are happy, give a star on GitHub & follow for more interesting projects:
+            https://github.com/adityasing9/BMSIT-CP
         """.trimIndent()
     }
 
