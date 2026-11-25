@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3c72;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a5298;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#38ef7d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#11998e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#grad)" />
+  <!-- Portal doorway / arch -->
+  <path d="M 40 88 L 40 52 C 40 38 88 38 88 52 L 88 88 Z" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+  <!-- Keyhole / unlock symbol -->
+  <circle cx="64" cy="58" r="8" fill="url(#glow)" />
+  <path d="M 61 63 L 67 63 L 69 78 L 59 78 Z" fill="url(#glow)" />
+  <!-- Bolt / checkmark indicator -->
+  <path d="M 80 40 L 92 48 L 86 52" fill="none" stroke="#38ef7d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

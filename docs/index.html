@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ContinueO Suite — Automated BMSIT Portal Login for Android & Browser</title>
+  <meta name="description" content="One-tap automated login utility for BMSIT&M ContinueO Parent Portal. Available as a native Android App and a Chromium desktop extension.">
+  <meta name="keywords" content="BMSIT, ContinueO, Contineo, Auto Login, BMS Institute of Technology, Android APK, Chrome Extension, Student Portal">
+  <meta property="og:title" content="ContinueO Suite — 1-Tap Portal Login for Android & Desktop">
+  <meta property="og:description" content="Automate the repetitive two-step login for BMSIT ContinueO portal. Enjoy multi-account support, authentic desktop views, in-app notes download, and zero cloud tracking.">
+  <meta property="og:image" content="assets/icon.svg">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0a0d14">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            accent: {
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+            },
+            dark: {
+              950: '#07090e',
+              900: '#0a0d14',
+              850: '#101420',
+              800: '#161c2c',
+              700: '#222b42',
+              600: '#334155'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          animation: {
+            'glow-pulse': 'glow 4s ease-in-out infinite',
+            'float': 'float 5s ease-in-out infinite',
+          },
+          keyframes: {
+            glow: {
+              '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+              '50%': { opacity: '0.7', transform: 'scale(1.05)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    body {
+      background-color: #07090e;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: rgba(16, 20, 32, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card-interactive {
+      background: rgba(16, 20, 32, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card-interactive:hover {
+      background: rgba(22, 28, 44, 0.85);
+      border-color: rgba(96, 165, 250, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(37, 99, 235, 0.2);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gradient-border {
+      position: relative;
+    }
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.5), rgba(52, 211, 153, 0.3), rgba(255, 255, 255, 0.05));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(10, 13, 20, 0.5);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body class="selection:bg-brand-500 selection:text-white">
+
+  <!-- Ambient Glow Effects -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-600/15 blur-[140px] pointer-events-none rounded-full animate-glow-pulse -z-10"></div>
+  <div class="fixed top-1/3 -right-40 w-[600px] h-[500px] bg-accent-500/10 blur-[150px] pointer-events-none rounded-full -z-10"></div>
+  <div class="fixed bottom-10 -left-40 w-[600px] h-[500px] bg-brand-500/10 blur-[150px] pointer-events-none rounded-full -z-10"></div>
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-dark-950/80 border-b border-white/5 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+          <img src="assets/icon.svg" alt="ContinueO Logo" class="w-full h-full object-cover">
+        </div>
+        <div>
+          <span class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+            ContinueO <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">Suite</span>
+          </span>
+          <span class="block text-[11px] text-slate-400 font-mono -mt-0.5">BMSIT Portal Automation</span>
+        </div>
+      </a>
+
+      <!-- Desktop Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#downloads" class="hover:text-brand-400 transition-colors">Download Hub</a>
+        <a href="#features" class="hover:text-brand-400 transition-colors">Features</a>
+        <a href="#preview" class="hover:text-brand-400 transition-colors">Interactive Preview</a>
+        <a href="#installation" class="hover:text-brand-400 transition-colors">Install Guide</a>
+        <a href="#faq" class="hover:text-brand-400 transition-colors">FAQ</a>
+      </nav>
+
+      <!-- Action Button -->
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/adityasing9/BMSIT-CP" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 transition-colors">
+          <i data-lucide="github" class="w-4 h-4"></i>
+          <span>GitHub</span>
+        </a>
+        <a href="#downloads" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white shadow-lg shadow-brand-600/30 transition-all hover:scale-[1.02]">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Get Free</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- Announcement Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-xs font-medium text-brand-300 border border-brand-500/30 shadow-inner mb-6 hover:border-brand-400/50 transition-colors">
+        <span class="flex h-2 w-2 rounded-full bg-accent-500 animate-pulse"></span>
+        <span>Version 1.2.3 Released • Permanent Keystore & Fast OTA Updates</span>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-70"></i>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.12]">
+        Say goodbye to <br>
+        <span class="gradient-text">5-step portal logins</span> forever.
+      </h1>
+
+      <!-- Subheadline -->
+      <p class="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        One-tap automated authentication for BMSIT&M ContinueO Parent Portal. 
+        Available as a native <strong>Android Mobile App</strong> and a <strong>Chromium Desktop Extension</strong> with zero cloud telemetry.
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <a href="#android-download" class="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-base shadow-xl shadow-brand-600/30 hover:scale-[1.02] transition-all">
+          <i data-lucide="smartphone" class="w-5 h-5"></i>
+          <div class="text-left">
+            <span class="block text-xs uppercase tracking-wider text-brand-200">Android App</span>
+            <span class="text-sm font-bold">Download APK (v1.2.3)</span>
+          </div>
+        </a>
+
+        <a href="#extension-download" class="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl glass-card hover:bg-white/10 text-slate-100 font-semibold text-base border border-white/15 hover:scale-[1.02] transition-all">
+          <i data-lucide="laptop" class="w-5 h-5 text-accent-400"></i>
+          <div class="text-left">
+            <span class="block text-xs uppercase tracking-wider text-slate-400">Chrome / Brave / Edge</span>
+            <span class="text-sm font-bold">Get Desktop Extension</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-accent-400"></i>
+          <span>100% On-Device AES-256 Storage</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="cloud-off" class="w-4 h-4 text-brand-400"></i>
+          <span>Zero Telemetry / No Backend</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="users" class="w-4 h-4 text-purple-400"></i>
+          <span>Multi-Account Support</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+          <span>2-Second Login</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Mockup & Platform Showcase -->
+  <section id="preview" class="py-12 md:py-20 relative">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Platform Toggle Switcher -->
+      <div class="flex justify-center mb-10">
+        <div class="inline-flex p-1.5 rounded-2xl glass-card border border-white/10 shadow-2xl">
+          <button id="tab-android" onclick="switchPreview('android')" class="flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-brand-600 text-white shadow-lg">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+            <span>Android Mobile App</span>
+          </button>
+          <button id="tab-extension" onclick="switchPreview('extension')" class="flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="chrome" class="w-4 h-4"></i>
+            <span>Chromium Extension</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Container -->
+      <div class="relative">
+        
+        <!-- ANDROID PREVIEW -->
+        <div id="preview-android" class="transition-opacity duration-300">
+          <div class="glass-card rounded-3xl p-6 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              <!-- Left: Feature Details -->
+              <div class="lg:col-span-6 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-semibold border border-brand-500/20">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Mobile Powerhouse</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  ContinueO for Android
+                </h3>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  Engineered with Jetpack Compose & Material 3. Replaces manual date dropdowns and ID card inputs with a single tap. Features in-app file downloads for notes, full 1280px desktop rendering, and Over-The-Air wireless updates.
+                </p>
+
+                <div class="space-y-3 pt-2 font-mono text-xs">
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">1-Tap 2-Step Login:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Automates USN, DOB Day/Month/Year dropdowns, and ID card verification in under 3 seconds.</span>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">Genuine 1280px Desktop Mode:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Shows full side-by-side CIE, Attendance, and Notice Board grids without cramped mobile clipping.</span>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">Native Notes & Syllabus Downloads:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Downloads course notes and circulars straight to Android's Downloads directory with authenticated session cookies.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pt-4 flex flex-wrap gap-3">
+                  <a href="#android-download" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/30">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Download APK v1.2.3</span>
+                  </a>
+                  <a href="https://github.com/adityasing9/BMSIT-CP" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:bg-white/10 text-slate-300 text-sm font-medium border border-white/10 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>View Repository</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Right: Visual Device Mockup -->
+              <div class="lg:col-span-6 flex justify-center">
+                <div class="relative w-[300px] sm:w-[320px] rounded-[42px] p-3 bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 shadow-2xl border-4 border-slate-700/80">
+                  <!-- Phone Screen -->
+                  <div class="w-full bg-[#0d1117] rounded-[34px] overflow-hidden border border-white/10 flex flex-col h-[580px] shadow-inner text-left font-sans">
+                    
+                    <!-- Android Status Bar -->
+                    <div class="px-6 py-2 flex justify-between items-center text-[10px] text-slate-400 bg-[#0d1117]">
+                      <span>9:41</span>
+                      <div class="flex items-center gap-1.5">
+                        <i data-lucide="wifi" class="w-3 h-3"></i>
+                        <i data-lucide="battery-charging" class="w-3 h-3 text-accent-400"></i>
+                      </div>
+                    </div>
+
+                    <!-- App TopBar -->
+                    <div class="px-4 py-2.5 bg-brand-700 text-white flex items-center justify-between shadow-md">
+                      <div class="flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <div>
+                          <div class="text-xs font-bold leading-none">ContinueO Login</div>
+                          <div class="text-[9px] text-blue-200 font-mono mt-0.5">1td24ai001</div>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <div class="p-1 rounded bg-white/10"><i data-lucide="rotate-cw" class="w-3 h-3"></i></div>
+                        <div class="p-1 rounded bg-white/10"><i data-lucide="external-link" class="w-3 h-3"></i></div>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-brand-900 font-bold">🖥 Desktop ON</span>
+                      </div>
+                    </div>
+
+                    <!-- Automation Live Timeline Card -->
+                    <div class="m-3 p-3 rounded-2xl bg-slate-900/90 border border-white/10 shadow-lg space-y-1.5 text-[11px]">
+                      <div class="flex items-center gap-1.5 text-slate-300">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-accent-400"></i>
+                        <span>✓ Portal loaded</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 text-slate-300">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-accent-400"></i>
+                        <span>✓ Login details entered</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 text-slate-300">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-accent-400"></i>
+                        <span>✓ ID card verified</span>
+                      </div>
+                      <div class="flex items-center gap-1.5 text-accent-400 font-semibold">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>Done — You're logged in!</span>
+                      </div>
+                    </div>
+
+                    <!-- Simulated Portal Dashboard View -->
+                    <div class="mx-3 flex-1 bg-white rounded-xl p-3 text-slate-900 overflow-hidden text-[9px] space-y-2 shadow-sm">
+                      <div class="flex items-center justify-between border-b pb-1">
+                        <div>
+                          <div class="font-bold text-[10px] text-brand-900">BMS INSTITUTE OF TECH</div>
+                          <div class="text-[8px] text-slate-500">Aaditya Singh • 1TD24AI001</div>
+                        </div>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Active</span>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-2 pt-1">
+                        <div class="p-1.5 rounded bg-slate-50 border">
+                          <span class="text-[8px] text-slate-400 block">Overall Attendance</span>
+                          <span class="font-bold text-emerald-600 text-xs">88.4%</span>
+                        </div>
+                        <div class="p-1.5 rounded bg-slate-50 border">
+                          <span class="text-[8px] text-slate-400 block">CIE Average</span>
+                          <span class="font-bold text-brand-600 text-xs">46 / 50</span>
+                        </div>
+                      </div>
+
+                      <div class="pt-1">
+                        <div class="font-bold text-[8px] text-slate-700 mb-1">Course Registration</div>
+                        <div class="space-y-1">
+                          <div class="flex justify-between items-center p-1 rounded bg-slate-100 text-[8px]">
+                            <span>BCS501 • Software Eng.</span>
+                            <span class="px-1 rounded bg-blue-600 text-white font-bold">[NOTES]</span>
+                          </div>
+                          <div class="flex justify-between items-center p-1 rounded bg-slate-100 text-[8px]">
+                            <span>BAI502 • Data Comm & Net</span>
+                            <span class="px-1 rounded bg-blue-600 text-white font-bold">[NOTES]</span>
+                          </div>
+                          <div class="flex justify-between items-center p-1 rounded bg-slate-100 text-[8px]">
+                            <span>BAI503 • Machine Learning</span>
+                            <span class="px-1 rounded bg-blue-600 text-white font-bold">[NOTES]</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Bottom Bar -->
+                    <div class="p-3 text-center text-[10px] text-slate-500 bg-[#0d1117] border-t border-white/5">
+                      AES-256-GCM Keystore Active
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTENSION PREVIEW -->
+        <div id="preview-extension" class="hidden transition-opacity duration-300">
+          <div class="glass-card rounded-3xl p-6 md:p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              <!-- Left: Extension Details -->
+              <div class="lg:col-span-6 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-500/10 text-accent-400 text-xs font-semibold border border-accent-500/20">
+                  <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                  <span>Chromium Extension (Manifest V3)</span>
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  ContinueO for Desktop Browsers
+                </h3>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  Compatible with <strong>Google Chrome</strong>, <strong>Brave Browser</strong>, and <strong>Microsoft Edge</strong> on Windows, Mac, and Linux. Automates the BMSIT Parent Portal with a clean browser action popup and smart tab reuse.
+                </p>
+
+                <div class="space-y-3 pt-2 font-mono text-xs">
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">Smart Tab Management:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Detects if a ContinueO tab is already open and focuses it instead of cluttering your browser with duplicate tabs.</span>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">Web Crypto AES-256-GCM:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Supports client-side encryption using native Web Cryptography API with PBKDF2 key derivation.</span>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-dark-900/80 border border-white/5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-accent-400 mt-0.5 shrink-0"></i>
+                    <div>
+                      <span class="text-white font-semibold">Strictly Scoped Host Permissions:</span>
+                      <span class="text-slate-400 block font-sans text-xs mt-0.5">Restricted strictly to <code>https://student.bmsit.ac.in/*</code>. Never accesses other websites.</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pt-4 flex flex-wrap gap-3">
+                  <a href="#extension-download" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-600 hover:bg-accent-500 text-white font-semibold text-sm transition-all shadow-lg shadow-accent-600/30">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Download Extension ZIP</span>
+                  </a>
+                  <a href="https://github.com/adityasing9/CP-Ext" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl glass-card hover:bg-white/10 text-slate-300 text-sm font-medium border border-white/10 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>Extension Repository</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Right: Browser Mockup -->
+              <div class="lg:col-span-6 flex justify-center">
+                <div class="w-full max-w-[460px] rounded-2xl bg-slate-900 border border-white/15 shadow-2xl overflow-hidden font-sans">
+                  
+                  <!-- Browser Window Frame -->
+                  <div class="px-4 py-2.5 bg-slate-800/80 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                      <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                      <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+                    </div>
+                    <div class="px-3 py-1 rounded-md bg-dark-900/90 border border-white/5 text-[11px] text-slate-300 font-mono flex items-center gap-1.5">
+                      <i data-lucide="lock" class="w-3 h-3 text-emerald-400"></i>
+                      <span>student.bmsit.ac.in/parents</span>
+                    </div>
+                    <div class="w-4 h-4 rounded bg-brand-500 flex items-center justify-center text-[10px] text-white font-bold">C</div>
+                  </div>
+
+                  <!-- Extension Popup Frame -->
+                  <div class="p-5 bg-[#0f1420] text-slate-200 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg overflow-hidden">
+                          <img src="assets/icon.svg" class="w-full h-full">
+                        </div>
+                        <div>
+                          <div class="text-xs font-bold text-white">ContinueO Auto Login</div>
+                          <div class="text-[10px] text-slate-400">Windows Desktop v1.0.2</div>
+                        </div>
+                      </div>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">Encrypted</span>
+                    </div>
+
+                    <!-- Credential Fields Simulated -->
+                    <div class="space-y-2 text-xs">
+                      <div>
+                        <label class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">Configured USN</label>
+                        <div class="p-2 rounded-lg bg-dark-900 border border-white/10 font-mono text-slate-300 flex justify-between items-center">
+                          <span>1TD24AI001</span>
+                          <i data-lucide="check" class="w-3.5 h-3.5 text-accent-400"></i>
+                        </div>
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <label class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">Date of Birth</label>
+                          <div class="p-2 rounded-lg bg-dark-900 border border-white/10 font-mono text-slate-300">
+                            15 / 08 / 2005
+                          </div>
+                        </div>
+                        <div>
+                          <label class="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">ID Card No.</label>
+                          <div class="p-2 rounded-lg bg-dark-900 border border-white/10 font-mono text-slate-300">
+                            17••••80
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30">
+                      <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                      <span>Launch & Log In to ContinueO</span>
+                    </button>
+
+                    <div class="text-center text-[10px] text-slate-500 pt-1">
+                      Manifest V3 • Scoped exclusively to BMSIT
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Hub & Instant QR Section -->
+  <section id="downloads" class="py-16 md:py-24 relative bg-dark-950/60 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Download Center
+        </h2>
+        <p class="mt-4 text-base sm:text-lg text-slate-400">
+          Pick your platform. Free, open source, and ready to install in under 60 seconds.
+        </p>
+      </div>
+
+      <!-- Download Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        
+        <!-- CARD 1: ANDROID APP -->
+        <div id="android-download" class="glass-card-interactive rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden border-brand-500/30">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-bl-full pointer-events-none -z-0"></div>
+          
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-400 shadow-md">
+                <i data-lucide="smartphone" class="w-6 h-6"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-bold border border-brand-500/20 font-mono">
+                v1.2.3 • LATEST
+              </span>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2">ContinueO for Android</h3>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+              The full mobile app with multi-account support, in-app notes download, full-screen desktop mode, and Over-The-Air wireless updates.
+            </p>
+
+            <!-- Specs Grid -->
+            <div class="grid grid-cols-2 gap-3 text-xs mb-6 font-mono">
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Compatibility</span>
+                <span class="text-slate-200 font-semibold font-sans">Android 8.0+ (API 26)</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">File Size</span>
+                <span class="text-slate-200 font-semibold font-sans">~9.9 MB (Direct APK)</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Keystore</span>
+                <span class="text-slate-200 font-semibold font-sans">Permanent 2048-bit</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">OTA Updates</span>
+                <span class="text-accent-400 font-semibold font-sans">Built-In Wireless</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Actions with QR Code Option -->
+          <div class="space-y-4 pt-4 border-t border-white/5">
+            <div class="flex items-center gap-4">
+              <a href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" class="flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-center text-sm shadow-xl shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Download APK directly</span>
+              </a>
+              <button onclick="toggleQrModal()" title="Scan QR Code on Phone" class="p-3.5 rounded-xl glass-card hover:bg-white/10 text-slate-300 border border-white/10 transition-colors">
+                <i data-lucide="qr-code" class="w-5 h-5"></i>
+              </button>
+            </div>
+
+            <div class="text-[11px] text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-brand-400"></i>
+                <span>Play Protect prompt? Tap <strong>"Install anyway"</strong></span>
+              </span>
+              <a href="https://github.com/adityasing9/BMSIT-CP/releases/tag/latest" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Changelog</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: BROWSER EXTENSION -->
+        <div id="extension-download" class="glass-card-interactive rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden border-accent-500/30">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-accent-500/10 rounded-bl-full pointer-events-none -z-0"></div>
+
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center text-accent-400 shadow-md">
+                <i data-lucide="puzzle" class="w-6 h-6"></i>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-accent-500/10 text-accent-400 text-xs font-bold border border-accent-500/20 font-mono">
+                v1.0.2 • DESKTOP
+              </span>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white mb-2">ContinueO for Chromium</h3>
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+              Browser extension for Google Chrome, Brave Browser, and Microsoft Edge. Automates the portal directly on your laptop or PC with one click.
+            </p>
+
+            <!-- Specs Grid -->
+            <div class="grid grid-cols-2 gap-3 text-xs mb-6 font-mono">
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Supported Browsers</span>
+                <span class="text-slate-200 font-semibold font-sans">Chrome, Brave, Edge</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Extension Spec</span>
+                <span class="text-slate-200 font-semibold font-sans">Manifest V3</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Security</span>
+                <span class="text-slate-200 font-semibold font-sans">Web Crypto AES-256</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900/90 border border-white/5">
+                <span class="text-slate-500 block text-[10px] uppercase">Scope</span>
+                <span class="text-emerald-400 font-semibold font-sans">BMSIT Portal Only</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div class="space-y-4 pt-4 border-t border-white/5">
+            <a href="https://github.com/adityasing9/CP-Ext/releases/latest" target="_blank" rel="noopener" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-accent-600 to-emerald-500 hover:from-accent-500 hover:to-emerald-400 text-white font-bold text-center text-sm shadow-xl shadow-accent-600/30 transition-all flex items-center justify-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Download Extension ZIP</span>
+            </a>
+
+            <div class="text-[11px] text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-accent-400"></i>
+                <span>Install via <strong>Developer Mode → Load Unpacked</strong></span>
+              </span>
+              <a href="https://github.com/adityasing9/CP-Ext" target="_blank" rel="noopener" class="text-accent-400 hover:underline">GitHub</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Feature Grid Section -->
+  <section id="features" class="py-16 md:py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-semibold text-brand-400 uppercase tracking-widest font-mono">Engineered for Students</h2>
+        <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Everything you need. Nothing you don't.
+        </p>
+      </div>
+
+      <!-- 6-Feature Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Feature 1 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">1-Tap Two-Step Automation</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Eliminates typing your USN, picking 3 separate DOB dropdowns, waiting for reload, and keying in your ID card. Done deterministically in ~2 seconds.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Multi-Account Switching</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Store accounts for siblings, classmates, or wards. Switch between active accounts from the Home Screen with zero credential re-entry.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4">
+            <i data-lucide="monitor" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Authentic 1280px Desktop View</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Bypasses cramped mobile layout bugs. Renders the portal in its natural two-column grid with pinch-to-zoom and full-table view.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-4">
+            <i data-lucide="file-down" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Direct In-App File Downloads</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Download subject notes (<code>[NOTES]</code>), circulars, and syllabus PDFs directly to your Downloads folder with authenticated session cookies.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">100% On-Device Keystore Security</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Credentials are encrypted using Android Keystore AES-256-GCM and Web Crypto API. No servers, no tracking, no data collection.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="glass-card-interactive p-6 rounded-2xl border border-white/10">
+          <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-4">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">OTA Updates & Data Backup</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Built-in wireless APK updates with permanent signing keystores, plus one-tap JSON backup/restore for painless device migrations.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Comparison Matrix Table -->
+  <section class="py-16 md:py-20 relative bg-dark-950/60 border-y border-white/5">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Why Upgrade?</h2>
+        <p class="mt-2 text-slate-400 text-sm">Compare the default web experience with the ContinueO Suite.</p>
+      </div>
+
+      <div class="glass-card rounded-2xl overflow-hidden border border-white/10">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-dark-900 border-b border-white/10 text-xs uppercase tracking-wider text-slate-400 font-mono">
+              <tr>
+                <th class="py-4 px-6">Experience / Feature</th>
+                <th class="py-4 px-6 text-slate-400">Traditional Web Browser</th>
+                <th class="py-4 px-6 text-brand-400 font-bold">With ContinueO Suite</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 font-sans">
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">Login Duration</td>
+                <td class="py-3.5 px-6 text-slate-400">45–60 seconds of typing</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold flex items-center gap-1.5">
+                  <i data-lucide="zap" class="w-4 h-4"></i> ~2–3 seconds (Single Tap)
+                </td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">Multiple Accounts</td>
+                <td class="py-3.5 px-6 text-slate-400">Logout & retype everything</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold">1-Tap instant account switch</td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">Mobile Layout</td>
+                <td class="py-3.5 px-6 text-slate-400">Squished tables & hidden charts</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold">Full 1280px Desktop layout with zoom</td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">In-App File Downloads</td>
+                <td class="py-3.5 px-6 text-slate-400">Fails or downloads raw .bin</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold">Native DownloadManager with cookies</td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">App Updates</td>
+                <td class="py-3.5 px-6 text-slate-400">Manual re-download</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold">Over-The-Air (OTA) wireless update</td>
+              </tr>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="py-3.5 px-6 font-medium text-white">Privacy & Security</td>
+                <td class="py-3.5 px-6 text-slate-400">Browser autofill plaintext</td>
+                <td class="py-3.5 px-6 text-accent-400 font-bold">Encrypted Hardware Keystore (AES-256)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Step-by-Step Installation Guides -->
+  <section id="installation" class="py-16 md:py-24 relative">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Setup in 3 Steps</h2>
+        <p class="mt-2 text-slate-400 text-sm">Follow these quick guides to get running in under a minute.</p>
+      </div>
+
+      <!-- Installation Tabs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Android Guide -->
+        <div class="glass-card rounded-2xl p-6 border border-brand-500/20 space-y-4">
+          <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+            <i data-lucide="smartphone" class="w-5 h-5 text-brand-400"></i>
+            <h3 class="text-lg font-bold text-white">Android App Setup</h3>
+          </div>
+
+          <ol class="space-y-4 text-xs font-sans">
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center shrink-0 border border-brand-500/30">1</span>
+              <div>
+                <strong class="text-white block font-semibold">Download the APK:</strong>
+                <span class="text-slate-400">Tap the <a href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" class="text-brand-400 underline">Download APK</a> button to save <code>ContinueO-AutoLogin.apk</code> on your phone.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center shrink-0 border border-brand-500/30">2</span>
+              <div>
+                <strong class="text-white block font-semibold">Allow Installation:</strong>
+                <span class="text-slate-400">Open the downloaded file. If Google Play Protect shows a prompt (*"Harmful app blocked"*), tap <strong>"Install anyway"</strong> (standard for self-signed APKs).</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 font-bold flex items-center justify-center shrink-0 border border-brand-500/30">3</span>
+              <div>
+                <strong class="text-white block font-semibold">Save Profile & Tap Login:</strong>
+                <span class="text-slate-400">Enter your USN, DOB, and ID Card number on first launch. Tap <strong>LOGIN NOW 🚀</strong>!</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Extension Guide -->
+        <div class="glass-card rounded-2xl p-6 border border-accent-500/20 space-y-4">
+          <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+            <i data-lucide="chrome" class="w-5 h-5 text-accent-400"></i>
+            <h3 class="text-lg font-bold text-white">Desktop Extension Setup</h3>
+          </div>
+
+          <ol class="space-y-4 text-xs font-sans">
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-accent-500/20 text-accent-400 font-bold flex items-center justify-center shrink-0 border border-accent-500/30">1</span>
+              <div>
+                <strong class="text-white block font-semibold">Download & Extract ZIP:</strong>
+                <span class="text-slate-400">Download the extension release ZIP from <a href="https://github.com/adityasing9/CP-Ext/releases/latest" target="_blank" rel="noopener" class="text-accent-400 underline">GitHub</a> and extract it to a folder.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-accent-500/20 text-accent-400 font-bold flex items-center justify-center shrink-0 border border-accent-500/30">2</span>
+              <div>
+                <strong class="text-white block font-semibold">Open Extensions Page:</strong>
+                <span class="text-slate-400">In Chrome, Brave, or Edge, visit <code>chrome://extensions</code> and toggle <strong>Developer mode</strong> in the top right.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-accent-500/20 text-accent-400 font-bold flex items-center justify-center shrink-0 border border-accent-500/30">3</span>
+              <div>
+                <strong class="text-white block font-semibold">Load Unpacked:</strong>
+                <span class="text-slate-400">Click <strong>"Load unpacked"</strong> and select the extracted folder. Pin ContinueO to your toolbar!</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Frequently Asked Questions -->
+  <section id="faq" class="py-16 md:py-24 relative bg-dark-950/60 border-t border-white/5">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
+        <p class="mt-2 text-slate-400 text-sm">Everything you might wonder about security, installation, and updates.</p>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- FAQ 1 -->
+        <details class="group glass-card rounded-2xl p-5 border border-white/10 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-semibold text-white text-sm">
+            <span>Why does Google Play Protect say "Harmful app blocked"?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+            Because ContinueO is an open-source, client-side app distributed independently outside the Google Play Store, Google Play Protect flags unrecognized self-signed certificates. To proceed, simply tap <strong>"Install anyway"</strong> (located directly above the blue "Got it" button). The app requires only standard internet access and runs zero background tracking.
+          </div>
+        </details>
+
+        <!-- FAQ 2 -->
+        <details class="group glass-card rounded-2xl p-5 border border-white/10 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-semibold text-white text-sm">
+            <span>Are my college credentials safe?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+            Yes, 100%. Your USN, Date of Birth, and ID Card number never leave your device. On Android, they are stored inside Google's <code>EncryptedSharedPreferences</code> backed by an Android Keystore <strong>MasterKey (AES-256-GCM)</strong>. In the browser extension, credentials stay in sandboxed local storage protected by the Web Crypto API.
+          </div>
+        </details>
+
+        <!-- FAQ 3 -->
+        <details class="group glass-card rounded-2xl p-5 border border-white/10 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-semibold text-white text-sm">
+            <span>Can I download subject notes ([NOTES]) and circulars in the app?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+            Yes! Tapping <code>[NOTES]</code> or any PDF/circular link routes the file directly to your phone's <strong>Downloads</strong> directory via Android's native <code>DownloadManager</code>. Session cookies and referer headers are injected automatically so authenticated downloads succeed without permission errors.
+          </div>
+        </details>
+
+        <!-- FAQ 4 -->
+        <details class="group glass-card rounded-2xl p-5 border border-white/10 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-semibold text-white text-sm">
+            <span>How does Over-The-Air (OTA) updating work?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+            ContinueO includes a multi-tier update checker (Fastly CDN, release redirect, and GitHub API) that detects new versions without rate limits. Tapping "Update (OTA)" downloads the APK and prompts package installation directly over Wi-Fi/cellular. All builds share a permanent release keystore so updates install seamlessly without signature conflicts.
+          </div>
+        </details>
+
+        <!-- FAQ 5 -->
+        <details class="group glass-card rounded-2xl p-5 border border-white/10 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-semibold text-white text-sm">
+            <span>What happens if the portal shows a CAPTCHA or OTP?</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-3">
+            The app and extension strictly follow safety best practices. If a CAPTCHA or OTP challenge appears, automation pauses and enables a <strong>"Continue Manually"</strong> mode so you can solve it yourself in the WebView or browser tab.
+          </div>
+        </details>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- QR Code Modal (for easy mobile download from desktop) -->
+  <div id="qr-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="glass-card rounded-3xl p-6 max-w-sm w-full border border-white/15 text-center space-y-4">
+      <div class="flex justify-between items-center">
+        <h4 class="font-bold text-white text-base">Scan to Download on Android</h4>
+        <button onclick="toggleQrModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="bg-white p-4 rounded-2xl inline-block shadow-lg mx-auto">
+        <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" alt="QR Code to Download APK" class="w-48 h-48 mx-auto">
+      </div>
+      <p class="text-xs text-slate-400">
+        Scan this QR code with your phone camera to download the <strong>v1.2.3 APK</strong> directly.
+      </p>
+      <button onclick="toggleQrModal()" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-12 bg-dark-950 border-t border-white/5 text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+      <div class="flex items-center gap-3">
+        <img src="assets/icon.svg" class="w-6 h-6">
+        <span class="text-slate-300 font-bold">ContinueO Suite</span>
+        <span>•</span>
+        <span>Crafted for BMSIT&M Students</span>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-6 text-slate-400">
+        <a href="https://github.com/adityasing9/BMSIT-CP" target="_blank" rel="noopener" class="hover:text-white transition-colors">Android App GitHub</a>
+        <a href="https://github.com/adityasing9/CP-Ext" target="_blank" rel="noopener" class="hover:text-white transition-colors">Extension GitHub</a>
+        <a href="https://github.com/adityasing9/BMSIT-CP/releases/tag/latest" target="_blank" rel="noopener" class="hover:text-white transition-colors">Releases</a>
+      </div>
+
+      <div class="text-[11px] text-slate-600 max-w-sm">
+        Independent educational utility. Not affiliated with or endorsed by BMSIT&M or Contineo software.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Tab Preview Switcher
+    function switchPreview(platform) {
+      const androidTab = document.getElementById('tab-android');
+      const extTab = document.getElementById('tab-extension');
+      const androidPreview = document.getElementById('preview-android');
+      const extPreview = document.getElementById('preview-extension');
+
+      if (platform === 'android') {
+        androidTab.className = "flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-brand-600 text-white shadow-lg";
+        extTab.className = "flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+        androidPreview.classList.remove('hidden');
+        extPreview.classList.add('hidden');
+      } else {
+        extTab.className = "flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-accent-600 text-white shadow-lg";
+        androidTab.className = "flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+        extPreview.classList.remove('hidden');
+        androidPreview.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    // QR Modal Toggle
+    function toggleQrModal() {
+      const modal = document.getElementById('qr-modal');
+      modal.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>

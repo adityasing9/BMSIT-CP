@@ -3,6 +3,7 @@
 <div align="center">
 
 [![Build & Release APK](https://github.com/adityasing9/BMSIT-CP/actions/workflows/build.yml/badge.svg)](https://github.com/adityasing9/BMSIT-CP/actions/workflows/build.yml)
+[![Website](https://img.shields.io/badge/Website-ContinueO%20Suite-2563eb?logo=googlechrome&logoColor=white)](https://adityasing9.github.io/BMSIT-CP/)
 [![Latest Release](https://img.shields.io/github/v/release/adityasing9/BMSIT-CP?color=007AFF&label=Release&logo=github)](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest)
 [![Android Min SDK](https://img.shields.io/badge/Android-8.0%2B%20(API%2026%2B)-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
@@ -11,7 +12,7 @@
 
 **A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, in-app file downloads, and features automated wireless updates.**
 
-[📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source) • [❓ FAQ](#-frequently-asked-questions-faq)
+[🌐 **Live Website & Download Hub**](https://adityasing9.github.io/BMSIT-CP/) • [📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source) • [❓ FAQ](#-frequently-asked-questions-faq)
 
 </div>
 
