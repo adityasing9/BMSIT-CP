@@ -1,8 +1,8 @@
 {
-  "versionCode": 14,
-  "versionName": "1.2.11",
-  "releaseTitle": "ContinueO Auto Login v1.2.11",
-  "releaseNotes": "• Resolved Play Protect false positive & eliminated dropper permissions\n• Added Star on GitHub ⭐ & Follow Developer options in Settings\n• Enhanced WhatsApp share template with GitHub project links\n• Interactive in-app Update Alert on Home Screen with 1-tap browser APK download",
+  "versionCode": 15,
+  "versionName": "1.2.12",
+  "releaseTitle": "ContinueO Auto Login v1.2.12",
+  "releaseNotes": "• Restored 100% In-App Automatic OTA Download with real-time percentage progress bar & byte tracker\n• Instant auto-installer trigger upon download completion\n• Added Star on GitHub ⭐ & Follow Developer options in Settings\n• Enhanced WhatsApp share template with high-converting student copy\n• Play Protect safety maintained with zero dropper permissions",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }
