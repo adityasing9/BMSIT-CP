@@ -7,7 +7,7 @@ import android.widget.Toast
 
 object ShareUtils {
 
-    const val APP_WEBSITE_URL = "https://adityasing9.github.io/BMSIT-CP/"
+    const val APP_WEBSITE_URL = "https://bmsit-cp.vercel.app"
     const val GITHUB_RELEASES_URL = "https://github.com/adityasing9/BMSIT-CP/releases/latest"
     const val EXTENSION_URL = "https://github.com/adityasing9/CP-Ext"
 
