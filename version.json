@@ -1,8 +1,8 @@
 {
-  "versionCode": 7,
-  "versionName": "1.2.4",
-  "releaseTitle": "ContinueO Auto Login v1.2.4",
-  "releaseNotes": "• Complete Theme Engine: Follow System, Light, and Dark themes\n• 5 Color Accent Palettes: Classic Blue, Emerald, Royal Purple, Crimson, Amber\n• Pure Black AMOLED mode for OLED battery saving\n• Material You Dynamic Colors on Android 12+\n• Quick theme toggle on Home Screen",
+  "versionCode": 8,
+  "versionName": "1.2.5",
+  "releaseTitle": "ContinueO Auto Login v1.2.5",
+  "releaseNotes": "• Direct GitHub Releases link in update banner & settings dialog\n• Dedicated GitHub Releases hub under Settings > Updates\n• One-tap access to GitHub release changelogs and APK downloads\n• Enhanced Over-The-Air (OTA) and browser update flows",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
-  "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/tag/latest"
+  "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

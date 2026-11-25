@@ -181,6 +181,44 @@ fun HomeScreen(
                             )
                         }
 
+                        // Direct GitHub Releases Link
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Surface(
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                    UpdateManager.openInBrowser(context, targetUrl)
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                    contentDescription = "GitHub Release",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "GitHub Release & Changelog",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "Open ↗",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+
                         if (isDownloadingOta) {
                             Spacer(modifier = Modifier.height(10.dp))
                             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -201,9 +239,18 @@ fun HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 TextButton(
-                                    onClick = { UpdateManager.openBrowserDownload(context, update.downloadUrl) }
+                                    onClick = {
+                                        val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                        UpdateManager.openInBrowser(context, targetUrl)
+                                    }
                                 ) {
-                                    Text("Open in Browser")
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("GitHub Release")
                                 }
                                 if (isDownloadComplete) {
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -229,10 +276,17 @@ fun HomeScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 OutlinedButton(
                                     onClick = {
-                                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                        val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                        UpdateManager.openInBrowser(context, targetUrl)
                                     }
                                 ) {
-                                    Text("Browser")
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("GitHub")
                                 }
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Button(

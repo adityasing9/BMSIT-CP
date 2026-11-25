@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.continueo.autologin.R
 import com.continueo.autologin.models.AccountProfile
@@ -489,6 +490,33 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            ListItem(
+                headlineContent = { Text("GitHub Releases") },
+                supportingContent = { Text("View changelogs, assets, and download APKs from GitHub") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                        }
+                    ) {
+                        Text("Releases ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                }
+            )
+
+            HorizontalDivider()
+
             // About Section
             Text(
                 text = "About",
@@ -632,17 +660,65 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    // Direct GitHub Releases Link Card
+                    Surface(
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                UpdateManager.openInBrowser(context, targetUrl)
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                contentDescription = "GitHub Releases",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "GitHub Release & Downloads",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
                 Row {
                     OutlinedButton(
                         onClick = {
-                            UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                            val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                            UpdateManager.openInBrowser(context, targetUrl)
                             updateDialogInfo = null
                         }
                     ) {
-                        Text("Browser")
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_open_in_browser),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("GitHub")
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(

@@ -28,7 +28,7 @@ object UpdateManager {
     private const val GITHUB_REPO_NAME = "BMSIT-CP"
     private const val GITHUB_API_URL = "https://api.github.com/repos/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/latest"
     const val DIRECT_APK_URL = "https://github.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/download/latest/ContinueO-AutoLogin.apk"
-    const val RELEASES_PAGE_URL = "https://github.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/tag/latest"
+    const val RELEASES_PAGE_URL = "https://github.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/releases/latest"
 
     fun getCurrentVersionName(context: Context): String {
         return try {
