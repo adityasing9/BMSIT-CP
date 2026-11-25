@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "docs",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/android", "destination": "/android.html" },
+    { "source": "/extension", "destination": "/extension.html" }
+  ]
+}
