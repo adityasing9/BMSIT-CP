@@ -1,0 +1,714 @@
+<!-- ContinueO Desktop Extension - Architecture & Setup -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_standard" name="shell-type"/>
+<title>ContinueO Desktop Extension — Architecture & Setup</title>
+<meta name="description" content="High-reliability Chromium browser extension automating BMSIT Parent Portal login on Chrome, Brave, and Edge with zero cloud latency."/>
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+</style>
+<script>
+  (function() {
+    try {
+      const storedTheme = localStorage.getItem('continueo_theme');
+      const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#e9e7eb","tertiary-fixed-dim":"#ffb4a9","on-primary-fixed":"#001a41","outline-variant":"#c1c6d6","on-primary-container":"#ffffff","primary-fixed-dim":"#adc7ff","on-error-container":"#93000a","on-secondary-fixed-variant":"#00531e","on-error":"#ffffff","tertiary-container":"#dc392c","surface-tint":"#005bc0","primary-container":"#1a73e8","on-surface":"#1a1b1e","surface-variant":"#e3e2e6","error":"#ba1a1a","surface-container-low":"#f4f3f7","surface-container":"#efedf1","secondary":"#006e2a","inverse-surface":"#2f3033","primary-fixed":"#d8e2ff","on-secondary-container":"#00752d","surface-container-lowest":"#ffffff","secondary-fixed":"#8ffa9b","on-primary-fixed-variant":"#004493","surface":"#faf9fd","surface-bright":"#faf9fd","secondary-fixed-dim":"#73dc82","on-tertiary-fixed":"#410001","on-background":"#1a1b1e","surface-container-highest":"#e3e2e6","on-surface-variant":"#414754","on-primary":"#ffffff","outline":"#727785","error-container":"ffdad6","on-tertiary":"#ffffff","on-tertiary-fixed-variant":"#930004","on-tertiary-container":"#ffffff","secondary-container":"#8ffa9b","tertiary":"#b81d17","on-secondary":"#ffffff","background":"#faf9fd","inverse-on-surface":"#f1f0f4","surface-dim":"#dbd9dd","on-secondary-fixed":"#002108","inverse-primary":"#adc7ff","tertiary-fixed":"#ffdad5","primary":"#005bbf"},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"},spacing:{"gutter":"1.5rem","space-2xl":"4rem","margin":"3rem","space-xl":"2.5rem","space-xs":"0.25rem","margin-mobile":"1.25rem","space-3xl":"6rem","space-lg":"1.5rem","space-sm":"0.5rem","gutter-sm":"1rem","space-md":"1rem"},fontFamily:{"headline-md":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"]},fontSize:{"headline-md":["28px",{lineHeight:"36px",fontWeight:"500"}],"display-hero":["64px",{lineHeight:"72px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["14px",{lineHeight:"18px",fontWeight:"500"}],"body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],"display-hero-mobile":["40px",{lineHeight:"48px",letterSpacing:"-0.02em",fontWeight:"700"}],"body-sm":["14px",{lineHeight:"20px",fontWeight:"400"}],"headline-lg-mobile":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"600"}],"body-lg":["18px",{lineHeight:"28px",fontWeight:"400"}],"label-sm":["12px",{lineHeight:"16px",fontWeight:"500"}],"headline-lg":["44px",{lineHeight:"52px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-sm":["22px",{lineHeight:"28px",fontWeight:"500"}],"label-lg":["16px",{lineHeight:"20px",fontWeight:"600"}]}}}}
+</script>
+</head>
+<body class="bg-surface dark:bg-[#0f131c] font-body-md text-on-surface dark:text-slate-100 antialiased transition-colors duration-200">
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-[#0f131c]/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(32,33,36,0.04)] dark:shadow-[0_1px_8px_rgba(0,0,0,0.5)] border-b border-transparent dark:border-slate-800">
+<div class="h-16 max-w-[1280px] mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
+<a class="flex items-center gap-space-xs text-on-surface dark:text-white font-headline-sm text-headline-sm tracking-tight" href="index.html">
+<span class="material-symbols-outlined text-primary text-[28px]">bolt</span>
+<span>Continue<span class="text-primary">O</span></span>
+</a>
+<nav class="hidden lg:flex items-center gap-space-lg">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="index.html">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="android.html">Android App</a>
+<a aria-current="page" class="transition-colors text-primary font-label-md font-semibold px-3 py-1 rounded-full bg-primary-fixed/40 dark:bg-blue-900/40" href="extension.html">Desktop Extension</a>
+</nav>
+<div class="flex items-center gap-space-sm sm:gap-space-md">
+<!-- Dark/Light Theme Toggle Button -->
+<button aria-label="Toggle theme mode" class="w-10 h-10 rounded-full bg-surface-container-low dark:bg-[#181b25] border border-outline-variant/30 dark:border-slate-700/60 flex items-center justify-center text-on-surface-variant dark:text-amber-400 hover:text-on-surface transition-all focus:outline-none" id="theme-toggle" type="button">
+<span class="material-symbols-outlined text-[20px]" id="theme-toggle-icon">dark_mode</span>
+</button>
+<a class="hidden sm:inline-flex items-center justify-center h-10 px-space-lg rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md shadow-[0_2px_8px_rgba(32,33,36,0.08)] hover:bg-primary transition-colors" href="#download-release">Download Extension</a>
+<a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white" href="https://github.com/adityasing9/CP-Ext" target="_blank" rel="noopener" title="GitHub Repository">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</a>
+</div>
+</div>
+</header>
+<main class="w-full pt-16 bg-surface dark:bg-[#0f131c] transition-colors duration-200">
+<div class="flex flex-col w-full">
+<!-- Top Hero / Product Spotlight Section -->
+<section class="relative w-full pt-space-xl pb-space-3xl overflow-hidden">
+<!-- Ambient Organic Emerald Background Arc behind Device/Preview Mockup -->
+<div class="pointer-events-none absolute -top-24 right-[-10%] w-[620px] h-[620px] rounded-full bg-secondary-fixed/30 dark:bg-emerald-500/10 blur-3xl -z-10"></div>
+<div class="pointer-events-none absolute top-48 left-[-15%] w-[520px] h-[520px] rounded-full bg-primary-fixed/40 dark:bg-blue-600/15 blur-3xl -z-10"></div>
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<!-- Hero Left Column: Copy & Actions -->
+<div class="lg:col-span-7 flex flex-col items-start gap-space-lg">
+<!-- Status Pill Badge -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest dark:bg-[#181b25] shadow-[0_2px_8px_rgba(32,33,36,0.06)] dark:shadow-none border border-transparent dark:border-slate-800 text-on-surface dark:text-slate-200">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wide uppercase text-on-surface-variant dark:text-slate-400">Windows Chromium Extension • Manifest V3 • v1.0.2</span>
+</div>
+<!-- Hero Main Title -->
+<div class="flex flex-col gap-space-xs">
+<h1 class="font-display-hero text-display-hero text-on-surface dark:text-white tracking-tight">
+              Continue<span class="text-primary-container">O</span> Desktop Extension
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-slate-300 max-w-xl">
+              High-reliability Chromium browser extension automating BMSIT Parent Portal login on Chrome, Brave, and Edge with zero cloud latency.
+</p>
+</div>
+<!-- CTAs -->
+<div class="flex flex-wrap items-center gap-space-md pt-space-xs w-full sm:w-auto">
+<a class="inline-flex items-center justify-center gap-space-xs h-12 px-space-xl rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md shadow-[0_4px_16px_rgba(26,115,232,0.28)] hover:bg-primary transition-all duration-200 hover:-translate-y-0.5" href="https://github.com/adityasing9/CP-Ext/releases/latest" target="_blank" rel="noopener">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>Download Extension (.zip - v1.0.2)</span>
+</a>
+<a class="inline-flex items-center justify-center gap-space-xs h-12 px-space-lg rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#181b25] dark:hover:bg-[#1e2433] text-on-surface dark:text-slate-200 border border-transparent dark:border-slate-700/60 font-label-md text-label-md transition-all duration-200" href="https://github.com/adityasing9/CP-Ext" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">code</span>
+<span>GitHub Repository</span>
+</a>
+</div>
+<!-- Feature Meta Chips -->
+<div class="flex flex-wrap items-center gap-space-xs pt-space-sm">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low dark:bg-[#181b25] text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-800 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified</span>
+              Manifest V3 Compliant
+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low dark:bg-[#181b25] text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-800 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">browser_updated</span>
+              Chrome, Brave, Edge &amp; Kiwi
+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low dark:bg-[#181b25] text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-800 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">lock</span>
+              Web Crypto AES-256-GCM
+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low dark:bg-[#181b25] text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-800 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface dark:text-slate-300">shield</span>
+              100% Client-Side
+</span>
+</div>
+</div>
+<!-- Hero Right Column: Authentic Browser Extension Popup UI Simulator -->
+<div class="lg:col-span-5 flex justify-center lg:justify-end relative">
+<!-- Background geometric circle disc anchor -->
+<div class="absolute w-[340px] h-[340px] sm:w-[420px] sm:h-[420px] rounded-full bg-secondary-fixed/50 dark:bg-emerald-900/30 -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+<!-- Floating status chip over the mockup -->
+<div class="absolute -top-4 -left-6 z-20 hidden sm:flex items-center gap-space-xs px-space-md py-2 rounded-full bg-surface-container-lowest dark:bg-[#181b25] shadow-[0_4px_16px_rgba(32,33,36,0.12)] dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)] border border-transparent dark:border-slate-700/60">
+<span class="material-symbols-outlined text-secondary text-[20px]">offline_bolt</span>
+<span class="font-label-sm text-label-sm text-on-surface dark:text-slate-200 font-semibold">Active Background Service Worker</span>
+</div>
+<!-- Chrome Extension Browser Popup Window Mockup -->
+<div class="w-full max-w-[360px] rounded-lg bg-surface-container-lowest dark:bg-[#181b25] border border-transparent dark:border-slate-700/60 shadow-[0_20px_40px_-10px_rgba(32,33,36,0.16)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6)] p-space-lg flex flex-col gap-space-md transition-transform duration-300 hover:scale-[1.01]">
+<!-- Extension Header Inside Popup -->
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-sm">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</div>
+<div>
+<h3 class="font-label-lg text-label-lg text-on-surface dark:text-white leading-none">ContinueO</h3>
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">BMSIT Portal Agent v1.0.2</span>
+</div>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-secondary-fixed dark:bg-emerald-950 dark:text-emerald-300 text-on-secondary-fixed font-semibold">
+                READY
+</span>
+</div>
+<!-- Credentials Status Card -->
+<div class="p-space-md rounded bg-surface-container-low dark:bg-[#1e2433] flex flex-col gap-1.5 border border-transparent dark:border-slate-700/50">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">Portal Profile</span>
+<span class="font-label-sm text-label-sm text-secondary dark:text-emerald-400 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                  Credentials configured
+</span>
+</div>
+<div class="flex items-center justify-between text-on-surface dark:text-slate-200 pt-0.5">
+<span class="font-label-md text-label-md font-semibold tracking-wide">USN: 1BY2XCS•••</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">ID: ••••••</span>
+</div>
+</div>
+<!-- Interactive Pin Form Container -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface dark:text-slate-200 font-semibold flex items-center justify-between" for="popup-pin">
+<span>Enter PIN to Unlock</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 font-normal">AES-256</span>
+</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-[18px] text-outline">key</span>
+<input class="w-full h-11 pl-10 pr-10 rounded-full bg-surface-container-lowest dark:bg-[#1e2433] text-on-surface dark:text-white border border-transparent dark:border-slate-700 font-body-md text-body-md shadow-[0_2px_8px_rgba(32,33,36,0.06)] focus:outline-none focus:shadow-[0_4px_16px_rgba(32,33,36,0.12)] transition-shadow tracking-widest text-center" id="popup-pin" placeholder="Enter Security PIN" type="password" value="••••"/>
+<span class="material-symbols-outlined absolute right-3.5 text-[18px] text-outline cursor-pointer hover:text-on-surface dark:hover:text-white">visibility</span>
+</div>
+</div>
+<!-- Interactive Action Button Group -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<button class="w-full h-11 rounded-full bg-primary-container hover:bg-primary text-on-primary-container font-label-md text-label-md font-bold tracking-wide flex items-center justify-center gap-space-xs shadow-[0_2px_8px_rgba(26,115,232,0.25)] transition-all active:scale-[0.98]" id="trigger-login-btn" type="button">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+<span>⚡ LOGIN NOW</span>
+</button>
+<div class="grid grid-cols-2 gap-space-xs pt-1">
+<button class="h-9 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1e2433] dark:hover:bg-[#252c3e] text-on-surface-variant dark:text-slate-300 font-label-sm text-label-sm flex items-center justify-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">settings</span>
+<span>⚙ Settings</span>
+</button>
+<button class="h-9 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1e2433] dark:hover:bg-[#252c3e] text-on-surface-variant dark:text-slate-300 font-label-sm text-label-sm flex items-center justify-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">history</span>
+<span>Session Log</span>
+</button>
+</div>
+</div>
+<!-- In-Page HUD Simulation Notice inside popup -->
+<div class="p-space-sm rounded-lg bg-surface-container-highest dark:bg-[#1e2433] text-on-surface-variant dark:text-slate-300 text-[13px] flex items-center gap-2" id="simulated-hud">
+<span class="material-symbols-outlined text-primary text-[18px]">tab</span>
+<span class="truncate">HUD overlay displays during execution</span>
+</div>
+<!-- Mockup Card Footer -->
+<div class="pt-space-xs text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 tracking-tight">
+                student.bmsit.ac.in • Local Storage Only
+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Desktop Extension Installation Guide Section -->
+<section class="w-full py-space-3xl bg-surface-container-lowest dark:bg-[#141822] transition-colors" id="install-guide">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="flex flex-col gap-space-xs mb-space-2xl max-w-2xl">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">SETUP CHANNEL 01</span>
+<h2 class="font-display-hero text-headline-lg md:text-[52px] leading-tight text-on-surface dark:text-white font-bold tracking-tight">Desktop Extension Installation</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-slate-300 pt-1">Engineered natively for Google Chrome, Brave, and Microsoft Edge using Chromium Manifest V3 APIs.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<div class="lg:col-span-7 bg-surface-container-lowest dark:bg-[#181b25] rounded-xl p-space-lg md:p-space-xl shadow-[0_4px_20px_rgba(32,33,36,0.06)] dark:shadow-none border border-outline-variant/20 dark:border-slate-800 flex flex-col gap-space-lg">
+<div class="flex items-center justify-between pb-space-xs flex-wrap gap-2">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-label-lg shadow-sm shrink-0">1</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface dark:text-white font-bold text-[22px] tracking-tight">Load Unpacked from Release ZIP</h3>
+</div>
+<span class="px-3 py-1 rounded-full bg-secondary-fixed/50 dark:bg-emerald-950 dark:text-emerald-300 text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Recommended for Students</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="p-space-md rounded-lg bg-surface-container-low/70 dark:bg-[#1e2433] border border-outline-variant/10 dark:border-slate-700/50 flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-200 font-bold text-label-sm shrink-0 mt-0.5">01</div>
+<div class="flex flex-col gap-1.5 flex-1">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface dark:text-white leading-tight">Download &amp; Extract Bundle</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300 leading-relaxed">Download the official release archive <span class="font-mono text-label-sm bg-primary-fixed/40 dark:bg-blue-900/40 text-primary dark:text-blue-300 px-1.5 py-0.5 rounded">ContinueO-Extension.zip</span> from GitHub releases and unzip it to a permanent local folder (e.g., <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1 rounded text-on-surface dark:text-slate-200">Documents/ContinueO</code>).</p>
+<div class="pt-1">
+<a class="inline-flex items-center gap-1.5 text-primary dark:text-blue-400 hover:text-primary-container font-label-sm text-label-sm font-semibold transition-colors" href="https://github.com/adityasing9/CP-Ext/releases/latest" target="_blank" rel="noopener">
+<span class="material-symbols-outlined text-[18px]">download</span>
+<span>Download Extension ZIP from GitHub</span>
+</a>
+</div>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low/70 dark:bg-[#1e2433] border border-outline-variant/10 dark:border-slate-700/50 flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-200 font-bold text-label-sm shrink-0 mt-0.5">02</div>
+<div class="flex flex-col gap-1.5 flex-1">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface dark:text-white leading-tight">Navigate to Browser Extensions</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300 leading-relaxed">Open a new tab in your browser address bar and paste your respective extension management URL:</p>
+<div class="flex flex-wrap items-center gap-2 pt-1">
+<span class="font-mono text-[13px] bg-surface-container dark:bg-slate-800 px-2.5 py-1 rounded-full text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-700">chrome://extensions</span>
+<span class="font-mono text-[13px] bg-surface-container dark:bg-slate-800 px-2.5 py-1 rounded-full text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-700">brave://extensions</span>
+<span class="font-mono text-[13px] bg-surface-container dark:bg-slate-800 px-2.5 py-1 rounded-full text-on-surface-variant dark:text-slate-300 border border-transparent dark:border-slate-700">edge://extensions</span>
+</div>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low/70 dark:bg-[#1e2433] border border-outline-variant/10 dark:border-slate-700/50 flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-200 font-bold text-label-sm shrink-0 mt-0.5">03</div>
+<div class="flex flex-col gap-1 flex-1">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface dark:text-white leading-tight">Toggle Developer Mode ON</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300 leading-relaxed">Switch the toggle in the upper-right corner of the Extensions dashboard. This unlocks local sideloading buttons.</p>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low/70 dark:bg-[#1e2433] border border-outline-variant/10 dark:border-slate-700/50 flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-200 font-bold text-label-sm shrink-0 mt-0.5">04</div>
+<div class="flex flex-col gap-1 flex-1">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface dark:text-white leading-tight">Click 'Load Unpacked'</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300 leading-relaxed">Click the top-left button and choose the extracted folder containing <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1 rounded text-on-surface dark:text-slate-200">manifest.json</code>. Do not select the outer parent folder.</p>
+</div>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container-low/70 dark:bg-[#1e2433] border border-outline-variant/10 dark:border-slate-700/50 flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest dark:bg-slate-700 flex items-center justify-center text-on-surface-variant dark:text-slate-200 font-bold text-label-sm shrink-0 mt-0.5">05</div>
+<div class="flex flex-col gap-1 flex-1">
+<h4 class="font-label-lg text-label-lg font-bold text-on-surface dark:text-white leading-tight">Pin &amp; Enter Credentials</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300 leading-relaxed">Pin ContinueO to your toolbar via the puzzle piece icon. Click the extension popup, open <strong>Settings</strong>, store your student USN/DOB, and click <strong class="text-primary dark:text-blue-400">'LOGIN NOW'</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<div class="p-space-xl rounded-xl bg-surface-container-low dark:bg-[#181b25] flex flex-col gap-space-lg shadow-sm border border-outline-variant/20 dark:border-slate-800">
+<div class="flex items-center justify-between pb-space-xs border-b border-outline-variant/30 dark:border-slate-700/60">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-on-surface dark:text-white text-[24px]">terminal</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface dark:text-white font-semibold text-[20px]">Method 2: Build From Source</h3>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high dark:bg-slate-800 text-on-surface-variant dark:text-slate-300 font-label-sm text-label-sm font-bold">Open Source</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-300">Compile the background workers, CSP shadow HUD styles, and cryptographic harness locally:</p>
+<div class="rounded bg-surface-container-highest dark:bg-[#1e2433] p-space-md font-mono text-body-sm flex flex-col gap-2 text-on-surface dark:text-slate-200 border border-transparent dark:border-slate-700/60">
+<div class="flex items-center justify-between text-[11px] text-on-surface-variant dark:text-slate-400 border-b border-outline-variant/30 dark:border-slate-700/60 pb-1">
+<span>TERMINAL / BASH</span>
+<span class="text-secondary dark:text-emerald-400 font-semibold">Node.js required</span>
+</div>
+<div class="pt-1"><span class="text-primary dark:text-blue-400">$</span> git clone https://github.com/adityasing9/CP-Ext.git</div>
+<div><span class="text-primary dark:text-blue-400">$</span> cd CP-Ext</div>
+<div class="text-on-surface-variant dark:text-slate-400"># Open Chrome extensions and load unpacked folder</div>
+</div>
+<div class="p-space-md rounded bg-surface-container-lowest dark:bg-[#141822] flex items-center justify-between gap-space-sm border border-transparent dark:border-slate-800">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary dark:text-emerald-400 text-[22px]">verified</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface dark:text-slate-200">100% Zero-Leak Test Matrix</span>
+<span class="text-[11px] text-on-surface-variant dark:text-slate-400">Auditable client-side state machine</span>
+</div>
+</div>
+<a class="px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1e2433] dark:hover:bg-[#252c3e] font-label-sm text-label-sm text-on-surface dark:text-slate-200 font-semibold transition-colors flex items-center gap-1 shrink-0" href="https://github.com/adityasing9/CP-Ext" rel="noopener noreferrer" target="_blank">
+<span>Inspect Code</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Client-Side Security & Threat Model Section -->
+<section class="w-full py-space-3xl bg-surface dark:bg-[#0f131c] transition-colors">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="flex flex-col gap-space-xs mb-space-2xl max-w-2xl">
+<div class="inline-flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-wider text-secondary dark:text-emerald-400 font-semibold">
+<span class="material-symbols-outlined text-[16px]">security</span>
+Client-Side Security &amp; Threat Model
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface dark:text-white">Zero-Knowledge Local Storage Model</h2>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">
+ContinueO operates under a strict offline-first zero-telemetry premise. Your USN, birthdate, and student portal credentials never leave your browser sandbox.
+</p>
+</div>
+<!-- 3 Core Security Pillars -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg mb-space-2xl">
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-sm border border-outline-variant/30 dark:border-slate-800">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed dark:bg-emerald-950 flex items-center justify-center text-secondary dark:text-emerald-300 mb-1">
+<span class="material-symbols-outlined text-[22px]">key</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface dark:text-white font-semibold">PBKDF2 Master Derivation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
+Keys are generated locally using <span class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1 rounded text-on-surface dark:text-slate-300">PBKDF2-HMAC-SHA-256</span> with 100,000 salt rounds and CSPRNG salt generated via Web Cryptography API.
+</p>
+</div>
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-sm border border-outline-variant/30 dark:border-slate-800">
+<div class="w-10 h-10 rounded-full bg-primary-fixed dark:bg-blue-950 flex items-center justify-center text-primary dark:text-blue-300 mb-1">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface dark:text-white font-semibold">AES-256-GCM Encryption</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
+Encrypted payloads utilize 256-bit AES authenticated Galois/Counter Mode with 96-bit unique IVs preventing tampering and replay attacks.
+</p>
+</div>
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-sm border border-outline-variant/30 dark:border-slate-800">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed dark:bg-emerald-950 flex items-center justify-center text-secondary dark:text-emerald-300 mb-1">
+<span class="material-symbols-outlined text-[22px]">policy</span>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface dark:text-white font-semibold">Origin Isolation &amp; Zero Trackers</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">
+Content script permissions are strictly constrained to <code class="font-mono text-label-sm text-secondary dark:text-emerald-400 bg-surface-container dark:bg-slate-800 px-1 rounded">https://student.bmsit.ac.in/*</code> with 0 third-party analytics or external network requests.
+</p>
+</div>
+</div>
+<!-- Credential Lifecycle & Security Vectors Table -->
+<div class="overflow-hidden rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm border border-outline-variant/30 dark:border-slate-800">
+<div class="p-space-md bg-surface-container-low dark:bg-[#141822] border-b border-outline-variant/30 dark:border-slate-800 flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface dark:text-white font-semibold">Desktop Security Lifecycle Vectors</span>
+<span class="font-label-sm text-label-sm text-secondary dark:text-emerald-400 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">shield_with_heart</span> Threat Model Verified
+</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-surface-container dark:bg-[#1e2433] text-on-surface-variant dark:text-slate-400 font-label-sm text-label-sm uppercase">
+<tr>
+<th class="py-3 px-space-md">Threat / Vector</th>
+<th class="py-3 px-space-md">Standard Web Storage</th>
+<th class="py-3 px-space-md">ContinueO Desktop Extension</th>
+<th class="py-3 px-space-md">Verdict</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20 dark:divide-slate-800 text-on-surface dark:text-slate-200">
+<tr>
+<td class="py-3 px-space-md font-semibold">Local Storage Snooping</td>
+<td class="py-3 px-space-md text-on-surface-variant dark:text-slate-400">Plaintext in localStorage or cookies</td>
+<td class="py-3 px-space-md font-mono text-secondary dark:text-emerald-400 text-label-sm">chrome.storage.local (AES-256-GCM ciphertext)</td>
+<td class="py-3 px-space-md"><span class="px-2 py-0.5 rounded-full bg-secondary-fixed dark:bg-emerald-950 text-on-secondary-fixed dark:text-emerald-300 text-label-sm font-semibold">Protected</span></td>
+</tr>
+<tr>
+<td class="py-3 px-space-md font-semibold">Public Lab Device Access</td>
+<td class="py-3 px-space-md text-on-surface-variant dark:text-slate-400">Autofill left active for next student</td>
+<td class="py-3 px-space-md text-on-surface dark:text-slate-200">Optional Master PIN + &lt;250ms DOM credential wipe</td>
+<td class="py-3 px-space-md"><span class="px-2 py-0.5 rounded-full bg-secondary-fixed dark:bg-emerald-950 text-on-secondary-fixed dark:text-emerald-300 text-label-sm font-semibold">Protected</span></td>
+</tr>
+<tr>
+<td class="py-3 px-space-md font-semibold">Network Sniffing / MITM</td>
+<td class="py-3 px-space-md text-on-surface-variant dark:text-slate-400">Relies on third-party cloud sync proxies</td>
+<td class="py-3 px-space-md text-on-surface dark:text-slate-200">0 network telemetry; direct client-to-BMSIT HTTPS only</td>
+<td class="py-3 px-space-md"><span class="px-2 py-0.5 rounded-full bg-secondary-fixed dark:bg-emerald-950 text-on-secondary-fixed dark:text-emerald-300 text-label-sm font-semibold">Zero Exposure</span></td>
+</tr>
+<tr>
+<td class="py-3 px-space-md font-semibold">Malicious Tab DOM Injection</td>
+<td class="py-3 px-space-md text-on-surface-variant dark:text-slate-400">Global content scripts across all web origins</td>
+<td class="py-3 px-space-md font-mono text-primary dark:text-blue-400 text-label-sm">matches: ["https://student.bmsit.ac.in/*"]</td>
+<td class="py-3 px-space-md"><span class="px-2 py-0.5 rounded-full bg-secondary-fixed dark:bg-emerald-950 text-on-secondary-fixed dark:text-emerald-300 text-label-sm font-semibold">Isolated</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- Desktop Troubleshooting FAQ Section -->
+<section class="w-full py-space-3xl bg-surface-container-low dark:bg-[#141822] transition-colors" id="faq">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="flex flex-col gap-space-xs mb-space-2xl max-w-2xl">
+<div class="inline-flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-wider text-primary dark:text-blue-400 font-semibold">
+<span class="material-symbols-outlined text-[16px]">quiz</span>
+Troubleshooting &amp; FAQ
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface dark:text-white">Common Desktop Extension Questions</h2>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">
+Direct diagnostic steps for Chromium developer mode, privacy shields, and portal schema updates.
+</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Question 1 -->
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-xs border border-transparent dark:border-slate-800">
+<h4 class="font-headline-sm text-headline-sm text-on-surface dark:text-white font-semibold text-[18px] flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-blue-400 text-[20px]">error_outline</span>
+"Manifest file is missing or unreadable" during Load Unpacked
+</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 pt-1">
+This occurs when selecting the outer archive folder instead of the inner unzipped package folder. When clicking <strong>Load unpacked</strong>, choose the folder that directly contains <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1.5 py-0.5 rounded text-on-surface dark:text-slate-200">manifest.json</code> and <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1.5 py-0.5 rounded text-on-surface dark:text-slate-200">background.js</code>, not its parent directory.
+</p>
+</div>
+<!-- Question 2 -->
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-xs border border-transparent dark:border-slate-800">
+<h4 class="font-headline-sm text-headline-sm text-on-surface dark:text-white font-semibold text-[18px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary dark:text-emerald-400 text-[20px]">shield</span>
+Brave Shields aggressive script blocking or Kiwi Android compatibility
+</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 pt-1">
+In Brave, ensure Shields are set to standard rather than 'Aggressive' for <code class="font-mono text-label-sm text-primary dark:text-blue-400">student.bmsit.ac.in</code> so standard synthetic events can dispatch. For Kiwi Browser on Android, enable <em>Developer mode</em> in <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1 rounded">kiwi://extensions</code> and select the .zip file directly.
+</p>
+</div>
+<!-- Question 3 -->
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-xs border border-transparent dark:border-slate-800">
+<h4 class="font-headline-sm text-headline-sm text-on-surface dark:text-white font-semibold text-[18px] flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-blue-400 text-[20px]">sync</span>
+Updating extension when BMSIT portal alters DOM selectors
+</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 pt-1">
+Because ContinueO uses deterministic state machine fallbacks and XPath heuristic matching, minor portal redesigns do not break execution. When an update is published on GitHub, simply replace the local folder contents and click the circular <strong>Reload</strong> icon on ContinueO in <code class="font-mono text-label-sm bg-surface-container dark:bg-slate-800 px-1 rounded">chrome://extensions</code>.
+</p>
+</div>
+</div>
+<!-- Side Verification Box -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<div class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] shadow-sm flex flex-col gap-space-sm border border-outline-variant/30 dark:border-slate-800">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary dark:text-emerald-400 font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">fingerprint</span> Package Integrity
+</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 text-[13px]">
+Verify downloaded release zip directly from GitHub Releases to guarantee authenticity.
+</p>
+<div class="pt-space-xs flex flex-col gap-2">
+<a class="w-full h-10 rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1e2433] dark:hover:bg-[#252c3e] text-on-surface dark:text-slate-200 border border-transparent dark:border-slate-700/60 font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1.5 transition-colors" href="https://github.com/adityasing9/CP-Ext/issues" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px]">bug_report</span>
+<span>Report an Extension Issue</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Live In-Browser HUD Interactive Demonstration -->
+<section class="w-full py-space-2xl bg-surface-container-low dark:bg-[#181b25] transition-colors">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="p-space-xl rounded-lg bg-surface-container-lowest dark:bg-[#141822] border border-transparent dark:border-slate-800 shadow-[0_4px_20px_rgba(32,33,36,0.06)] dark:shadow-none flex flex-col lg:flex-row items-center justify-between gap-space-xl">
+<div class="flex flex-col gap-space-xs max-w-lg">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary dark:text-emerald-400 font-bold">Interactive Preview</span>
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-white">Experience the Floating HUD</h3>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-slate-300">
+            Click to simulate how ContinueO projects the non-intrusive status capsule inside student.bmsit.ac.in without interfering with standard gradebook navigation.
+</p>
+<div class="pt-space-xs">
+<button class="inline-flex items-center gap-space-xs h-11 px-space-lg rounded-full bg-surface-container hover:bg-surface-container-high dark:bg-[#1e2433] dark:hover:bg-[#252c3e] text-on-surface dark:text-slate-200 border border-transparent dark:border-slate-700 font-label-md text-label-md transition-colors cursor-pointer" id="simulate-hud-btn" type="button">
+<span class="material-symbols-outlined text-primary dark:text-blue-400 text-[20px]">play_circle</span>
+<span>Trigger Test HUD Overlay</span>
+</button>
+</div>
+</div>
+<!-- Interactive Visual Sandbox Container -->
+<div class="w-full max-w-lg relative h-48 rounded-lg bg-surface-container dark:bg-[#181b25] border border-transparent dark:border-slate-800 flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 opacity-10 flex flex-col justify-around p-4">
+<div class="w-3/4 h-3 bg-on-surface dark:bg-white rounded"></div>
+<div class="w-1/2 h-3 bg-on-surface dark:bg-white rounded"></div>
+<div class="w-5/6 h-3 bg-on-surface dark:bg-white rounded"></div>
+<div class="w-2/3 h-3 bg-on-surface dark:bg-white rounded"></div>
+</div>
+<!-- Animated HUD Pill -->
+<div class="relative z-10 flex items-center gap-space-sm px-space-lg py-2.5 rounded-full bg-surface-container-lowest dark:bg-[#1e2433] border border-transparent dark:border-slate-700 shadow-[0_8px_24px_rgba(32,33,36,0.14)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-all duration-300 transform scale-100 opacity-100" id="demo-hud-capsule">
+<span class="material-symbols-outlined text-secondary dark:text-emerald-400 text-[22px]">check_circle</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-bold text-on-surface dark:text-white leading-none">ContinueO: Authenticated</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400 text-[11px] leading-tight">Session verified • Dismissing in <span id="countdown-timer">3.5</span>s</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Download & Quick Links Section -->
+<section class="w-full py-space-md bg-surface dark:bg-[#0f131c] transition-colors">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="p-space-lg rounded-xl bg-surface-container-low dark:bg-[#181b25] border border-outline-variant/20 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed dark:bg-emerald-950 flex items-center justify-center text-secondary dark:text-emerald-400 shrink-0">
+<span class="material-symbols-outlined text-[24px]">phone_android</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg font-semibold text-on-surface dark:text-white">Need mobile login on your phone?</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">Automate BMSIT parent portal on your device with biometric bypass and zero latency.</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md shadow-sm hover:bg-primary transition-colors shrink-0" href="android.html">
+<span>Check out ContinueO for Android</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+<section class="w-full py-space-3xl" id="download-release">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="p-space-2xl md:p-space-3xl rounded-xl bg-primary-container text-on-primary-container relative overflow-hidden flex flex-col items-center text-center gap-space-xl">
+<!-- Abstract background flourish -->
+<div class="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/10 blur-2xl"></div>
+<div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white/10 blur-2xl"></div>
+<div class="flex flex-col items-center gap-space-xs max-w-2xl relative z-10">
+<span class="px-space-md py-1 rounded-full bg-white/20 text-on-primary-container font-label-sm text-label-sm font-semibold tracking-wide uppercase">
+            Official Production Release • Chromium Package
+</span>
+<h2 class="font-headline-lg text-headline-lg text-on-primary-container font-bold">
+            Ready to streamline your portal experience?
+</h2>
+<p class="font-body-lg text-body-lg text-on-primary-container/90">
+            Install ContinueO in under 60 seconds. Compatible with Google Chrome, Microsoft Edge, Brave Browser, and Kiwi for Android.
+</p>
+</div>
+<!-- Download Action Card Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md w-full max-w-xl relative z-10">
+<a class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] text-on-surface dark:text-white border border-transparent dark:border-slate-700 shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col items-start gap-space-xs hover:scale-[1.02] transition-transform text-left" href="https://github.com/adityasing9/CP-Ext/releases/latest" target="_blank" rel="noopener">
+<div class="flex items-center justify-between w-full">
+<span class="material-symbols-outlined text-primary-container text-[28px]">folder_zip</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed dark:bg-emerald-950 text-on-secondary-fixed dark:text-emerald-300 font-bold">v1.0.2 STABLE</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface dark:text-white pt-1">Direct .zip Package</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">Includes packed manifest.json, background worker, and HUD stylesheet.</p>
+<span class="font-label-md text-label-md font-semibold text-primary dark:text-blue-400 pt-2 flex items-center gap-1">
+              Download ZIP on GitHub
+              <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+</a>
+<a class="p-space-lg rounded-lg bg-surface-container-lowest dark:bg-[#181b25] text-on-surface dark:text-white border border-transparent dark:border-slate-700 shadow-[0_8px_24px_rgba(0,0,0,0.12)] flex flex-col items-start gap-space-xs hover:scale-[1.02] transition-transform text-left" href="https://github.com/adityasing9/CP-Ext" rel="noopener noreferrer" target="_blank">
+<div class="flex items-center justify-between w-full">
+<span class="material-symbols-outlined text-on-surface dark:text-slate-200 text-[28px]">terminal</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-high dark:bg-slate-800 text-on-surface-variant dark:text-slate-300 font-bold">OPEN SOURCE</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface dark:text-white pt-1">Build From Source</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400">Inspect full source code, Vitest unit test suites, and cryptographic logic.</p>
+<span class="font-label-md text-label-md font-semibold text-on-surface dark:text-slate-200 pt-2 flex items-center gap-1">
+              View on GitHub
+              <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</span>
+</a>
+</div>
+<!-- Quick 3-Step Setup Guide -->
+<div class="pt-space-sm flex flex-wrap items-center justify-center gap-x-space-xl gap-y-space-sm font-label-sm text-label-sm text-on-primary-container/85 relative z-10">
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-[11px]">1</span>
+<span>Unzip downloaded folder</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-[11px]">2</span>
+<span>Enable Developer Mode in chrome://extensions</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center font-bold text-[11px]">3</span>
+<span>Click 'Load unpacked'</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Script for HUD simulation, Action triggers & Theme Toggle -->
+<script>
+    (function() {
+      // Theme Toggle Logic with continueo_theme key
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIcon = document.getElementById('theme-toggle-icon');
+
+      function updateToggleIcon() {
+        if (!themeIcon) return;
+        const isDark = document.documentElement.classList.contains('dark');
+        themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
+        if (isDark) {
+          themeIcon.classList.add('text-amber-400');
+        } else {
+          themeIcon.classList.remove('text-amber-400');
+        }
+      }
+
+      // Check stored preference in continueo_theme or system preference
+      const storedTheme = localStorage.getItem('continueo_theme');
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const systemPrefersDark = mediaQuery.matches;
+
+      if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateToggleIcon();
+
+      // Listen for system preference changes when no explicit stored preference exists
+      mediaQuery.addEventListener('change', (e) => {
+        if (!localStorage.getItem('continueo_theme')) {
+          if (e.matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          updateToggleIcon();
+        }
+      });
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('continueo_theme', isDark ? 'dark' : 'light');
+          updateToggleIcon();
+        });
+      }
+
+      // HUD Capsule Logic
+      const hudBtn = document.getElementById('simulate-hud-btn');
+      const capsule = document.getElementById('demo-hud-capsule');
+      const countdown = document.getElementById('countdown-timer');
+      const loginTrigger = document.getElementById('trigger-login-btn');
+      const simulatedHudText = document.getElementById('simulated-hud');
+
+      let timerId = null;
+
+      function triggerCapsuleAnimation() {
+        if (!capsule || !countdown) return;
+        
+        // Reset state
+        clearInterval(timerId);
+        capsule.classList.remove('opacity-0', 'scale-95');
+        capsule.classList.add('opacity-100', 'scale-100');
+        
+        let remaining = 3.5;
+        countdown.textContent = remaining.toFixed(1);
+
+        timerId = setInterval(() => {
+          remaining -= 0.1;
+          if (remaining <= 0) {
+            clearInterval(timerId);
+            countdown.textContent = '0.0';
+            capsule.classList.remove('opacity-100', 'scale-100');
+            capsule.classList.add('opacity-0', 'scale-95');
+          } else {
+            countdown.textContent = remaining.toFixed(1);
+          }
+        }, 100);
+      }
+
+      if (hudBtn) {
+        hudBtn.addEventListener('click', triggerCapsuleAnimation);
+      }
+
+      if (loginTrigger && simulatedHudText) {
+        loginTrigger.addEventListener('click', () => {
+          simulatedHudText.classList.add('bg-secondary-fixed', 'text-on-secondary-fixed', 'dark:bg-emerald-950', 'dark:text-emerald-300');
+          simulatedHudText.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span><span>Portal login dispatched via state machine</span>';
+          triggerCapsuleAnimation();
+          
+          setTimeout(() => {
+            simulatedHudText.classList.remove('bg-secondary-fixed', 'text-on-secondary-fixed', 'dark:bg-emerald-950', 'dark:text-emerald-300');
+            simulatedHudText.innerHTML = '<span class="material-symbols-outlined text-primary text-[18px]">tab</span><span class="truncate">HUD overlay displays during execution</span>';
+          }, 3500);
+        });
+      }
+    })();
+</script>
+</div>
+</main>
+<footer class="w-full bg-surface-container-low dark:bg-[#141822] text-on-surface-variant dark:text-slate-400 transition-colors border-t border-transparent dark:border-slate-800">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin py-space-2xl">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-xl pb-space-xl">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface dark:text-white font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">bolt</span>
+<span>Continue<span class="text-primary">O</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-slate-400 max-w-sm">Seamless multi-device state transition, clipboard bridging, and instant consumer mobility.</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-lg font-label-md text-label-md">
+<a class="text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="index.html">Home</a>
+<a class="text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="android.html">Android App</a>
+<a class="text-primary font-semibold transition-colors" href="extension.html">Desktop Extension</a>
+<a class="flex items-center gap-space-xs text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="https://github.com/adityasing9/CP-Ext" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px]">code</span>
+<span>GitHub</span>
+</a>
+<a class="text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="https://github.com/adityasing9/CP-Ext" target="_blank" rel="noopener">MIT License</a>
+<a class="text-on-surface-variant dark:text-slate-400 hover:text-on-surface dark:hover:text-white transition-colors" href="index.html#faq">Privacy Disclaimer</a>
+</div>
+</div>
+<div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant dark:text-slate-400">
+<p>© 2025-2026 ContinueO Open Source Project. Released under MIT License.</p>
+<p class="text-on-surface-variant dark:text-slate-400">Designed with local-first, privacy-respecting consumer standards.</p>
+</div>
+</div>
+</footer>
+</body>
+</html>

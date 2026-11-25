@@ -1,0 +1,802 @@
+<!-- ContinueO Android App - Features & Download -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_standard" name="shell-type"/>
+<title>ContinueO for Android — Features & Direct APK Download</title>
+<meta name="description" content="Instant 1-tap automated portal login, unscaled 1280px desktop view, and local hardware-encrypted credential keystore built specifically for BMSIT students."/>
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+  // Strictly follow operating system preference by default when no localStorage setting exists
+  (function() {
+    try {
+      const storedTheme = localStorage.getItem('continueo_theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<style>
+@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+/* Dark Mode Enhancements */
+.dark body { background-color: #0f131c; color: #e3e6f0; }
+.dark header { background-color: rgba(15, 19, 28, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.dark main { background-color: #0f131c; }
+.dark .bg-surface { background-color: #0f131c !important; }
+.dark .bg-surface-container-low { background-color: #141722 !important; }
+.dark .bg-surface-container { background-color: #181b26 !important; }
+.dark .bg-surface-container-lowest { background-color: #1a1e2c !important; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35); }
+.dark .bg-surface-container-high { background-color: #24293c !important; }
+.dark .text-on-surface { color: #ffffff !important; }
+.dark .text-on-surface-variant { color: #9aa1b5 !important; }
+.dark .text-outline { color: #737c96 !important; }
+.dark code { background-color: #131622 !important; color: #93b9ff !important; }
+.dark footer { background-color: #0c0f17 !important; border-top: 1px solid rgba(255,255,255,0.06); }
+</style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-high":"#e9e7eb","tertiary-fixed-dim":"#ffb4a9","on-primary-fixed":"#001a41","outline-variant":"#c1c6d6","on-primary-container":"#ffffff","primary-fixed-dim":"#adc7ff","on-error-container":"#93000a","on-secondary-fixed-variant":"#00531e","on-error":"#ffffff","tertiary-container":"#dc392c","surface-tint":"#005bc0","primary-container":"#1a73e8","on-surface":"#1a1b1e","surface-variant":"#e3e2e6","error":"#ba1a1a","surface-container-low":"#f4f3f7","surface-container":"#efedf1","secondary":"#006e2a","inverse-surface":"#2f3033","primary-fixed":"#d8e2ff","on-secondary-container":"#00752d","surface-container-lowest":"#ffffff","secondary-fixed":"#8ffa9b","on-primary-fixed-variant":"#004493","surface":"#faf9fd","surface-bright":"#faf9fd","secondary-fixed-dim":"#73dc82","on-tertiary-fixed":"#410001","on-background":"#1a1b1e","surface-container-highest":"#e3e2e6","on-surface-variant":"#414754","on-primary":"#ffffff","outline":"#727785","error-container":"#ffdad6","on-tertiary":"#ffffff","on-tertiary-fixed-variant":"#930004","on-tertiary-container":"#ffffff","secondary-container":"#8ffa9b","tertiary":"#b81d17","on-secondary":"#ffffff","background":"#faf9fd","inverse-on-surface":"#f1f0f4","surface-dim":"#dbd9dd","on-secondary-fixed":"#002108","inverse-primary":"#adc7ff","tertiary-fixed":"#ffdad5","primary":"#005bbf"},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"},spacing:{"gutter":"1.5rem","space-2xl":"4rem","margin":"3rem","space-xl":"2.5rem","space-xs":"0.25rem","margin-mobile":"1.25rem","space-3xl":"6rem","space-lg":"1.5rem","space-sm":"0.5rem","gutter-sm":"1rem","space-md":"1rem"},fontFamily:{"headline-md":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"]},fontSize:{"headline-md":["28px",{lineHeight:"36px",fontWeight:"500"}],"display-hero":["64px",{lineHeight:"72px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-md":["14px",{lineHeight:"18px",fontWeight:"500"}],"body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],"display-hero-mobile":["40px",{lineHeight:"48px",letterSpacing:"-0.02em",fontWeight:"700"}],"body-sm":["14px",{lineHeight:"20px",fontWeight:"400"}],"headline-lg-mobile":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"600"}],"body-lg":["18px",{lineHeight:"28px",fontWeight:"400"}],"label-sm":["12px",{lineHeight:"16px",fontWeight:"500"}],"headline-lg":["44px",{lineHeight:"52px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-sm":["22px",{lineHeight:"28px",fontWeight:"500"}],"label-lg":["16px",{lineHeight:"20px",fontWeight:"600"}]}}}}
+</script>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased transition-colors duration-200">
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(32,33,36,0.04)] transition-colors duration-200">
+<div class="h-16 max-w-[1280px] mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
+<a class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm tracking-tight" href="index.html">
+<span class="material-symbols-outlined text-primary text-[28px]">bolt</span>
+<span>Continue<span class="text-primary">O</span></span>
+</a>
+<div class="flex items-center gap-space-md">
+<nav class="hidden lg:flex items-center gap-space-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="index.html">Home</a>
+<a aria-current="page" class="font-label-md text-label-md text-primary font-semibold px-3 py-1 rounded-full bg-primary-fixed/40 transition-colors" href="android.html">Android App</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="extension.html">Desktop Extension</a>
+</nav>
+<!-- Theme Toggle Button -->
+<button aria-label="Toggle theme mode" class="w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-all focus:outline-none shadow-sm active:scale-95" id="theme-toggle" type="button">
+<svg class="w-5 h-5 block dark:hidden text-amber-500 fill-current" id="theme-icon-light" viewbox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0z"></path></svg>
+<svg class="w-5 h-5 hidden dark:block text-primary-fixed-dim fill-current" id="theme-icon-dark" viewbox="0 0 24 24"><path d="M12.3 2a10 10 0 0 0-.19 20 10.04 10.04 0 0 0 9.79-7.77 1 1 0 0 0-1.21-1.22A8 8 0 0 1 10.6 3.1 1 1 0 0 0 9.4 2.1c.95-.07 1.94-.1 2.9-.1z"></path></svg>
+</button>
+</div>
+<div class="flex items-center gap-space-md">
+<a class="hidden sm:inline-flex items-center justify-center h-10 px-space-lg rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md shadow-[0_2px_8px_rgba(32,33,36,0.08)] hover:bg-primary transition-colors" href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk">Download APK</a>
+<a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white" href="https://github.com/adityasing9/BMSIT-CP" target="_blank" rel="noopener" title="GitHub Source">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</a>
+</div>
+</div>
+</header>
+<main class="w-full pt-16 bg-surface">
+<div class="flex flex-col w-full">
+<!-- Top Hero Section with Organic Emerald Glow & Split Desktop Balance -->
+<section class="relative w-full overflow-hidden bg-surface pb-space-3xl pt-space-xl">
+<!-- Atmospheric Ambient Glows -->
+<div class="absolute -top-40 right-[-10%] w-[580px] h-[580px] rounded-full bg-secondary-fixed/30 dark:bg-secondary/20 blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-1/2 left-[-15%] w-[420px] h-[420px] rounded-full bg-primary-fixed/40 dark:bg-primary/20 blur-3xl pointer-events-none -z-10"></div>
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<!-- Breadcrumb / Overline Pill -->
+<div class="flex items-center gap-space-sm mb-space-lg">
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-low shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Android Release v1.2.6 • API 26+ • Open Source</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Hero Phone Preview Container (5 Cols) on Left -->
+<div class="lg:col-span-5 flex justify-center relative mt-space-lg lg:mt-0 lg:order-1">
+<!-- Geometric Circular Backdrop -->
+<div class="absolute w-[360px] h-[360px] sm:w-[420px] sm:h-[420px] rounded-full bg-primary/20 -top-6 -right-6 pointer-events-none -z-10 blur-2xl"></div>
+<div class="absolute w-[320px] h-[320px] rounded-full bg-primary -top-2 right-4 pointer-events-none -z-10 opacity-90"></div>
+<!-- Floating Top Callout: Instant Login Time -->
+<div class="absolute -top-6 -left-6 z-20 bg-surface-container-lowest text-on-surface px-3 py-2 rounded-2xl shadow-[0_4px_16px_rgba(32,33,36,0.12)] flex flex-col items-start">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm font-semibold text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[16px]">speed</span>
+<span>&lt; 2.5s Login Time</span>
+</div>
+<span class="text-[12px] text-on-surface-variant font-normal">Bypasses manual entry</span>
+</div>
+<!-- Floating Bottom Callout: AES-256 Vault -->
+<div class="absolute -bottom-4 -right-6 z-20 bg-surface-container-lowest text-on-surface px-space-md py-2 rounded-2xl shadow-[0_4px_16px_rgba(32,33,36,0.12)] flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary shrink-0"></span>
+<div class="flex flex-col text-left">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface leading-tight">AES-256 Vault</span>
+<span class="text-[12px] text-on-surface-variant leading-tight">Android Keystore • On-Device</span>
+</div>
+</div>
+<!-- Realistic Hardware Mockup Frame -->
+<div class="relative w-[300px] sm:w-[320px] bg-inverse-surface rounded-[40px] p-3 shadow-[0_24px_50px_-12px_rgba(32,33,36,0.22)] select-none">
+<!-- Dynamic Island / Speaker Pill -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-5 bg-on-surface rounded-full z-20 flex items-center justify-center">
+<div class="w-3 h-3 bg-inverse-surface rounded-full mr-2"></div>
+<div class="w-2 h-2 bg-inverse-surface/60 rounded-full"></div>
+</div>
+<!-- Phone Screen Viewport (Clean Light Shell matching user design) -->
+<div class="relative bg-surface-container-lowest text-on-surface rounded-[32px] p-4 pt-7 overflow-hidden flex flex-col justify-between min-h-[580px]">
+<!-- Status Bar -->
+<div class="flex items-center justify-between text-[12px] text-on-surface-variant font-medium mb-3 px-1">
+<span>09:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">wifi</span>
+<span class="material-symbols-outlined text-[14px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[14px]">battery_full</span>
+</div>
+</div>
+<!-- Phone Screen Header -->
+<div class="flex items-center justify-between mb-3 px-1">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-[18px] tracking-tight font-bold text-on-surface">Continue<span class="text-primary">O</span></span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-secondary font-label-sm text-[12px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">lock_open</span>
+<span>On-Device Vault</span>
+</div>
+</div>
+<!-- Ready Status Banner -->
+<div class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed font-label-sm text-[12px] font-medium mb-3">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Ready • Credentials Secured</span>
+</div>
+<!-- Anonymized Student Profile Card (Dark Modern Container) -->
+<div class="bg-inverse-surface text-inverse-on-surface rounded-2xl p-3.5 shadow-md flex flex-col gap-2.5 mb-3">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest/20 text-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-[14px] font-semibold text-surface-container-lowest leading-tight">Student Account (Profile #1)</span>
+<span class="text-[12px] text-surface-variant font-mono leading-tight mt-0.5">USN: 1BYXXCSXXX</span>
+</div>
+</div>
+<div class="px-2 py-0.5 rounded-md bg-secondary-fixed/20 text-secondary-fixed text-[11px] font-medium text-center leading-tight">
+          3<br/>Accounts
+        </div>
+</div>
+<!-- USN ID Strip -->
+<div class="flex items-center justify-between bg-surface-container-highest/10 px-3 py-1.5 rounded-lg text-surface-variant text-[12px]">
+<span class="font-mono text-surface-container-lowest">ID: ••••••</span>
+<span class="px-2 py-0.5 rounded-md bg-primary/40 text-primary-fixed text-[11px] font-semibold">Active</span>
+</div>
+<!-- Auto-fill indicator & Switch Dropdown -->
+<div class="flex items-center justify-between pt-1 text-[12px]">
+<div class="flex items-center gap-1.5 text-secondary-fixed font-medium">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<span>Auto-Fill Enabled</span>
+</div>
+<button class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container-highest/15 text-surface-variant hover:text-surface-container-lowest text-[12px] font-medium transition-colors">
+<span>Switch</span>
+<span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+</div>
+</div>
+<!-- Main Action Buttons -->
+<div class="flex flex-col gap-2.5 mt-auto mb-3">
+<a href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" class="w-full h-11 rounded-2xl bg-primary-container hover:bg-primary text-on-primary-container font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-md transition-transform active:scale-[0.98]">
+<span>LOGIN NOW</span>
+<span>🚀</span>
+</a>
+<a href="https://student.bmsit.ac.in" target="_blank" rel="noopener" class="w-full h-10 rounded-2xl bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 shadow-sm transition-colors border-t-0">
+<span class="material-symbols-outlined text-primary text-[18px]">open_in_browser</span>
+<span>Open Contineo in Browser</span>
+</a>
+</div>
+<!-- Phone Screen Footer / Settings -->
+<div class="flex items-center justify-between pt-2 border-t-0 px-1 text-on-surface-variant">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-[13px] font-medium">
+<span class="material-symbols-outlined text-primary text-[18px]">settings</span>
+<span>Settings</span>
+</div>
+<div class="flex items-center gap-1 text-[11px] text-outline">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Keystore AES-256</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Hero Text Column (7 Cols) on Right -->
+<div class="lg:col-span-7 flex flex-col items-start lg:order-2">
+<div class="inline-flex items-center gap-2 text-primary font-label-md text-label-md tracking-wider uppercase mb-space-xs">
+<span class="material-symbols-outlined text-[20px]">android</span>
+<span>Independent Student Client</span>
+</div>
+<h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface tracking-tight mb-space-md text-left">
+            Continue<span class="text-primary">O</span> for Android
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-space-xl leading-relaxed text-left">
+            Instant 1-tap automated portal login, unscaled 1280px desktop view, and local hardware-encrypted credential keystore built specifically for BMSIT students.
+</p>
+<!-- CTAs Pill Group -->
+<div class="flex flex-wrap items-center gap-space-md w-full sm:w-auto mb-space-lg">
+<a class="inline-flex items-center justify-center gap-space-xs px-space-lg h-12 rounded-full bg-primary-container text-on-primary-container font-label-lg text-label-lg shadow-md hover:bg-primary transition-all active:scale-[0.98]" href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk">
+<span class="material-symbols-outlined text-[22px]">download</span>
+<span>Download APK (v1.2.6 - Signed)</span>
+</a>
+<a class="inline-flex items-center justify-center gap-space-xs px-space-lg h-12 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg transition-colors" href="https://github.com/adityasing9/BMSIT-CP" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+<span>View Source on GitHub</span>
+</a>
+</div>
+<!-- SHA256 Verification Chip -->
+<div class="flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-space-xs rounded-full shadow-sm max-w-full">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+<div class="flex items-center gap-2 truncate">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium shrink-0">Status:</span>
+<span class="font-label-sm text-label-sm text-secondary font-semibold">GPG Signed Release Build</span>
+</div>
+<a href="https://github.com/adityasing9/BMSIT-CP/releases/latest" target="_blank" rel="noopener" class="text-on-surface-variant hover:text-primary transition-colors shrink-0 ml-1" title="View GitHub Release">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Key Metrics Strip -->
+<section class="w-full bg-surface-container-low py-space-xl">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-lg">
+<!-- Metric 1 -->
+<div class="flex flex-col items-start bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm">
+<div class="flex items-center gap-2 text-primary font-headline-md text-headline-md mb-1">
+<span>2.5s</span>
+<span class="material-symbols-outlined text-[20px]">timer</span>
+</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Auto-Login Speed</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Single-tap automated credential &amp; drop-down resolve</span>
+</div>
+<!-- Metric 2 -->
+<div class="flex flex-col items-start bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm">
+<div class="flex items-center gap-2 text-secondary font-headline-md text-headline-md mb-1">
+<span>100%</span>
+<span class="material-symbols-outlined text-[20px]">shield_lock</span>
+</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Client-Side AES-256</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Android Hardware Keystore backed storage</span>
+</div>
+<!-- Metric 3 -->
+<div class="flex flex-col items-start bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm">
+<div class="flex items-center gap-2 text-primary font-headline-md text-headline-md mb-1">
+<span>0 Bytes</span>
+<span class="material-symbols-outlined text-[20px]">visibility_off</span>
+</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Zero Telemetry</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">No trackers, third-party analytics, or remote loggers</span>
+</div>
+<!-- Metric 4 -->
+<div class="flex flex-col items-start bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm">
+<div class="flex items-center gap-2 text-on-surface font-headline-md text-headline-md mb-1">
+<span>API 26-35</span>
+<span class="material-symbols-outlined text-[20px]">devices</span>
+</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Broad Compatibility</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-1">Android 8.0 up to Android 15 ready</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive / Visual Features Showcase Bento Grid -->
+<section class="w-full bg-surface py-space-3xl">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<!-- Section Header -->
+<div class="max-w-2xl mb-space-2xl">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider font-semibold">Engineered For Utility</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mt-space-xs">
+          Engineered to fix every mobile quirk of Contineo
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-space-sm">
+          The portal was architected for desktop screens over a decade ago. ContinueO restores control, speed, and clean typography on modern smartphones.
+</p>
+</div>
+<!-- Feature Grid: 6 Cards without rigid borders -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+<!-- Feature 1 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">electric_bolt</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">1-Tap 2-Step Login Engine</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Deterministic automated bypass of legacy portal drop-downs and Joomla ID card challenges. Complete authenticated state achieved in under 2.5 seconds.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Bypasses CAPTCHA latency</span>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">aspect_ratio</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">True 1280px Desktop Mode</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Overrides default Android WebView mobile viewport scaling so wide attendance percentage tables, CIE mark reports, and semester schedules render cleanly without truncated columns.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">fit_screen</span>
+<span>Fixed horizontal grid bounds</span>
+</div>
+</div>
+<!-- Feature 3 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">switch_account</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">Multi-Account Profiles</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Seamlessly switch between multiple sibling or peer USNs with 1 click. Isolated sandbox memory prevents session cross-contamination and cookie collision.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+<span>Unlimited saved USN credentials</span>
+</div>
+</div>
+<!-- Feature 4 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">download_for_offline</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">Direct PDF &amp; Notes Download</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Native Android DownloadManager integration preserves authenticated PHP session cookies, saving fee receipts, hall tickets, and circular PDFs straight to device storage.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">folder_special</span>
+<span>Background cookie-hooked streaming</span>
+</div>
+</div>
+<!-- Feature 5 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">enhanced_encryption</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">Hardware Keystore Security</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Protected using Android Hardware Keystore &amp; AES-256-GCM authenticated master keys. Passwords never touch plain memory strings or leave your physical hardware.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-on-surface font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">lock_clock</span>
+<span>Zero cloud synchronization</span>
+</div>
+</div>
+<!-- Feature 6 -->
+<div class="flex flex-col justify-between bg-surface-container-lowest p-space-xl rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+<div>
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center mb-space-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">cloud_sync</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">OTA Updates with CDN Fallback</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              In-app update engine queries GitHub releases with automatic jsDelivr CDN fallback mirror to bypass campus WiFi throttling and API rate restrictions.
+</p>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Automatic SHA validation</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical Specifications Table Section -->
+<section class="w-full bg-surface-container-low py-space-3xl">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-space-xl gap-space-md">
+<div>
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider font-semibold">Architecture &amp; Runtime</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mt-space-xs">
+            Technical Specifications
+</h2>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">
+          Target Build: Gradle 8.2 • Kotlin 1.9.22 • Jetpack Compose
+</div>
+</div>
+<!-- Spec Cards Grid -->
+<div class="bg-surface-container-lowest rounded-3xl p-space-xl shadow-sm overflow-hidden">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-xl">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Application ID / Package</span>
+<span class="font-headline-sm text-[20px] text-on-surface font-mono font-medium select-all">com.continueo.autologin</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Unique reverse-domain Android application namespace.</p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Native ABIs Supported</span>
+<div class="flex flex-wrap gap-1.5 mt-1">
+<span class="px-2.5 py-1 bg-surface-container-high text-on-surface rounded-full font-label-sm text-label-sm font-mono">arm64-v8a</span>
+<span class="px-2.5 py-1 bg-surface-container-high text-on-surface rounded-full font-label-sm text-label-sm font-mono">armeabi-v7a</span>
+<span class="px-2.5 py-1 bg-surface-container-high text-on-surface rounded-full font-label-sm text-label-sm font-mono">x86_64</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Full 64-bit and 32-bit universal native library inclusion.</p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Minimum SDK</span>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-[20px] text-on-surface font-semibold">Android 8.0 Oreo</span>
+<span class="font-label-sm text-label-sm bg-surface-container px-2 py-0.5 rounded-full font-mono text-on-surface-variant">API 26</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Guarantees modern notification channels and Keystore hardware backed primitives.</p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Target / Compile SDK</span>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-[20px] text-on-surface font-semibold">Android 14 / 15 Ready</span>
+<span class="font-label-sm text-label-sm bg-secondary-fixed/50 text-on-secondary-fixed px-2 py-0.5 rounded-full font-mono font-bold">API 34/35</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Supports predictive back navigation and Android 14 photo/storage permissions.</p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Credential Security Layer</span>
+<span class="font-headline-sm text-[20px] text-secondary font-mono font-medium">AES-256-SIV + GCM</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">EncryptedSharedPreferences with Jetpack Security library backing.</p>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Permissions Profile</span>
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-[20px] text-on-surface font-semibold">Zero Sensitive Scopes</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Requires strictly <code class="font-mono bg-surface-container px-1 py-0.5 rounded">INTERNET</code>. No contacts, GPS, or camera requested.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Android APK Sideloading & Setup Guide Section -->
+<section class="w-full bg-surface py-space-3xl border-t-0">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="max-w-2xl mb-space-2xl">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider font-semibold">Installation Manual</span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mt-space-xs">
+    Android APK Sideloading &amp; Setup Guide
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-space-sm">
+    Because ContinueO is an independent open-source utility distributed without Google Play dependency, install the official signed APK in simple steps.
+</p>
+</div>
+<!-- 3-Step Sideload Sequence -->
+<div class="grid grid-cols-1 gap-space-lg mb-space-2xl md:grid-cols-3">
+<!-- Step 1 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-sm text-headline-sm mb-space-md">
+1
+</div>
+<h3 class="font-headline-sm text-[20px] text-on-surface mb-space-xs">Download APK</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Download the verified release build <code class="font-mono text-primary text-[12px] bg-surface-container px-1 py-0.5 rounded">ContinueO-AutoLogin.apk</code> directly from our GitHub release.
+</p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center gap-1.5 text-secondary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Signed Package</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-container text-on-surface flex items-center justify-center font-headline-sm text-headline-sm mb-space-md">
+2
+</div>
+<h3 class="font-headline-sm text-[20px] text-on-surface mb-space-xs">Unknown Apps</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+When prompted by Android, navigate to Settings and enable <span class="font-semibold text-on-surface">'Allow from this source'</span> for Chrome or your device Files browser.
+</p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">security</span>
+<span>Standard OS isolation</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col justify-between">
+<div>
+<div class="w-10 h-10 rounded-full bg-surface-container text-on-surface flex items-center justify-center font-headline-sm text-headline-sm mb-space-md">
+3
+</div>
+<h3 class="font-headline-sm text-[20px] text-on-surface mb-space-xs">Install &amp; Launch</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Tap Install. If Google Play Protect warns of an unverified developer, select <span class="font-semibold text-on-surface">'More details' → 'Install anyway'</span>. Zero malware, fully audit-ready.
+</p>
+</div>
+<div class="mt-space-md pt-space-xs flex items-center gap-1.5 text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span>Open Source Audited</span>
+</div>
+</div>
+</div>
+<!-- Play Protect Transparency Box -->
+<div class="p-space-lg bg-surface-container-lowest rounded-2xl shadow-sm border-t-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md mb-space-2xl">
+<div class="flex items-start gap-space-md">
+<span class="material-symbols-outlined text-secondary text-[26px] mt-0.5">shield</span>
+<div class="flex flex-col">
+<h4 class="font-label-lg text-label-lg font-semibold text-on-surface">Google Play Protect &amp; Open Source Transparency</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+Because ContinueO is authored and maintained as an independent student tool without paying developer fees to Google, Play Protect flags side-loaded APKs from unknown signers. Every line of Kotlin and WebView code is completely public.
+</p>
+</div>
+</div>
+<a class="shrink-0 inline-flex items-center gap-space-xs px-space-md py-2 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="https://github.com/adityasing9/BMSIT-CP" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px]">code</span>
+<span>Inspect APK Source Code</span>
+</a>
+</div>
+<!-- Security Architecture Deep-Dive Grid -->
+<div class="mb-space-2xl">
+<div class="max-w-2xl mb-space-lg">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider font-semibold">Zero-Trust Device Sandbox</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-space-xs">
+Mobile Hardware Security Architecture
+</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs">
+ContinueO treats security with uncompromising isolation. No credentials, tokens, or profile information ever traverse an intermediate proxy or analytics bridge.
+</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed/50 text-on-secondary-fixed flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[22px]">key</span>
+</div>
+<h4 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Hardware KeyStore AES-256</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+Student passwords are encrypted using AES-256-GCM authenticated master keys stored directly in the device's hardware Secure Element / StrongBox.
+</p>
+</div>
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col">
+<div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[22px]">memory</span>
+</div>
+<h4 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Ephemeral RAM Lifecycle</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+Decrypted credential arrays reside only in volatile memory during the 2.5-second injection sequence and are explicitly zeroed out immediately after DOM submission.
+</p>
+</div>
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm flex flex-col">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface flex items-center justify-center mb-space-md">
+<span class="material-symbols-outlined text-[22px]">cloud_off</span>
+</div>
+<h4 class="font-label-lg text-label-lg font-semibold text-on-surface mb-1">Strict Zero Network Outbounds</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+Network requests only talk directly to the official college portal host. Telemetry, Firebase, and advertising SDKs are intentionally absent from the APK build manifest.
+</p>
+</div>
+</div>
+</div>
+<!-- Android Troubleshooting & FAQ Accordion Section -->
+<div>
+<div class="max-w-2xl mb-space-lg">
+<span class="font-label-md text-label-md text-primary uppercase tracking-wider font-semibold">Assistance &amp; FAQs</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-space-xs">
+Android Sideloading FAQ &amp; Troubleshooting
+</h3>
+</div>
+<div class="flex flex-col gap-space-md">
+<details class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm group">
+<summary class="font-label-lg text-label-lg font-semibold text-on-surface cursor-pointer flex items-center justify-between select-none list-none">
+<span>Play Protect warning on Android device</span>
+<span class="material-symbols-outlined text-outline group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
+</summary>
+<div class="mt-space-md font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Google Play Protect regularly warns users when installing an APK downloaded through a web browser if the developer certificate hasn't paid Google's annual developer registry. Tap <span class="font-semibold text-on-surface">'More details'</span> and then tap <span class="font-semibold text-on-surface">'Install anyway'</span>. You can inspect the complete source on GitHub.
+</div>
+</details>
+<details class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm group">
+<summary class="font-label-lg text-label-lg font-semibold text-on-surface cursor-pointer flex items-center justify-between select-none list-none">
+<span>Why does ContinueO require Unknown Apps permission?</span>
+<span class="material-symbols-outlined text-outline group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
+</summary>
+<div class="mt-space-md font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+Android requires explicit user approval before any browser or file manager can trigger package installation. This is a built-in Android OS security barrier ensuring no background application can install software without your direct permission.
+</div>
+</details>
+<details class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm group">
+<summary class="font-label-lg text-label-lg font-semibold text-on-surface cursor-pointer flex items-center justify-between select-none list-none">
+<span>Is student data shared with external servers?</span>
+<span class="material-symbols-outlined text-outline group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
+</summary>
+<div class="mt-space-md font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+No. ContinueO operates completely client-side. The app has no backend servers, no analytics databases, and no telemetry trackers. All portal interactions happen exclusively between your smartphone's WebView and BMSIT's official Contineo portal endpoints.
+</div>
+</details>
+<details class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-sm group">
+<summary class="font-label-lg text-label-lg font-semibold text-on-surface cursor-pointer flex items-center justify-between select-none list-none">
+<span>Updating the APK without losing saved accounts</span>
+<span class="material-symbols-outlined text-outline group-open:rotate-180 transition-transform text-[20px]">expand_more</span>
+</summary>
+<div class="mt-space-md font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+When installing an update (e.g. from v1.2.5 to v1.2.6), simply download and install the new APK over the existing installation without uninstalling. Android will perform an in-place upgrade, preserving your encrypted keystore and saved student profile accounts.
+</div>
+</details>
+</div>
+</div>
+</div>
+</section>
+<section class="w-full bg-surface py-space-3xl relative overflow-hidden" id="download">
+<!-- Atmospheric Organic Arc -->
+<div class="absolute -bottom-24 -left-20 w-[450px] h-[450px] rounded-full bg-primary-fixed/30 dark:bg-primary/20 blur-3xl pointer-events-none -z-10"></div>
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin">
+<div class="bg-surface-container rounded-3xl p-space-xl md:p-space-2xl shadow-sm">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Download CTA Info -->
+<div class="lg:col-span-8 flex flex-col items-start">
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-lowest shadow-sm mb-space-md">
+<span class="material-symbols-outlined text-secondary text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Official Release Build Signed with Developer Key</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface tracking-tight mb-space-sm text-left">
+              Get ContinueO v1.2.6 for Android
+</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-space-xl text-left">
+              Sideload directly in seconds. Compatible with all Android smartphones running Android 8.0 and above.
+</p>
+<div class="flex flex-wrap items-center gap-space-md w-full sm:w-auto mb-space-lg">
+<a class="inline-flex items-center justify-center gap-space-xs px-space-xl h-14 rounded-full bg-primary-container text-on-primary-container font-label-lg text-label-lg shadow-md hover:bg-primary transition-all active:scale-[0.98]" href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk">
+<span class="material-symbols-outlined text-[24px]">download</span>
+<span>Direct APK Download (v1.2.6)</span>
+</a>
+<a class="inline-flex items-center justify-center gap-space-xs px-space-lg h-14 rounded-full bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg shadow-sm transition-colors" href="https://github.com/adityasing9/BMSIT-CP/releases/latest" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">code</span>
+<span>GitHub Releases</span>
+</a>
+</div>
+<div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
+<span>Direct GitHub Releases Mirror</span>
+</span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
+<span>WhatsApp Sharing Enabled</span>
+</span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
+<span>No Google Play Services requirement</span>
+</span>
+</div>
+</div>
+<!-- Scan to Sideload Container with Dynamic QR Code -->
+<div class="lg:col-span-4 flex flex-col items-center justify-center">
+<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-md flex flex-col items-center text-center max-w-[240px] w-full">
+<div class="w-40 h-40 bg-surface rounded-xl p-2.5 flex items-center justify-center mb-space-md">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" alt="QR Code to Download APK" class="w-36 h-36 rounded-lg"/>
+</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Scan with Phone</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Direct APK URL download</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Legal / Independent Project Disclaimer Notice -->
+<div class="mt-space-xl p-space-lg bg-surface-container-lowest rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">desktop_windows</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="font-label-lg text-label-lg font-semibold text-on-surface">Looking for the browser extension?</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Get automated login, captcha resolution, and attendance forecast on Chrome, Brave, and Edge.</p>
+</div>
+</div>
+<a class="shrink-0 inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-full bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md font-semibold transition-colors" href="extension.html">
+<span>Explore ContinueO for Desktop Chromium</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<div class="mt-space-xl p-space-md bg-surface-container-low rounded-2xl flex items-start gap-space-md">
+<span class="material-symbols-outlined text-outline text-[22px] shrink-0 mt-0.5">info</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Privacy &amp; Institutional Disclaimer</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+            ContinueO is a strictly independent, open-source student productivity utility developed to facilitate accessible educational schedule viewing. It is not affiliated with, endorsed by, or sponsored by BMS Institute of Technology and Management (BMSIT) or the Contineo portal developers. All credentials remain encrypted solely in your local device keystore.
+</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer class="w-full bg-surface-container-low text-on-surface-variant">
+<div class="max-w-[1280px] mx-auto px-margin-mobile md:px-margin py-space-2xl">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-xl pb-space-xl">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-on-surface font-headline-sm text-headline-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">bolt</span>
+<span>Continue<span class="text-primary">O</span></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm">Seamless multi-device state transition, clipboard bridging, and instant consumer mobility.</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-lg font-label-md text-label-md">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="index.html">Home</a>
+<a class="text-primary font-semibold transition-colors" href="android.html">Android App</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="extension.html">Desktop Extension</a>
+<a class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" href="https://github.com/adityasing9/BMSIT-CP" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[18px]">code</span>
+<span>GitHub</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="https://github.com/adityasing9/BMSIT-CP" target="_blank" rel="noopener">MIT License</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="index.html#faq">Privacy</a>
+</div>
+</div>
+<div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-sm font-label-sm text-label-sm text-on-surface-variant">
+<p>© 2025-2026 ContinueO Open Source Project. Released under MIT License.</p>
+<p class="text-on-surface-variant">Designed with local-first, privacy-respecting consumer standards.</p>
+</div>
+</div>
+</footer>
+<script>
+  // Theme Toggle Script with OS Preference Detection & Change Listener
+  (function() {
+    const toggleBtn = document.getElementById('theme-toggle');
+    const lightIcon = document.getElementById('theme-icon-light');
+    const darkIcon = document.getElementById('theme-icon-dark');
+    const htmlElement = document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function updateToggleIcon() {
+      const isDark = htmlElement.classList.contains('dark');
+      if (lightIcon) {
+        if (isDark) lightIcon.classList.add('hidden');
+        else lightIcon.classList.remove('hidden');
+      }
+      if (darkIcon) {
+        if (isDark) darkIcon.classList.add('hidden');
+        else darkIcon.classList.remove('hidden');
+      }
+    }
+
+    // 1. Initial evaluation using storedTheme or fallback to system preference
+    const storedTheme = localStorage.getItem('continueo_theme');
+    const systemPrefersDark = mediaQuery.matches;
+    if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+    updateToggleIcon();
+
+    // 2. Add a listener for system preference changes when no explicit override exists
+    mediaQuery.addEventListener('change', (e) => {
+      if (!localStorage.getItem('continueo_theme')) {
+        if (e.matches) {
+          htmlElement.classList.add('dark');
+        } else {
+          htmlElement.classList.remove('dark');
+        }
+        updateToggleIcon();
+      }
+    });
+
+    // 3. User toggle button click listener
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        const isDark = htmlElement.classList.toggle('dark');
+        const nextTheme = isDark ? 'dark' : 'light';
+        localStorage.setItem('continueo_theme', nextTheme);
+        updateToggleIcon();
+      });
+    }
+  })();
+</script>
+</body>
+</html>
