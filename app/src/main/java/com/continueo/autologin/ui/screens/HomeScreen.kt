@@ -45,6 +45,7 @@ import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,9 +64,14 @@ fun HomeScreen(
     var showAccountSwitcher by remember { mutableStateOf(false) }
 
     // Auto-update states
+    val coroutineScope = rememberCoroutineScope()
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
     var showUpdatePopup by remember { mutableStateOf(false) }
+    var isDownloadingOta by remember { mutableStateOf(false) }
+    var downloadProgress by remember { mutableStateOf(0) }
+    var downloadBytesText by remember { mutableStateOf("") }
+    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
 
     // Check for updates on screen launch
     LaunchedEffect(Unit) {
@@ -191,39 +197,96 @@ fun HomeScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextButton(
-                                onClick = { isUpdateDismissed = true }
+                        if (isDownloadingOta) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            LinearProgressIndicator(
+                                progress = { if (downloadProgress > 0) downloadProgress / 100f else 0f },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = if (downloadProgress > 0) "⏳ Downloading update: $downloadProgress% ($downloadBytesText)" else "⏳ Connecting to download server...",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium
+                            )
+                        } else if (downloadedApkFile != null) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "✅ Update downloaded! Ready to install.",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                Text("Dismiss")
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            OutlinedButton(
-                                onClick = {
-                                    val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
-                                    UpdateManager.openInBrowser(context, targetUrl)
+                                Button(
+                                    onClick = {
+                                        UpdateManager.installApk(context, downloadedApkFile!!)
+                                    }
+                                ) {
+                                    Text("Install Now 🚀")
                                 }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Releases")
                             }
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Button(
-                                onClick = {
-                                    UpdateManager.openBrowserDownload(context, update.downloadUrl)
-                                }
+                        } else {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Update Now 🚀")
+                                TextButton(
+                                    onClick = { isUpdateDismissed = true }
+                                ) {
+                                    Text("Dismiss")
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                        UpdateManager.openInBrowser(context, targetUrl)
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Releases")
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Button(
+                                    onClick = {
+                                        isDownloadingOta = true
+                                        downloadProgress = 0
+                                        coroutineScope.launch {
+                                            UpdateManager.downloadApkDirect(
+                                                context = context,
+                                                downloadUrl = update.downloadUrl,
+                                                versionName = update.latestVersionName
+                                            ) { percent, read, total ->
+                                                downloadProgress = percent
+                                                val readMb = String.format(Locale.US, "%.1f", read / (1024f * 1024f))
+                                                val totalMb = if (total > 0) String.format(Locale.US, "%.1f", total / (1024f * 1024f)) else "?"
+                                                downloadBytesText = "$readMb / $totalMb MB"
+                                            }.onSuccess { apkFile ->
+                                                isDownloadingOta = false
+                                                downloadedApkFile = apkFile
+                                                Toast.makeText(context, "Update downloaded! Installing...", Toast.LENGTH_SHORT).show()
+                                                UpdateManager.installApk(context, apkFile)
+                                            }.onFailure { err ->
+                                                isDownloadingOta = false
+                                                Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
+                                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Text("Update Now 🚀")
+                                }
                             }
                         }
                     }
@@ -640,7 +703,29 @@ fun HomeScreen(
                 Button(
                     onClick = {
                         showUpdatePopup = false
-                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                        isDownloadingOta = true
+                        downloadProgress = 0
+                        coroutineScope.launch {
+                            UpdateManager.downloadApkDirect(
+                                context = context,
+                                downloadUrl = update.downloadUrl,
+                                versionName = update.latestVersionName
+                            ) { percent, read, total ->
+                                downloadProgress = percent
+                                val readMb = String.format(Locale.US, "%.1f", read / (1024f * 1024f))
+                                val totalMb = if (total > 0) String.format(Locale.US, "%.1f", total / (1024f * 1024f)) else "?"
+                                downloadBytesText = "$readMb / $totalMb MB"
+                            }.onSuccess { apkFile ->
+                                isDownloadingOta = false
+                                downloadedApkFile = apkFile
+                                Toast.makeText(context, "Update downloaded! Installing...", Toast.LENGTH_SHORT).show()
+                                UpdateManager.installApk(context, apkFile)
+                            }.onFailure { err ->
+                                isDownloadingOta = false
+                                Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
+                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                            }
+                        }
                     }
                 ) {
                     Text("Update Now 🚀")
