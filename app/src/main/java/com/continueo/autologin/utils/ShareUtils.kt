@@ -1,8 +1,12 @@
 package com.continueo.autologin.utils
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.continueo.autologin.R
@@ -10,6 +14,8 @@ import java.io.File
 import java.io.FileOutputStream
 
 object ShareUtils {
+
+    private const val TAG = "ShareUtils"
 
     const val APP_WEBSITE_URL = "https://bmsit-cp.vercel.app"
     const val DOWNLOAD_PAGE_URL = "https://bmsit-cp.vercel.app/download"
@@ -34,7 +40,7 @@ object ShareUtils {
             • Local-only AES-256 encrypted multi-account storage
             • Dark, Light & AMOLED themes
             
-            📷 Scan the attached QR Code to download or tap below:
+            📷 Scan the QR Code flyer to download or tap below:
             $DOWNLOAD_PAGE_URL
             
             🌐 Official Website:
@@ -56,11 +62,40 @@ object ShareUtils {
             val sharesDir = File(context.cacheDir, "shares").apply { mkdirs() }
             val shareFile = File(sharesDir, "continueo_qr_download.png")
 
-            // Always write fresh copy
-            context.resources.openRawResource(R.drawable.continueo_share_card).use { input ->
-                FileOutputStream(shareFile).use { output ->
-                    input.copyTo(output)
+            // Method 1: Decode resource as Bitmap and compress to PNG (100% reliable for drawables)
+            var written = false
+            try {
+                val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.continueo_share_card)
+                    ?: BitmapFactory.decodeResource(context.resources, R.drawable.qr_download)
+                if (bitmap != null) {
+                    FileOutputStream(shareFile).use { out ->
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                        out.flush()
+                    }
+                    written = shareFile.exists() && shareFile.length() > 0
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "BitmapFactory decoding failed: ${e.message}")
+            }
+
+            // Method 2: Raw resource stream fallback
+            if (!written) {
+                try {
+                    context.resources.openRawResource(R.raw.continueo_share_card).use { input ->
+                        FileOutputStream(shareFile).use { output ->
+                            input.copyTo(output)
+                            output.flush()
+                        }
+                    }
+                    written = shareFile.exists() && shareFile.length() > 0
+                } catch (e: Exception) {
+                    Log.w(TAG, "Raw resource copy failed: ${e.message}")
+                }
+            }
+
+            if (!written || !shareFile.exists() || shareFile.length() == 0L) {
+                Log.e(TAG, "Failed to write QR image file to cache")
+                return null
             }
 
             FileProvider.getUriForFile(
@@ -68,7 +103,8 @@ object ShareUtils {
                 "${context.packageName}.fileprovider",
                 shareFile
             )
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e(TAG, "Error generating QR image URI: ${e.message}", e)
             null
         }
     }
@@ -103,6 +139,8 @@ object ShareUtils {
                 if (qrUri != null) {
                     type = "image/png"
                     putExtra(Intent.EXTRA_STREAM, qrUri)
+                    // CRITICAL: clipData and explicit permission grant required for WhatsApp on Android 10+
+                    clipData = ClipData.newRawUri("ContinueO Download QR", qrUri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 } else {
                     type = "text/plain"
@@ -111,9 +149,17 @@ object ShareUtils {
                 setPackage(packageName)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+
+            if (qrUri != null) {
+                try {
+                    context.grantUriPermission(packageName, qrUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                } catch (_: Exception) {}
+            }
+
             context.startActivity(sendIntent)
             true
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to launch WhatsApp ($packageName): ${e.message}")
             false
         }
     }
@@ -129,6 +175,7 @@ object ShareUtils {
                 if (qrUri != null) {
                     type = "image/png"
                     putExtra(Intent.EXTRA_STREAM, qrUri)
+                    clipData = ClipData.newRawUri("ContinueO Download QR", qrUri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 } else {
                     type = "text/plain"
@@ -136,8 +183,12 @@ object ShareUtils {
                 putExtra(Intent.EXTRA_SUBJECT, "ContinueO Auto Login for BMSIT")
                 putExtra(Intent.EXTRA_TEXT, shareMessage)
             }
+
             val chooser = Intent.createChooser(sendIntent, "Share ContinueO with Friends").apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                if (qrUri != null) {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
             }
             context.startActivity(chooser)
         } catch (e: Exception) {
