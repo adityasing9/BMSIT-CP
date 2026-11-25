@@ -1,8 +1,8 @@
 {
-  "versionCode": 12,
-  "versionName": "1.2.9",
-  "releaseTitle": "ContinueO Auto Login v1.2.9",
-  "releaseNotes": "• Complete overhaul to 100% Automatic In-App Updates (no more broken DownloadManager notifications)\n• Live in-app download progress bar with byte counter\n• Immediate auto-launch of Android system package installer on download completion\n• REQUEST_INSTALL_PACKAGES permission & 1-tap unknown sources prompt\n• Direct APK download QR code on website & WhatsApp QR flyer sharing",
+  "versionCode": 13,
+  "versionName": "1.2.10",
+  "releaseTitle": "ContinueO Auto Login v1.2.10",
+  "releaseNotes": "• Resolved Play Protect 'Harmful app blocked' false positive by removing unnecessary dropper permissions\n• Prominent interactive Update Modal Popup on Main Screen (no notification center / status bar check needed)\n• Direct 1-tap browser APK download via https://bmsit-cp.vercel.app/download\n• Fastly CDN instant update checks with cache busting",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

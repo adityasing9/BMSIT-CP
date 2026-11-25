@@ -62,15 +62,10 @@ fun HomeScreen(
 
     var showAccountSwitcher by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
-
     // Auto-update states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
-    var isDownloadingOta by remember { mutableStateOf(false) }
-    var downloadProgress by remember { mutableStateOf(0) }
-    var downloadBytesText by remember { mutableStateOf("") }
-    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
+    var showUpdatePopup by remember { mutableStateOf(false) }
 
     // Check for updates on screen launch
     LaunchedEffect(Unit) {
@@ -78,6 +73,7 @@ fun HomeScreen(
         result.onSuccess { info ->
             if (info.isUpdateAvailable) {
                 updateInfo = info
+                showUpdatePopup = true // Prominent modal popup directly on the main screen!
             }
         }
     }
@@ -195,106 +191,39 @@ fun HomeScreen(
                             }
                         }
 
-                        if (isDownloadingOta) {
-                            Spacer(modifier = Modifier.height(10.dp))
-                            LinearProgressIndicator(
-                                progress = { if (downloadProgress > 0) downloadProgress / 100f else 0f },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = if (downloadProgress > 0) "⏳ Downloading update: $downloadProgress% ($downloadBytesText)" else "⏳ Connecting to download server...",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Medium
-                            )
-                        } else if (downloadedApkFile != null) {
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = "✅ Update downloaded! Ready to install.",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextButton(
+                                onClick = { isUpdateDismissed = true }
                             ) {
-                                Button(
-                                    onClick = {
-                                        if (!UpdateManager.canRequestPackageInstalls(context)) {
-                                            Toast.makeText(context, "Please allow ContinueO to install updates", Toast.LENGTH_LONG).show()
-                                            UpdateManager.openInstallPermissionSettings(context)
-                                        } else {
-                                            UpdateManager.installApk(context, downloadedApkFile!!)
-                                        }
-                                    }
-                                ) {
-                                    Text("Install Now 🚀")
-                                }
+                                Text("Dismiss")
                             }
-                        } else {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                            Spacer(modifier = Modifier.width(6.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                    UpdateManager.openInBrowser(context, targetUrl)
+                                }
                             ) {
-                                TextButton(
-                                    onClick = { isUpdateDismissed = true }
-                                ) {
-                                    Text("Later")
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Releases")
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Button(
+                                onClick = {
+                                    UpdateManager.openBrowserDownload(context, update.downloadUrl)
                                 }
-                                Spacer(modifier = Modifier.width(6.dp))
-                                OutlinedButton(
-                                    onClick = {
-                                        val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
-                                        UpdateManager.openInBrowser(context, targetUrl)
-                                    }
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("GitHub")
-                                }
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            isDownloadingOta = true
-                                            val result = UpdateManager.downloadApkDirect(
-                                                context,
-                                                update.downloadUrl,
-                                                update.latestVersionName
-                                            ) { percent, bytesRead, totalBytes ->
-                                                downloadProgress = percent
-                                                if (totalBytes > 0) {
-                                                    val mbRead = bytesRead / (1024f * 1024f)
-                                                    val mbTotal = totalBytes / (1024f * 1024f)
-                                                    downloadBytesText = String.format(java.util.Locale.US, "%.1f MB / %.1f MB", mbRead, mbTotal)
-                                                }
-                                            }
-                                            isDownloadingOta = false
-                                            result.onSuccess { apkFile ->
-                                                downloadedApkFile = apkFile
-                                                if (!UpdateManager.canRequestPackageInstalls(context)) {
-                                                    Toast.makeText(context, "Please allow ContinueO to install updates", Toast.LENGTH_LONG).show()
-                                                    UpdateManager.openInstallPermissionSettings(context)
-                                                } else {
-                                                    UpdateManager.installApk(context, apkFile)
-                                                }
-                                            }.onFailure { err ->
-                                                Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
-                                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
-                                            }
-                                        }
-                                    }
-                                ) {
-                                    Text("Install Update")
-                                }
+                            ) {
+                                Text("Update Now 🚀")
                             }
                         }
                     }
@@ -653,6 +582,84 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = { showAccountSwitcher = false }) {
                     Text("Close")
+                }
+            }
+        )
+    }
+
+    // Main Screen Auto-Update Popup Modal Dialog
+    if (showUpdatePopup && updateInfo != null) {
+        val update = updateInfo!!
+        AlertDialog(
+            onDismissRequest = { showUpdatePopup = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(36.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "Update Available: v${update.latestVersionName}",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "A new release of ContinueO Auto Login is available.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    if (update.releaseNotes.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "What's New in v${update.latestVersionName}:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Surface(
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = update.releaseNotes,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showUpdatePopup = false
+                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                    }
+                ) {
+                    Text("Update Now 🚀")
+                }
+            },
+            dismissButton = {
+                Row {
+                    OutlinedButton(
+                        onClick = {
+                            val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                            UpdateManager.openInBrowser(context, targetUrl)
+                        }
+                    ) {
+                        Text("Changelog ↗")
+                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                    TextButton(onClick = { showUpdatePopup = false }) {
+                        Text("Later")
+                    }
                 }
             }
         )
