@@ -344,7 +344,7 @@ class WebViewManager {
                 val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                 dm.addCompletedDownload(
                     fileName,
-                    "Downloaded from ContinueO Portal",
+                    "Downloaded via BMSIT CP",
                     true,
                     mimeType.ifBlank { "application/pdf" },
                     outputFile.absolutePath,
@@ -402,7 +402,7 @@ class WebViewManager {
             val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             dm.addCompletedDownload(
                 fileName,
-                "Downloaded from ContinueO Portal",
+                "Downloaded via BMSIT CP",
                 true,
                 mimeType,
                 outputFile.absolutePath,

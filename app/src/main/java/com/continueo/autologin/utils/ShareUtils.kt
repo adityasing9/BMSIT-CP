@@ -34,11 +34,11 @@ object ShareUtils {
         return """
             🚀 Tired of logging into the BMSIT student portal again and again?
 
-            Meet ContinueO — your smarter, faster way to access the BMSIT student portal! 🎓
+            Meet BMSIT CP — your smarter, faster way to access the BMSIT student portal! 🎓
 
             No repetitive logins. No hassle downloading files. Just everything you need, in one place. ⚡
 
-            ✨ What makes ContinueO special?
+            ✨ What makes BMSIT CP special?
             🔑 1-Tap Login & Verification
             📥 Download notes, syllabus, marks & files directly in the app
             🔐 AES-256 encrypted local storage for your accounts
@@ -149,7 +149,7 @@ object ShareUtils {
                     type = "image/png"
                     putExtra(Intent.EXTRA_STREAM, qrUri)
                     // CRITICAL: clipData and explicit permission grant required for WhatsApp on Android 10+
-                    clipData = ClipData.newRawUri("ContinueO Download QR", qrUri)
+                    clipData = ClipData.newRawUri("BMSIT CP Download QR", qrUri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 } else {
                     type = "text/plain"
@@ -184,16 +184,16 @@ object ShareUtils {
                 if (qrUri != null) {
                     type = "image/png"
                     putExtra(Intent.EXTRA_STREAM, qrUri)
-                    clipData = ClipData.newRawUri("ContinueO Download QR", qrUri)
+                    clipData = ClipData.newRawUri("BMSIT CP Download QR", qrUri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 } else {
                     type = "text/plain"
                 }
-                putExtra(Intent.EXTRA_SUBJECT, "ContinueO Auto Login for BMSIT")
+                putExtra(Intent.EXTRA_SUBJECT, "BMSIT CP — BMSIT Student Portal Helper")
                 putExtra(Intent.EXTRA_TEXT, shareMessage)
             }
 
-            val chooser = Intent.createChooser(sendIntent, "Share ContinueO with Friends").apply {
+            val chooser = Intent.createChooser(sendIntent, "Share BMSIT CP with Friends").apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 if (qrUri != null) {
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

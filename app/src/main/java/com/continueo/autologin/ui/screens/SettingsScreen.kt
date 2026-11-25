@@ -454,74 +454,90 @@ fun SettingsScreen(
                 modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
             )
 
-            ListItem(
-                headlineContent = { Text("Check for Updates") },
-                supportingContent = {
-                    Text("Current version: v${UpdateManager.getCurrentVersionName(context)}")
-                },
-                leadingContent = {
-                    if (isCheckingUpdate) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                    } else {
+            if (UpdateManager.isSelfUpdateEnabled) {
+                ListItem(
+                    headlineContent = { Text("Check for Updates") },
+                    supportingContent = {
+                        Text("Current version: v${UpdateManager.getCurrentVersionName(context)}")
+                    },
+                    leadingContent = {
+                        if (isCheckingUpdate) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    trailingContent = {
+                        TextButton(
+                            onClick = {
+                                if (!isCheckingUpdate) {
+                                    isCheckingUpdate = true
+                                    coroutineScope.launch {
+                                        val result = UpdateManager.checkForUpdates(context)
+                                        isCheckingUpdate = false
+                                        result.onSuccess { info ->
+                                            if (info.isUpdateAvailable) {
+                                                updateDialogInfo = info
+                                            } else {
+                                                Toast.makeText(context, "You're on the latest version! (v${info.latestVersionName})", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }.onFailure { err ->
+                                            Toast.makeText(context, "Update check failed: ${err.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            }
+                        ) {
+                            Text(if (isCheckingUpdate) "Checking..." else "Check Now")
+                        }
+                    }
+                )
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text("GitHub Releases") },
+                    supportingContent = { Text("View changelogs, assets, and download APKs from GitHub") },
+                    leadingContent = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_open_in_browser),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    trailingContent = {
+                        TextButton(
+                            onClick = {
+                                UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                            }
+                        ) {
+                            Text("Releases ↗")
+                        }
+                    },
+                    modifier = Modifier.clickable {
+                        UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                    }
+                )
+            } else {
+                ListItem(
+                    headlineContent = { Text("Managed by F-Droid") },
+                    supportingContent = {
+                        Text("Current version: v${UpdateManager.getCurrentVersionName(context)} • Updates are delivered through F-Droid")
+                    },
+                    leadingContent = {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                },
-                trailingContent = {
-                    TextButton(
-                        onClick = {
-                            if (!isCheckingUpdate) {
-                                isCheckingUpdate = true
-                                coroutineScope.launch {
-                                    val result = UpdateManager.checkForUpdates(context)
-                                    isCheckingUpdate = false
-                                    result.onSuccess { info ->
-                                        if (info.isUpdateAvailable) {
-                                            updateDialogInfo = info
-                                        } else {
-                                            Toast.makeText(context, "You're on the latest version! (v${info.latestVersionName})", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }.onFailure { err ->
-                                        Toast.makeText(context, "Update check failed: ${err.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                        }
-                    ) {
-                        Text(if (isCheckingUpdate) "Checking..." else "Check Now")
-                    }
-                }
-            )
-
-            HorizontalDivider()
-
-            ListItem(
-                headlineContent = { Text("GitHub Releases") },
-                supportingContent = { Text("View changelogs, assets, and download APKs from GitHub") },
-                leadingContent = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_open_in_browser),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                trailingContent = {
-                    TextButton(
-                        onClick = {
-                            UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
-                        }
-                    ) {
-                        Text("Releases ↗")
-                    }
-                },
-                modifier = Modifier.clickable {
-                    UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
-                }
-            )
+                )
+            }
 
             HorizontalDivider()
 
@@ -592,7 +608,7 @@ fun SettingsScreen(
             )
 
             ListItem(
-                headlineContent = { Text("ContinueO Auto Login") },
+                headlineContent = { Text("BMSIT CP") },
                 supportingContent = { Text("Version ${UpdateManager.getCurrentVersionName(context)}") },
                 leadingContent = {
                     Icon(
@@ -725,7 +741,7 @@ fun SettingsScreen(
                 headlineContent = { Text("Local-Only Encrypted Storage") },
                 supportingContent = {
                     Text(
-                        "ContinueO Auto Login stores your credentials locally on this device using Android Keystore and AES-256 EncryptedSharedPreferences. " +
+                        "BMSIT CP stores your credentials locally on this device using Android Keystore and AES-256 EncryptedSharedPreferences. " +
                         "The application does not operate any backend server and never sends your credentials to any third-party service."
                     )
                 },
@@ -817,7 +833,7 @@ fun SettingsScreen(
             text = {
                 Column {
                     Text(
-                        text = "A new version of ContinueO Auto Login is available:",
+                        text = "A new version of BMSIT CP is available:",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))

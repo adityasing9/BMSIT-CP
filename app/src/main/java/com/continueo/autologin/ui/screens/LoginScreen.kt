@@ -99,7 +99,7 @@ fun LoginScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("ContinueO Login", style = MaterialTheme.typography.titleMedium)
+                        Text("BMSIT CP Login", style = MaterialTheme.typography.titleMedium)
                         activeAccount?.let { acc ->
                             Text(
                                 acc.getDisplayName(),
@@ -213,7 +213,7 @@ fun LoginScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "No internet connection.\nContinueO requires an internet connection.",
+                            text = "No internet connection.\nBMSIT CP requires an internet connection.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )

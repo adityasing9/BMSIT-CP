@@ -1,8 +1,8 @@
 {
-  "versionCode": 15,
-  "versionName": "1.2.12",
-  "releaseTitle": "ContinueO Auto Login v1.2.12",
-  "releaseNotes": "• Restored 100% In-App Automatic OTA Download with real-time percentage progress bar & byte tracker\n• Instant auto-installer trigger upon download completion\n• Added Star on GitHub ⭐ & Follow Developer options in Settings\n• Enhanced WhatsApp share template with high-converting student copy\n• Play Protect safety maintained with zero dropper permissions",
-  "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
+  "versionCode": 16,
+  "versionName": "1.2.13",
+  "releaseTitle": "BMSIT CP v1.2.13",
+  "releaseNotes": "• App renamed to BMSIT CP — same great features, new name!\n• Added MIT License for F-Droid and open-source compliance\n• Updated all branding references throughout the app\n• Play Protect safety maintained with zero unnecessary permissions",
+  "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

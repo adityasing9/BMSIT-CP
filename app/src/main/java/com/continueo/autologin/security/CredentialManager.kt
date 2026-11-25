@@ -205,7 +205,7 @@ class CredentialManager(context: Context) {
     fun exportBackupJson(): String {
         val accounts = getAllAccounts()
         val root = JSONObject().apply {
-            put("app", "ContinueO Auto Login")
+            put("app", "BMSIT CP")
             put("version", 1)
             put("timestamp", System.currentTimeMillis())
             val array = JSONArray()

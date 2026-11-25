@@ -1,4 +1,4 @@
-# 🚀 ContinueO Auto Login
+# 🚀 BMSIT CP
 
 <div align="center">
 
@@ -9,6 +9,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Security](https://img.shields.io/badge/Storage-AES--256--GCM%20Encrypted-green?logo=securityscorecard&logoColor=white)](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, in-app file downloads, and features automated wireless updates.**
 
@@ -29,7 +30,7 @@ Every visit to the **BMSIT&M ContinueO Parent Portal** (`https://student.bmsit.a
 
 Furthermore, mobile browsers often render the portal in a cramped, single-column responsive layout where navigation headers and tables are cut off or misaligned.
 
-**ContinueO Auto Login** eliminates this friction:
+**BMSIT CP** eliminates this friction:
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
 - **Multiple Accounts:** Store multiple student profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
 - **Full In-App File Downloads:** Download subject notes (`[NOTES]`), circulars, and syllabus PDFs directly through Android's native `DownloadManager` with session cookies preserved.
@@ -48,16 +49,16 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`ContinueO-AutoLogin.apk`** | Latest compiled Android APK (`v1.2.4`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk) |
+| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.13`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
 > **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
 
 ---
 
-## ⚖️ Why ContinueO Auto Login?
+## ⚖️ Why BMSIT CP?
 
-| Feature / Experience | Standard Web Browser | With ContinueO Auto Login |
+| Feature / Experience | Standard Web Browser | With BMSIT CP |
 | :--- | :--- | :--- |
 | **Login Time** | 45–60 seconds of repetitive typing | **~2–3 seconds (Single Tap)** |
 | **Multiple Accounts** | Log out, retype USN + DOB + ID Card | **Instant 1-tap account switching** |
@@ -86,11 +87,11 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 - **Multi-Tier Update Engine:** Checks updates via Fastly CDN (`raw.githubusercontent.com`), HTTP 302 release redirects, and the GitHub REST API. Immune to GitHub API 403 rate limits on mobile networks (Jio, Airtel).
 - **Cache-Busting Fallthrough:** Ensures newly pushed releases are detected immediately without waiting for CDN cache expiration.
 - **In-App Notification Banner:** Presents release version and release notes preview directly on the Home Screen.
-- **Seamless Wireless Download:** Tapping "Update (OTA)" downloads the official release APK wirelessly through Android's `DownloadManager` and launches the system installer.
+- **Seamless Wireless Download:** Tapping "Update Now" downloads the APK directly with a live progress bar and launches the system installer.
 - **Permanent Release Keystore:** Signed with a permanent 10,000-day keystore, eliminating signature mismatch conflicts across updates.
 
-### 🌐 3. Open Contineo in External Browser
-- **Home Screen Access:** A dedicated **"Open Contineo in Browser"** button right below the main **"LOGIN NOW 🚀"** button for quick, direct portal access in your default browser.
+### 🌐 3. Open Portal in External Browser
+- **Home Screen Access:** A dedicated **"Portal ↗"** button right below the main **"LOGIN NOW 🚀"** button for quick, direct portal access in your default browser.
 - **Top App Bar Action:** An **Open in Browser** icon in the Login Screen top bar allows you to open the currently viewed portal page in your device's browser at any time.
 - **Post-Login Action:** An **"Open in Browser"** button appears next to "View Dashboard" as soon as authentication completes.
 - **Zero Intermediaries:** Directly opens your browser without clipboard copying prompts or annoying redirect dialogs.
@@ -113,16 +114,15 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 - **Graceful Error Handling:** If the portal issues a CAPTCHA challenge or OTP, automation pauses and gives you a single-tap **Continue Manually** option without interrupting your session.
 
 ### 🖥️ 7. Genuine Desktop Mode (Default: ON)
-- **Authentic 1280px Viewport:** Bypasses mobile screen-width constraints (`<meta name="viewport" content="width=device-width">`) by reconfiguring the layout viewport to 1280px on page render.
-- **Desktop Grid Breakpoints:** Triggers the portal's native UIkit desktop styles (`@media (min-width: 992px)` and `@l: 1200px`), showing the two-column dashboard layout (notice board on the left, login/dashboard on the right).
+- **Authentic 1280px Viewport:** Bypasses mobile screen-width constraints by reconfiguring the layout viewport to 1280px on page render.
+- **Desktop Grid Breakpoints:** Triggers the portal's native UIkit desktop styles, showing the two-column dashboard layout.
 - **Smooth Navigation:** Built-in overview mode automatically scales the 1280px canvas to fit your phone screen, supported by full pinch-to-zoom and multi-touch gestures.
-- **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar with a clean, controlled reload that keeps your login session active.
+- **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar.
 - **Persistent Choice:** Your chosen mode is saved locally and remembered whenever you reopen the app.
 
 ### 🔄 8. Instant One-Tap Page Refresh
-- **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar to update grades, attendance, circulars, or timetables at any moment.
+- **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar.
 - **Session Preservation:** Reloads the current page safely using existing authenticated cookies without prompting you to log in again.
-- **Race Condition Safe:** Cancels any active automation jobs in the background prior to reloading, ensuring smooth execution without conflicting scripts.
 
 ### 🚀 9. Speed & Performance Optimizations
 - **Hardware-Accelerated WebView:** Enabled `LAYER_TYPE_HARDWARE` for fluid scrolling and 60fps animations.
@@ -286,7 +286,7 @@ You can save as many accounts as you need (e.g. for multiple siblings or wards).
 
 <details>
 <summary><b>2. How does the in-app auto update work?</b></summary>
-On startup or via "Check for Updates" in Settings, ContinueO checks for new APK builds. If an update is found, an update banner appears with release highlights. Tapping "Update (OTA)" downloads the APK directly with a live progress notification and launches the package installer. A direct browser download link is also available.
+On startup or via "Check for Updates" in Settings, BMSIT CP checks for new APK builds. If an update is found, an update popup appears with release highlights. Tapping "Update Now" downloads the APK directly with a live progress bar and launches the package installer. A direct browser download link is also available.
 </details>
 
 <details>
@@ -300,9 +300,9 @@ Yes! Tapping <b>[NOTES]</b> or any PDF/circular download link downloads the file
 </details>
 
 <details>
-<summary><b>5. How do I open Contineo in an external browser (Chrome / Brave)?</b></summary>
+<summary><b>5. How do I open the portal in an external browser (Chrome / Brave)?</b></summary>
 There are three convenient ways:
-1. <b>Home Screen:</b> Tap <b>"Open Contineo in Browser"</b> directly below the "LOGIN NOW" button.
+1. <b>Home Screen:</b> Tap <b>"Portal ↗"</b> directly below the "LOGIN NOW" button.
 2. <b>Login Screen Top Bar:</b> Tap the <b>Open in Browser</b> icon anytime while viewing the portal.
 3. <b>Login Complete:</b> Tap <b>"Open in Browser"</b> on the completion card once authenticated.
 </details>
@@ -331,7 +331,7 @@ Go to <b>Settings → Data Management</b>:
 
 <details>
 <summary><b>10. Why does Google Play Protect show "Harmful app blocked"?</b></summary>
-Because ContinueO is an open-source, sideloaded app that is self-signed and not hosted on the Google Play Store, Google Play Protect displays a generic warning for unrecognized application signatures. 
+Because BMSIT CP is an open-source, sideloaded app that is self-signed and not hosted on the Google Play Store, Google Play Protect displays a generic warning for unrecognized application signatures. 
 
 To proceed with installation, simply tap <b>"Install anyway"</b> (located right above the blue "Got it" button).
 </details>
@@ -343,7 +343,7 @@ Android requires every app update to be signed with the <b>exact same cryptograp
 If updating from a pre-v1.2.0 version:
 1. Open <b>Settings → Data Management → Export Accounts Backup</b> and tap <b>Copy to Clipboard</b> (or Share).
 2. Uninstall the old conflicting app from your device (one-time requirement).
-3. Install the latest <b>v1.2.3 APK</b> from GitHub Releases.
+3. Install the latest APK from GitHub Releases.
 4. Open <b>Settings → Import Accounts Backup</b>, paste your data, and tap <b>Import</b>.
 All future updates will now install seamlessly over the air with zero signature conflicts.
 </details>
@@ -352,14 +352,15 @@ All future updates will now install seamlessly over the air with zero signature 
 
 ## ⭐ Say Thank You & Show Support
 
-If you want to say thank you or you are happy with **ContinueO**, please consider:
+If you want to say thank you or you are happy with **BMSIT CP**, please consider:
 - **Giving this repository a ⭐ star!** It helps more BMSIT students and parents discover the utility.
 - **[Following @adityasing9 on GitHub](https://github.com/adityasing9)** for more interesting tools, utilities, and open-source projects!
-- **Sharing ContinueO** with your classmates, batchmates, and friends via WhatsApp!
+- **Sharing BMSIT CP** with your classmates, batchmates, and friends via WhatsApp!
 
 ---
 
-## 📄 License & Disclaimer
+## 📄 License
 
-- **License:** Distributed for educational and personal productivity purposes.
-- **Disclaimer:** This software is an independent, client-side productivity tool designed exclusively for authorized students and parents accessing their own BMSIT&M ContinueO portal accounts. It does not tamper with or bypass college security protocols. The developers assume no responsibility for any unauthorized usage.
+This project is licensed under the [MIT License](LICENSE).
+
+**Disclaimer:** This software is an independent, client-side productivity tool designed exclusively for authorized students and parents accessing their own BMSIT&M ContinueO portal accounts. It does not tamper with or bypass college security protocols. The developers assume no responsibility for any unauthorized usage.

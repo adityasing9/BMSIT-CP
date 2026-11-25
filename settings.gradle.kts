@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ContinueO Auto Login"
+rootProject.name = "BMSIT CP"
 include(":app")

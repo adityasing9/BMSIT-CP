@@ -94,7 +94,7 @@ fun SetupScreen(
             if (onNavigateBack == null) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "ContinueO",
+                    text = "BMSIT CP",
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.primary
                 )

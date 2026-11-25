@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ContinueO Auto Login</string>
-    <string name="contineo">ContinueO</string>
+    <string name="app_name">BMSIT CP</string>
+    <string name="contineo">BMSIT CP</string>
     <string name="auto_login">Auto Login</string>
 
     <!-- Setup Screen -->
-    <string name="setup_title">ContinueO Auto Login</string>
+    <string name="setup_title">BMSIT CP</string>
     <string name="usn_label">USN</string>
     <string name="usn_placeholder">Enter your USN</string>
     <string name="dob_label">Date of Birth</string>
@@ -24,7 +24,7 @@
     <string name="settings">Settings</string>
 
     <!-- Login Screen -->
-    <string name="login_title">ContinueO Login</string>
+    <string name="login_title">BMSIT CP Login</string>
     <string name="retry">Retry</string>
     <string name="continue_manually">Continue Manually</string>
 
@@ -35,16 +35,16 @@
     <string name="clear_credentials">Clear Saved Credentials</string>
     <string name="clear_credentials_desc">Remove all saved credentials from this device</string>
     <string name="clear_confirm_title">Remove Credentials?</string>
-    <string name="clear_confirm_message">Remove your saved ContinueO credentials from this device?</string>
+    <string name="clear_confirm_message">Remove your saved BMSIT CP credentials from this device?</string>
     <string name="cancel">Cancel</string>
     <string name="remove">Remove</string>
     <string name="about">About</string>
     <string name="version">Version %1$s</string>
     <string name="privacy">Privacy</string>
-    <string name="privacy_text">ContinueO Auto Login stores your login information locally on this device. The application does not operate a backend server and does not intentionally send your credentials to any third-party service.</string>
+    <string name="privacy_text">BMSIT CP stores your login information locally on this device. The application does not operate a backend server and does not intentionally send your credentials to any third-party service.</string>
 
     <!-- Automation Status -->
-    <string name="opening_portal">Opening ContinueO…</string>
+    <string name="opening_portal">Opening BMSIT CP…</string>
     <string name="portal_loaded">Portal loaded</string>
     <string name="filling_login">Filling login details…</string>
     <string name="login_filled">Login details entered</string>
@@ -64,8 +64,8 @@
     <string name="error_year_empty">Year is required</string>
     <string name="error_id_card_empty">ID Card Number is required</string>
     <string name="error_no_credentials">No credentials saved. Please set up first.</string>
-    <string name="error_no_internet">No internet connection.\nContinueO requires an internet connection.</string>
-    <string name="error_page_detection">Unable to detect the ContinueO login page.\nThe portal may have changed.</string>
+    <string name="error_no_internet">No internet connection.\nBMSIT CP requires an internet connection.</string>
+    <string name="error_page_detection">Unable to detect the BMSIT CP login page.\nThe portal may have changed.</string>
 
     <!-- Content Descriptions -->
     <string name="cd_lock_icon">Credentials secured</string>

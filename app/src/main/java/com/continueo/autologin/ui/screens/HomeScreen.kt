@@ -73,13 +73,15 @@ fun HomeScreen(
     var downloadBytesText by remember { mutableStateOf("") }
     var downloadedApkFile by remember { mutableStateOf<File?>(null) }
 
-    // Check for updates on screen launch
+    // Check for updates on screen launch (GitHub distribution flavor only)
     LaunchedEffect(Unit) {
-        val result = UpdateManager.checkForUpdates(context)
-        result.onSuccess { info ->
-            if (info.isUpdateAvailable) {
-                updateInfo = info
-                showUpdatePopup = true // Prominent modal popup directly on the main screen!
+        if (UpdateManager.isSelfUpdateEnabled) {
+            val result = UpdateManager.checkForUpdates(context)
+            result.onSuccess { info ->
+                if (info.isUpdateAvailable) {
+                    updateInfo = info
+                    showUpdatePopup = true // Prominent modal popup directly on the main screen!
+                }
             }
         }
     }
@@ -297,7 +299,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.weight(0.5f))
 
         Text(
-            text = "ContinueO",
+            text = "BMSIT CP",
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
@@ -673,7 +675,7 @@ fun HomeScreen(
             text = {
                 Column {
                     Text(
-                        text = "A new release of ContinueO Auto Login is available.",
+                        text = "A new release of BMSIT CP is available.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     if (update.releaseNotes.isNotBlank()) {

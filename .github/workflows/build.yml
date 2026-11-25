@@ -28,7 +28,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleGithubDebug --stacktrace
 
     - name: Prepare APK
       shell: bash
@@ -37,14 +37,15 @@ jobs:
         echo "=== Listing all outputs ==="
         find app/build/outputs/ -type f || true
         
-        APK_FILE=$(find app/build/outputs/apk/debug/ -name "*.apk" -type f | head -n 1)
+        APK_FILE=$(find app/build/outputs/apk/github/debug/ -name "*.apk" -type f | head -n 1)
         if [ -z "$APK_FILE" ]; then
-          echo "No APK found in app/build/outputs/apk/debug/! Searching everywhere..."
+          echo "No APK found in app/build/outputs/apk/github/debug/! Searching everywhere..."
           APK_FILE=$(find . -name "*.apk" -type f | head -n 1)
         fi
 
         if [ -n "$APK_FILE" ] && [ -f "$APK_FILE" ]; then
           echo "Found APK at: $APK_FILE"
+          cp -v "$APK_FILE" release-apk/BMSIT-CP.apk
           cp -v "$APK_FILE" release-apk/ContinueO-AutoLogin.apk
           ls -lh release-apk/
         else
@@ -55,8 +56,8 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: continueo-auto-login-apk
-        path: release-apk/ContinueO-AutoLogin.apk
+        name: bmsit-cp-apk
+        path: release-apk/BMSIT-CP.apk
         if-no-files-found: warn
         retention-days: 14
 
@@ -78,12 +79,14 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: latest
-        name: "ContinueO Auto Login v${{ steps.get_version.outputs.version }}"
+        name: "BMSIT CP v${{ steps.get_version.outputs.version }}"
         body: |
-          ### ContinueO Auto Login v${{ steps.get_version.outputs.version }}
+          ### BMSIT CP v${{ steps.get_version.outputs.version }}
           - Automated OTA build generated from commit `${{ github.sha }}`
-          - Direct APK download available below.
-        files: release-apk/ContinueO-AutoLogin.apk
+          - Direct APK download available below (`BMSIT-CP.apk`).
+        files: |
+          release-apk/BMSIT-CP.apk
+          release-apk/ContinueO-AutoLogin.apk
         fail_on_unmatched_files: true
         make_latest: true
         prerelease: false

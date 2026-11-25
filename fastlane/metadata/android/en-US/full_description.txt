@@ -1,0 +1,15 @@
+BMSIT CP automates the repetitive two-step login process for the BMSIT&M Student Portal (Contineo).
+
+Instead of manually typing your USN, selecting Date of Birth from three dropdowns, and entering your ID Card Number on a separate page — BMSIT CP completes the entire flow in one tap.
+
+Key Features:
+• 1-Tap Login & Verification — completes the 2-step authentication flow in seconds
+• Multi-Account Support — store and switch between multiple student profiles
+• In-App File Downloads — download notes, syllabus, marks & circulars directly to Downloads
+• AES-256 Encrypted Storage — credentials remain strictly on-device, backed by Android Keystore
+• True 1280px Desktop View — renders attendance and marks tables cleanly with pinch-to-zoom
+• Dark, Light & AMOLED Themes — plus Material You dynamic colors on Android 12+
+• Data Export & Import — portable JSON backup and restore across devices
+• Zero Cloud & Zero Telemetry — no backend servers, no analytics, and no tracking
+
+100% Free and Open Source (MIT License). Your credentials never leave your device.

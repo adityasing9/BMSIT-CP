@@ -91,7 +91,7 @@ class AutomationEngine(
         try {
             // Step 1: Load the portal
             _automationState.value = AutomationState.LOADING_PORTAL
-            addStatus("Opening ContinueO…")
+            addStatus("Opening BMSIT CP…")
             withContext(Dispatchers.Main) {
                 wv.loadUrl(ContineoSelectors.PORTAL_URL)
             }
@@ -134,7 +134,7 @@ class AutomationEngine(
                         addStatus("✓ Already logged in!")
                     } else {
                         throw AutomationException(
-                            "Unable to detect the ContinueO login page.\nThe portal may have changed."
+                            "Unable to detect the BMSIT CP login page.\nThe portal may have changed."
                         )
                     }
                 }

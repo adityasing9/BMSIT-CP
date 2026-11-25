@@ -11,13 +11,18 @@ android {
         applicationId = "com.continueo.autologin"
         minSdk = 26
         targetSdk = 34
-        versionCode = 15
-        versionName = "1.2.12"
+        versionCode = 16
+        versionName = "1.2.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     signingConfigs {
@@ -26,6 +31,20 @@ android {
             storePassword = "continueo123"
             keyAlias = "continueo"
             keyPassword = "continueo123"
+        }
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("github") {
+            dimension = "distribution"
+            isDefault = true
+            if (file("release.keystore").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+        create("fdroid") {
+            dimension = "distribution"
         }
     }
 
@@ -41,9 +60,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            if (file("release.keystore").exists()) {
-                signingConfig = signingConfigs.getByName("release")
-            }
         }
     }
     compileOptions {
