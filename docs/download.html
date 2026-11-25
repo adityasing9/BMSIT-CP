@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Downloading ContinueO Auto Login for Android</title>
+<meta name="description" content="Downloading ContinueO Auto Login APK. Fast, secure, 1-tap automated portal login for BMSIT students."/>
+<meta http-equiv="refresh" content="1;url=https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk"/>
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  (function() {
+    try {
+      const storedTheme = localStorage.getItem('continueo_theme');
+      const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1A73E8",
+        "primary-container": "#D8E2FF",
+        "on-primary-container": "#001A41",
+        surface: "#FAF9FD",
+        "surface-container-lowest": "#FFFFFF",
+        "surface-container-low": "#F4F3F7",
+        "surface-container": "#EFEDF1",
+        "surface-container-high": "#E9E7EB",
+        "on-surface": "#1A1B1E",
+        "on-surface-variant": "#414754",
+        secondary: "#006E2A",
+        outline: "#727785",
+        "outline-variant": "#C1C6D6"
+      },
+      fontFamily: {
+        sans: ["Plus Jakarta Sans", "sans-serif"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  .dark body { background-color: #0F131C; color: #E3E6F0; }
+  .dark .bg-surface { background-color: #0F131C !important; }
+  .dark .bg-surface-container-lowest { background-color: #1A1E2C !important; }
+  .dark .bg-surface-container-low { background-color: #141722 !important; }
+  .dark .bg-surface-container { background-color: #181B26 !important; }
+  .dark .text-on-surface { color: #FFFFFF !important; }
+  .dark .text-on-surface-variant { color: #9AA1B5 !important; }
+  .dark .border-outline-variant { border-color: rgba(255, 255, 255, 0.08) !important; }
+</style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col justify-between">
+
+<!-- Header -->
+<header class="w-full border-b border-outline-variant/30 py-4 px-6 bg-surface-container-lowest/80 backdrop-blur-md sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2 group">
+      <span class="material-symbols-outlined text-primary text-[28px]">bolt</span>
+      <span class="text-xl font-bold tracking-tight text-on-surface">Continue<span class="text-primary">O</span></span>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="android.html" class="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Android App</a>
+      <a href="extension.html" class="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Chrome Extension</a>
+    </div>
+  </div>
+</header>
+
+<!-- Main Download Section -->
+<main class="flex-1 max-w-xl mx-auto w-full px-5 py-12 flex flex-col items-center text-center">
+  
+  <!-- Animated Download Icon -->
+  <div class="relative w-24 h-24 mb-6 flex items-center justify-center">
+    <div class="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-60"></div>
+    <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30">
+      <span class="material-symbols-outlined text-[38px] animate-bounce">download</span>
+    </div>
+  </div>
+
+  <h1 class="text-2xl sm:text-3xl font-extrabold text-on-surface mb-2">Downloading ContinueO Auto Login</h1>
+  <p class="text-sm sm:text-base text-on-surface-variant mb-6 max-w-md">
+    Your download should begin automatically in a moment. If it doesn't start, tap the button below.
+  </p>
+
+  <!-- Direct Download Button -->
+  <a id="download-btn" href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk"
+     class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-primary hover:bg-blue-600 text-white font-semibold shadow-lg shadow-primary/25 transition-all active:scale-95 text-base mb-4">
+    <span class="material-symbols-outlined text-[22px]">download_for_offline</span>
+    <span>Download APK Directly</span>
+  </a>
+
+  <!-- QR Code Container for Sharing / Other Devices -->
+  <div class="w-full bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/30 shadow-md mt-6 flex flex-col items-center">
+    <span class="text-xs uppercase tracking-wider font-bold text-primary mb-3">Install on Another Device</span>
+    <div class="bg-white p-3 rounded-2xl shadow-inner mb-3">
+      <img src="assets/qr_download.png" alt="Scan QR to Download ContinueO" class="w-40 h-40"/>
+    </div>
+    <p class="text-xs text-on-surface-variant font-medium">Point your smartphone camera at this QR code to download instantly.</p>
+  </div>
+
+  <!-- Sideloading Instructions -->
+  <div class="w-full bg-surface-container-low p-6 rounded-3xl mt-8 text-left border border-outline-variant/20">
+    <h2 class="text-base font-bold text-on-surface mb-4 flex items-center gap-2">
+      <span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+      <span>Quick 3-Step Installation</span>
+    </h2>
+    
+    <div class="space-y-4 text-sm text-on-surface-variant">
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+        <div>
+          <strong class="text-on-surface">Allow Download:</strong> If Android warns about downloading APK files outside Google Play, tap <span class="font-semibold text-on-surface">Download anyway</span>.
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+        <div>
+          <strong class="text-on-surface">Open & Install:</strong> Once complete, tap the notification or open <code class="px-1.5 py-0.5 rounded bg-surface-container text-xs">ContinueO-AutoLogin.apk</code> from your Downloads folder.
+        </div>
+      </div>
+
+      <div class="flex items-start gap-3">
+        <span class="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+        <div>
+          <strong class="text-on-surface">Login & Enjoy:</strong> Save your USN, DOB & ID Card Number once. Your credentials stay 100% encrypted on your device.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="w-full py-6 text-center text-xs text-on-surface-variant border-t border-outline-variant/20">
+  <p>© 2025-2026 ContinueO • Independent Open Source Utility for BMSIT Students</p>
+</footer>
+
+<script>
+  // Automatic Trigger
+  setTimeout(function() {
+    window.location.href = "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk";
+  }, 600);
+</script>
+
+</body>
+</html>

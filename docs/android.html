@@ -653,7 +653,7 @@ When installing an update (e.g. from v1.2.5 to v1.2.6), simply download and inst
 <div class="flex flex-wrap items-center gap-space-md w-full sm:w-auto mb-space-lg">
 <a class="inline-flex items-center justify-center gap-space-xs px-space-xl h-14 rounded-full bg-primary-container text-on-primary-container font-label-lg text-label-lg shadow-md hover:bg-primary transition-all active:scale-[0.98]" href="https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk">
 <span class="material-symbols-outlined text-[24px]">download</span>
-<span>Direct APK Download (v1.2.6)</span>
+<span>Direct APK Download (v1.2.7)</span>
 </a>
 <a class="inline-flex items-center justify-center gap-space-xs px-space-lg h-14 rounded-full bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg shadow-sm transition-colors" href="https://github.com/adityasing9/BMSIT-CP/releases/latest" rel="noopener noreferrer" target="_blank">
 <span class="material-symbols-outlined text-[20px]">code</span>
@@ -677,13 +677,16 @@ When installing an update (e.g. from v1.2.5 to v1.2.6), simply download and inst
 </div>
 <!-- Scan to Sideload Container with Dynamic QR Code -->
 <div class="lg:col-span-4 flex flex-col items-center justify-center">
-<div class="bg-surface-container-lowest p-space-lg rounded-2xl shadow-md flex flex-col items-center text-center max-w-[240px] w-full">
-<div class="w-40 h-40 bg-surface rounded-xl p-2.5 flex items-center justify-center mb-space-md">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk" alt="QR Code to Download APK" class="w-36 h-36 rounded-lg"/>
+<a href="download.html" class="group bg-surface-container-lowest p-space-lg rounded-2xl shadow-md hover:shadow-xl transition-all flex flex-col items-center text-center max-w-[240px] w-full border border-outline-variant/30">
+<div class="w-44 h-44 bg-white rounded-2xl p-3 shadow-inner flex items-center justify-center mb-space-md group-hover:scale-105 transition-transform">
+<img src="assets/qr_download.png" alt="Scan QR Code to Download APK" class="w-38 h-38 rounded-lg block"/>
 </div>
-<span class="font-label-md text-label-md font-semibold text-on-surface">Scan with Phone</span>
-<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Direct APK URL download</span>
-</div>
+<span class="font-label-md text-label-md font-semibold text-on-surface group-hover:text-primary transition-colors flex items-center gap-1">
+<span>Scan with Phone</span>
+<span class="material-symbols-outlined text-[16px]">qr_code_scanner</span>
+</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Direct APK download • Tap to open</span>
+</a>
 </div>
 </div>
 </div>
