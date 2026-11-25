@@ -346,6 +346,20 @@ fun HomeScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
+                    onClick = { ShareUtils.openWebsite(context) },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_globe),
+                        contentDescription = "Open Website",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                IconButton(
                     onClick = { ShareUtils.shareViaWhatsApp(context) },
                     modifier = Modifier.size(36.dp)
                 ) {
@@ -475,20 +489,42 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Open Contineo in Browser Button
-        OutlinedButton(
-            onClick = {
-                UpdateManager.openInBrowser(context, ContineoSelectors.PORTAL_URL)
-            },
-            modifier = Modifier.fillMaxWidth()
+        // Open Contineo Portal & Official Website Buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_open_in_browser),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Open Contineo in Browser")
+            OutlinedButton(
+                onClick = {
+                    UpdateManager.openInBrowser(context, ContineoSelectors.PORTAL_URL)
+                },
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_open_in_browser),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Portal ↗", maxLines = 1)
+            }
+
+            OutlinedButton(
+                onClick = {
+                    ShareUtils.openWebsite(context)
+                },
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_globe),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Website ↗", maxLines = 1)
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))

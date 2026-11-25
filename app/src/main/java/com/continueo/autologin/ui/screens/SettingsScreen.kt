@@ -598,6 +598,60 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            ListItem(
+                headlineContent = { Text("Official Website") },
+                supportingContent = { Text("bmsit-cp.vercel.app • Guides, Extension & Downloads") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_globe),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            ShareUtils.openWebsite(context)
+                        }
+                    ) {
+                        Text("Visit ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    ShareUtils.openWebsite(context)
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Desktop Chrome Extension") },
+                supportingContent = { Text("Auto-fill USN & DOB on your PC browser") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            ShareUtils.openExtensionPage(context)
+                        }
+                    ) {
+                        Text("Extension ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    ShareUtils.openExtensionPage(context)
+                }
+            )
+
+            HorizontalDivider()
+
             // Privacy Section
             Text(
                 text = "Privacy & Security",

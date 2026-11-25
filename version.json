@@ -1,8 +1,8 @@
 {
-  "versionCode": 9,
-  "versionName": "1.2.6",
-  "releaseTitle": "ContinueO Auto Login v1.2.6",
-  "releaseNotes": "• One-tap WhatsApp sharing with friends & classmates\n• Share buttons on Home Screen, Settings & Login Screen\n• Fallback system share sheet for Telegram, Discord, and SMS\n• Direct links to Android APK, website & GitHub releases in shared message",
+  "versionCode": 10,
+  "versionName": "1.2.7",
+  "releaseTitle": "ContinueO Auto Login v1.2.7",
+  "releaseNotes": "• Added direct option to open ContinueO website (https://bmsit-cp.vercel.app) from Home Screen and Settings\n• Added Chrome Extension link in Settings\n• Updated website domain to https://bmsit-cp.vercel.app across the app\n• Fastly CDN instant update checks with cache busting",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }
