@@ -62,41 +62,15 @@ fun HomeScreen(
 
     var showAccountSwitcher by remember { mutableStateOf(false) }
 
+    val coroutineScope = rememberCoroutineScope()
+
     // Auto-update states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
     var isDownloadingOta by remember { mutableStateOf(false) }
-    var downloadId by remember { mutableStateOf(-1L) }
-    var isDownloadComplete by remember { mutableStateOf(false) }
-
-    // Listen for DownloadManager completion broadcast
-    DisposableEffect(context, downloadId) {
-        if (downloadId == -1L) return@DisposableEffect onDispose {}
-
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context?, intent: Intent?) {
-                val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L) ?: -1L
-                if (id == downloadId) {
-                    isDownloadComplete = true
-                    Toast.makeText(context, "OTA Download complete! Opening installer...", Toast.LENGTH_SHORT).show()
-                    UpdateManager.openDownloadedApk(context, downloadId)
-                }
-            }
-        }
-
-        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            context.registerReceiver(receiver, filter)
-        }
-
-        onDispose {
-            try {
-                context.unregisterReceiver(receiver)
-            } catch (_: Exception) {}
-        }
-    }
+    var downloadProgress by remember { mutableStateOf(0) }
+    var downloadBytesText by remember { mutableStateOf("") }
+    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
 
     // Check for updates on screen launch
     LaunchedEffect(Unit) {
@@ -223,44 +197,40 @@ fun HomeScreen(
 
                         if (isDownloadingOta) {
                             Spacer(modifier = Modifier.height(10.dp))
-                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                            LinearProgressIndicator(
+                                progress = { if (downloadProgress > 0) downloadProgress / 100f else 0f },
+                                modifier = Modifier.fillMaxWidth()
+                            )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = if (isDownloadComplete) {
-                                    "✅ Download finished! Tap 'Install Now' below."
-                                } else {
-                                    "⏳ Downloading update in background... Check status bar for progress."
-                                },
+                                text = if (downloadProgress > 0) "⏳ Downloading update: $downloadProgress% ($downloadBytesText)" else "⏳ Connecting to download server...",
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Medium
                             )
+                        } else if (downloadedApkFile != null) {
                             Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "✅ Update downloaded! Ready to install.",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalArrangement = Arrangement.End
                             ) {
-                                TextButton(
+                                Button(
                                     onClick = {
-                                        val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
-                                        UpdateManager.openInBrowser(context, targetUrl)
+                                        if (!UpdateManager.canRequestPackageInstalls(context)) {
+                                            Toast.makeText(context, "Please allow ContinueO to install updates", Toast.LENGTH_LONG).show()
+                                            UpdateManager.openInstallPermissionSettings(context)
+                                        } else {
+                                            UpdateManager.installApk(context, downloadedApkFile!!)
+                                        }
                                     }
                                 ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_open_in_browser),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("GitHub Release")
-                                }
-                                if (isDownloadComplete) {
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Button(
-                                        onClick = { UpdateManager.openDownloadedApk(context, downloadId) }
-                                    ) {
-                                        Text("Install Now")
-                                    }
+                                    Text("Install Now 🚀")
                                 }
                             }
                         } else {
@@ -293,17 +263,37 @@ fun HomeScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Button(
                                     onClick = {
-                                        val id = UpdateManager.startOtaDownload(context, update.downloadUrl, update.latestVersionName)
-                                        if (id != -1L) {
-                                            downloadId = id
+                                        coroutineScope.launch {
                                             isDownloadingOta = true
-                                            Toast.makeText(context, "OTA download started! Check notification bar.", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                            val result = UpdateManager.downloadApkDirect(
+                                                context,
+                                                update.downloadUrl,
+                                                update.latestVersionName
+                                            ) { percent, bytesRead, totalBytes ->
+                                                downloadProgress = percent
+                                                if (totalBytes > 0) {
+                                                    val mbRead = bytesRead / (1024f * 1024f)
+                                                    val mbTotal = totalBytes / (1024f * 1024f)
+                                                    downloadBytesText = String.format(java.util.Locale.US, "%.1f MB / %.1f MB", mbRead, mbTotal)
+                                                }
+                                            }
+                                            isDownloadingOta = false
+                                            result.onSuccess { apkFile ->
+                                                downloadedApkFile = apkFile
+                                                if (!UpdateManager.canRequestPackageInstalls(context)) {
+                                                    Toast.makeText(context, "Please allow ContinueO to install updates", Toast.LENGTH_LONG).show()
+                                                    UpdateManager.openInstallPermissionSettings(context)
+                                                } else {
+                                                    UpdateManager.installApk(context, apkFile)
+                                                }
+                                            }.onFailure { err ->
+                                                Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
+                                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                            }
                                         }
                                     }
                                 ) {
-                                    Text("Update (OTA)")
+                                    Text("Install Update")
                                 }
                             }
                         }

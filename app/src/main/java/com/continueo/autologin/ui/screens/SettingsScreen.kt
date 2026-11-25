@@ -82,6 +82,9 @@ fun SettingsScreen(
     // Auto-update states
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var updateDialogInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var isDownloadingUpdate by remember { mutableStateOf(false) }
+    var updateDownloadProgress by remember { mutableStateOf(0) }
+    var updateDownloadBytesText by remember { mutableStateOf("") }
 
     fun refreshAccounts() {
         accounts = credentialManager.getAllAccounts()
@@ -814,44 +817,87 @@ fun SettingsScreen(
                             }
                         }
                     }
+
+                    if (isDownloadingUpdate) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        LinearProgressIndicator(
+                            progress = { if (updateDownloadProgress > 0) updateDownloadProgress / 100f else 0f },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = if (updateDownloadProgress > 0) "⏳ Downloading update: $updateDownloadProgress% ($updateDownloadBytesText)" else "⏳ Connecting to download server...",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             },
             confirmButton = {
-                Row {
-                    OutlinedButton(
-                        onClick = {
-                            val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
-                            UpdateManager.openInBrowser(context, targetUrl)
-                            updateDialogInfo = null
-                        }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_open_in_browser),
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("GitHub")
+                if (isDownloadingUpdate) {
+                    Button(onClick = {}, enabled = false) {
+                        Text("Downloading... $updateDownloadProgress%")
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            val id = UpdateManager.startOtaDownload(context, update.downloadUrl, update.latestVersionName)
-                            if (id != -1L) {
-                                Toast.makeText(context, "OTA download started! Check notification bar for progress.", Toast.LENGTH_LONG).show()
-                            } else {
-                                UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                } else {
+                    Row {
+                        OutlinedButton(
+                            onClick = {
+                                val targetUrl = update.htmlUrl.ifBlank { UpdateManager.RELEASES_PAGE_URL }
+                                UpdateManager.openInBrowser(context, targetUrl)
+                                updateDialogInfo = null
                             }
-                            updateDialogInfo = null
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_open_in_browser),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("GitHub")
                         }
-                    ) {
-                        Text("Update (OTA)")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                coroutineScope.launch {
+                                    isDownloadingUpdate = true
+                                    val result = UpdateManager.downloadApkDirect(
+                                        context,
+                                        update.downloadUrl,
+                                        update.latestVersionName
+                                    ) { percent, bytesRead, totalBytes ->
+                                        updateDownloadProgress = percent
+                                        if (totalBytes > 0) {
+                                            val mbRead = bytesRead / (1024f * 1024f)
+                                            val mbTotal = totalBytes / (1024f * 1024f)
+                                            updateDownloadBytesText = String.format(java.util.Locale.US, "%.1f MB / %.1f MB", mbRead, mbTotal)
+                                        }
+                                    }
+                                    isDownloadingUpdate = false
+                                    result.onSuccess { apkFile ->
+                                        if (!UpdateManager.canRequestPackageInstalls(context)) {
+                                            Toast.makeText(context, "Please allow ContinueO to install updates", Toast.LENGTH_LONG).show()
+                                            UpdateManager.openInstallPermissionSettings(context)
+                                        } else {
+                                            UpdateManager.installApk(context, apkFile)
+                                        }
+                                        updateDialogInfo = null
+                                    }.onFailure { err ->
+                                        Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
+                                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Install Update")
+                        }
                     }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { updateDialogInfo = null }) {
-                    Text("Later")
+                if (!isDownloadingUpdate) {
+                    TextButton(onClick = { updateDialogInfo = null }) {
+                        Text("Later")
+                    }
                 }
             }
         )

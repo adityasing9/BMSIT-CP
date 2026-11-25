@@ -1,8 +1,8 @@
 {
-  "versionCode": 11,
-  "versionName": "1.2.8",
-  "releaseTitle": "ContinueO Auto Login v1.2.8",
-  "releaseNotes": "• Fixed QR Code flyer preview when sharing via WhatsApp (ClipData & FileProvider grant fix)\n• Direct APK download QR code on website & dedicated /download page\n• Added option to open ContinueO website directly from within the app\n• Fastly CDN instant update checks with cache busting",
+  "versionCode": 12,
+  "versionName": "1.2.9",
+  "releaseTitle": "ContinueO Auto Login v1.2.9",
+  "releaseNotes": "• Complete overhaul to 100% Automatic In-App Updates (no more broken DownloadManager notifications)\n• Live in-app download progress bar with byte counter\n• Immediate auto-launch of Android system package installer on download completion\n• REQUEST_INSTALL_PACKAGES permission & 1-tap unknown sources prompt\n• Direct APK download QR code on website & WhatsApp QR flyer sharing",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

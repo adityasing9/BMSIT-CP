@@ -7,9 +7,13 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.Settings
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -244,6 +248,136 @@ object UpdateManager {
 
     fun openBrowserDownload(context: Context, urlString: String = DIRECT_APK_URL) {
         openInBrowser(context, urlString)
+    }
+
+    /**
+     * Downloads the update APK directly in-app using Kotlin Coroutines on Dispatchers.IO.
+     * Follows HTTP 301/302 redirects (such as GitHub Releases redirects to AWS S3)
+     * and streams directly to context.cacheDir/updates/ContinueO-AutoLogin-v$versionName.apk.
+     * Reports real-time download percentage and byte counters.
+     */
+    suspend fun downloadApkDirect(
+        context: Context,
+        downloadUrl: String,
+        versionName: String,
+        onProgress: (percent: Int, bytesDownloaded: Long, totalBytes: Long) -> Unit
+    ): Result<File> = withContext(Dispatchers.IO) {
+        try {
+            val updateDir = File(context.cacheDir, "updates").apply { mkdirs() }
+            val apkFile = File(updateDir, "ContinueO-AutoLogin-v$versionName.apk")
+            if (apkFile.exists()) {
+                apkFile.delete()
+            }
+
+            var currentUrl = downloadUrl
+            var connection: HttpURLConnection
+            var redirects = 0
+
+            // Follow HTTP redirects (e.g. GitHub Releases redirect to AWS S3)
+            while (true) {
+                val url = URL(currentUrl)
+                connection = (url.openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 15000
+                    readTimeout = 30000
+                    instanceFollowRedirects = false
+                    setRequestProperty("User-Agent", "ContinueO-Android-Updater")
+                    setRequestProperty("Accept", "*/*")
+                }
+
+                val status = connection.responseCode
+                if (status in 300..399) {
+                    val newUrl = connection.getHeaderField("Location")
+                    if (newUrl != null && redirects < 6) {
+                        currentUrl = newUrl
+                        redirects++
+                        continue
+                    }
+                }
+                break
+            }
+
+            val totalBytes = connection.contentLength.toLong()
+            connection.inputStream.use { input ->
+                FileOutputStream(apkFile).use { output ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    var totalRead = 0L
+                    var lastPercent = -1
+
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        totalRead += bytesRead
+                        if (totalBytes > 0) {
+                            val percent = ((totalRead * 100) / totalBytes).toInt().coerceIn(0, 100)
+                            if (percent != lastPercent) {
+                                lastPercent = percent
+                                onProgress(percent, totalRead, totalBytes)
+                            }
+                        } else {
+                            onProgress(-1, totalRead, -1)
+                        }
+                    }
+                    output.flush()
+                }
+            }
+
+            if (!apkFile.exists() || apkFile.length() == 0L) {
+                return@withContext Result.failure(Exception("Downloaded APK file is empty"))
+            }
+
+            Result.success(apkFile)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Checks if the app has permission to trigger unknown package installs on Android 8.0+.
+     */
+    fun canRequestPackageInstalls(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.packageManager.canRequestPackageInstalls()
+        } else {
+            true
+        }
+    }
+
+    /**
+     * Opens the system settings screen for "Install unknown apps" for this app.
+     */
+    fun openInstallPermissionSettings(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {}
+        }
+    }
+
+    /**
+     * Immediately triggers Android's system package installer for an APK file using FileProvider.
+     */
+    fun installApk(context: Context, apkFile: File): Result<Unit> {
+        return try {
+            val apkUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(apkUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     /**
