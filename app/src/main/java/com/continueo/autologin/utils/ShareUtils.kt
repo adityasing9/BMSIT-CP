@@ -32,28 +32,34 @@ object ShareUtils {
 
     fun getShareMessage(): String {
         return """
-            🚀 Hey! Check out ContinueO Auto Login for BMSIT Student Portal.
-            
-            ✨ Key Highlights:
-            • 1-Tap instant login & verification
-            • Full in-app file downloads (notes, syllabus & marks)
-            • Local-only AES-256 encrypted multi-account storage
-            • Dark, Light & AMOLED themes
-            
-            📷 Scan the QR Code flyer to download or tap below:
-            $DOWNLOAD_PAGE_URL
-            
-            🌐 Official Website:
-            $APP_WEBSITE_URL
-            
-            📦 GitHub Releases:
-            $GITHUB_RELEASES_URL
-            
-            🧩 Desktop Chrome Extension:
-            $EXTENSION_URL
-            
-            ⭐ If you want to say thank you or are happy, give a star on GitHub & follow for more interesting projects:
-            https://github.com/adityasing9/BMSIT-CP
+            🚀 Tired of logging into the BMSIT student portal again and again?
+
+            Meet ContinueO — your smarter, faster way to access the BMSIT student portal! 🎓
+
+            No repetitive logins. No hassle downloading files. Just everything you need, in one place. ⚡
+
+            ✨ What makes ContinueO special?
+            🔑 1-Tap Login & Verification
+            📥 Download notes, syllabus, marks & files directly in the app
+            🔐 AES-256 encrypted local storage for your accounts
+            👥 Secure multi-account support
+            🌙 Dark, Light & AMOLED themes
+            📱 Simple, smooth & student-friendly experience
+
+            📲 Get started now:
+            👉 $DOWNLOAD_PAGE_URL
+
+            🌐 Website: $APP_WEBSITE_URL
+            📦 Latest Release: $GITHUB_RELEASES_URL
+            🧩 Browser Extension: $EXTENSION_URL
+
+            💻 Prefer open-source projects? Check out the code on GitHub!
+
+            ⭐ If you find it useful, drop a star on the repository and follow for more cool projects!
+
+            🔗 https://github.com/adityasing9/BMSIT-CP
+
+            Less hassle. Faster access. A better student portal experience. 💙
         """.trimIndent()
     }
 
