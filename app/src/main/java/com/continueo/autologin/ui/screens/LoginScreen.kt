@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +35,7 @@ import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.automation.StatusMessage
 import com.continueo.autologin.ui.viewmodels.LoginViewModel
 import com.continueo.autologin.utils.NetworkUtils
+import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
 
@@ -144,6 +146,17 @@ fun LoginScreen(
                             painter = painterResource(id = R.drawable.ic_open_in_browser),
                             contentDescription = "Open in browser",
                             tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            ShareUtils.shareViaWhatsApp(context)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_whatsapp),
+                            contentDescription = "Share on WhatsApp",
+                            tint = Color(0xFF25D366)
                         )
                     }
                     FilledTonalButton(
@@ -267,7 +280,7 @@ fun LoginScreen(
                             }
                         }
 
-                        // Success state — option to view dashboard or open in browser
+                        // Success state — option to view dashboard or open in browser or share
                         if (automationState == AutomationState.SUCCESS) {
                             Spacer(modifier = Modifier.height(10.dp))
                             Row(
@@ -275,6 +288,21 @@ fun LoginScreen(
                                 horizontalArrangement = Arrangement.End,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        ShareUtils.shareViaWhatsApp(context)
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_whatsapp),
+                                        contentDescription = "WhatsApp",
+                                        tint = Color(0xFF25D366),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Share")
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
                                 TextButton(
                                     onClick = {
                                         val currentUrl = webViewRef?.url?.ifBlank { ContineoSelectors.PORTAL_URL } ?: ContineoSelectors.PORTAL_URL

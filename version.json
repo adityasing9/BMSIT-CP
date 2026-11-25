@@ -1,8 +1,8 @@
 {
-  "versionCode": 8,
-  "versionName": "1.2.5",
-  "releaseTitle": "ContinueO Auto Login v1.2.5",
-  "releaseNotes": "• Direct GitHub Releases link in update banner & settings dialog\n• Dedicated GitHub Releases hub under Settings > Updates\n• One-tap access to GitHub release changelogs and APK downloads\n• Enhanced Over-The-Air (OTA) and browser update flows",
+  "versionCode": 9,
+  "versionName": "1.2.6",
+  "releaseTitle": "ContinueO Auto Login v1.2.6",
+  "releaseNotes": "• One-tap WhatsApp sharing with friends & classmates\n• Share buttons on Home Screen, Settings & Login Screen\n• Fallback system share sheet for Telegram, Discord, and SMS\n• Direct links to Android APK, website & GitHub releases in shared message",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/ContinueO-AutoLogin.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

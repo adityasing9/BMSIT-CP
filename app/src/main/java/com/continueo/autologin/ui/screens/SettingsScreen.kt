@@ -43,6 +43,7 @@ import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ColorAccent
 import com.continueo.autologin.ui.theme.ThemeManager
+import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
@@ -512,6 +513,64 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable {
                     UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                }
+            )
+
+            HorizontalDivider()
+
+            // Share & Community Section
+            Text(
+                text = "Share & Community",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Share via WhatsApp") },
+                supportingContent = { Text("Send download link and portal helper to classmates on WhatsApp") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_whatsapp),
+                        contentDescription = "WhatsApp",
+                        tint = Color(0xFF25D366),
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    FilledTonalButton(
+                        onClick = { ShareUtils.shareViaWhatsApp(context) }
+                    ) {
+                        Text("Share")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    ShareUtils.shareViaWhatsApp(context)
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Share App (All Apps)") },
+                supportingContent = { Text("Share via Telegram, Discord, SMS, or copy link") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                        contentDescription = "Share",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = { ShareUtils.shareAppChooser(context) }
+                    ) {
+                        Text("Share ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    ShareUtils.shareAppChooser(context)
                 }
             )
 

@@ -27,6 +27,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +40,7 @@ import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ThemeManager
+import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
@@ -321,7 +323,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Security badge and quick theme toggle
+        // Security badge and quick actions (WhatsApp share & theme toggle)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -342,29 +344,45 @@ fun HomeScreen(
                 )
             }
 
-            val themeSettings by themeManager.themeSettings.collectAsState()
-            IconButton(
-                onClick = {
-                    val nextMode = when (themeSettings.themeMode) {
-                        AppThemeMode.SYSTEM -> AppThemeMode.LIGHT
-                        AppThemeMode.LIGHT -> AppThemeMode.DARK
-                        AppThemeMode.DARK -> AppThemeMode.SYSTEM
-                    }
-                    themeManager.setThemeMode(nextMode)
-                    Toast.makeText(context, "Theme: ${nextMode.title}", Toast.LENGTH_SHORT).show()
-                },
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = when (themeSettings.themeMode) {
-                        AppThemeMode.LIGHT -> Icons.Default.LightMode
-                        AppThemeMode.DARK -> Icons.Default.DarkMode
-                        AppThemeMode.SYSTEM -> Icons.Default.BrightnessMedium
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = { ShareUtils.shareViaWhatsApp(context) },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_whatsapp),
+                        contentDescription = "Share on WhatsApp",
+                        tint = Color(0xFF25D366),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                val themeSettings by themeManager.themeSettings.collectAsState()
+                IconButton(
+                    onClick = {
+                        val nextMode = when (themeSettings.themeMode) {
+                            AppThemeMode.SYSTEM -> AppThemeMode.LIGHT
+                            AppThemeMode.LIGHT -> AppThemeMode.DARK
+                            AppThemeMode.DARK -> AppThemeMode.SYSTEM
+                        }
+                        themeManager.setThemeMode(nextMode)
+                        Toast.makeText(context, "Theme: ${nextMode.title}", Toast.LENGTH_SHORT).show()
                     },
-                    contentDescription = "Toggle Theme",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = when (themeSettings.themeMode) {
+                            AppThemeMode.LIGHT -> Icons.Default.LightMode
+                            AppThemeMode.DARK -> Icons.Default.DarkMode
+                            AppThemeMode.SYSTEM -> Icons.Default.BrightnessMedium
+                        },
+                        contentDescription = "Toggle Theme",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
 
@@ -475,16 +493,38 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        TextButton(
-            onClick = onNavigateToSettings,
-            modifier = Modifier.padding(bottom = 16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Settings")
+            OutlinedButton(
+                onClick = { ShareUtils.shareViaWhatsApp(context) },
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_whatsapp),
+                    contentDescription = "WhatsApp",
+                    tint = Color(0xFF25D366),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Share on WhatsApp")
+            }
+
+            TextButton(
+                onClick = onNavigateToSettings,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Settings")
+            }
         }
     }
 
