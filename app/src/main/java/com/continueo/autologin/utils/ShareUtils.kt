@@ -21,6 +21,7 @@ object ShareUtils {
     const val DOWNLOAD_PAGE_URL = "https://bmsit-cp.vercel.app/download"
     const val GITHUB_RELEASES_URL = "https://github.com/adityasing9/BMSIT-CP/releases/latest"
     const val EXTENSION_URL = "https://bmsit-cp.vercel.app/extension"
+    const val FEEDBACK_URL = "https://bmsit-cp.vercel.app/feedback"
 
     fun openWebsite(context: Context) {
         UpdateManager.openInBrowser(context, APP_WEBSITE_URL)
@@ -28,6 +29,10 @@ object ShareUtils {
 
     fun openExtensionPage(context: Context) {
         UpdateManager.openInBrowser(context, EXTENSION_URL)
+    }
+
+    fun openFeedbackPage(context: Context) {
+        UpdateManager.openInBrowser(context, FEEDBACK_URL)
     }
 
     fun getShareMessage(): String {

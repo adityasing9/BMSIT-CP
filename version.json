@@ -1,8 +1,9 @@
 {
-  "versionCode": 17,
-  "versionName": "1.2.14",
-  "releaseTitle": "BMSIT CP v1.2.14",
-  "releaseNotes": "• Switched update installer to seamless 1-tap browser download & install (fixes 'downloaded but can't install' on v1.2.12 and avoids Play Protect dropper warnings)\n• Note if upgrading from v1.2.12: tap 'Releases' / 'Changelog ↗' to download this update via Chrome, and future updates will open browser install in 1 tap\n• App renamed cleanly to BMSIT CP throughout",
+  "versionCode": 18,
+  "versionName": "1.2.15",
+  "releaseTitle": "BMSIT CP v1.2.15",
+  "releaseNotes": "• Added built-in Feedback & Complaints system powered by Web3Forms (submit bugs, complaints, or feature suggestions right inside the app or at https://bmsit-cp.vercel.app/feedback)\n• Supports anonymous submissions with optional contact info — student credentials are never included\n• Added quick Feedback button on Home Screen, Settings, and Portal Error screen",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
-  "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
+  "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
+  "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441"
 }

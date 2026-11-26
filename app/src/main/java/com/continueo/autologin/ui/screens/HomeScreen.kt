@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
@@ -38,6 +40,7 @@ import com.continueo.autologin.R
 import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
+import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ThemeManager
 import com.continueo.autologin.utils.ShareUtils
@@ -59,6 +62,7 @@ fun HomeScreen(
     var activeAccount by remember { mutableStateOf(credentialManager.getActiveAccount()) }
 
     var showAccountSwitcher by remember { mutableStateOf(false) }
+    var showFeedbackDialog by remember { mutableStateOf(false) }
 
     // Auto-update states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
@@ -262,6 +266,20 @@ fun HomeScreen(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = { showFeedbackDialog = true },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Feedback,
+                        contentDescription = "Send Feedback",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
                 IconButton(
                     onClick = { ShareUtils.openWebsite(context) },
                     modifier = Modifier.size(36.dp)
@@ -644,7 +662,7 @@ fun HomeScreen(
                     Text("Update Now 🚀")
                 }
             },
-            dismissButton = {
+                    dismissButton = {
                 Row {
                     OutlinedButton(
                         onClick = {
@@ -661,5 +679,9 @@ fun HomeScreen(
                 }
             }
         )
+    }
+
+    if (showFeedbackDialog) {
+        FeedbackDialog(onDismiss = { showFeedbackDialog = false })
     }
 }

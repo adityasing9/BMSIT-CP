@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -33,7 +34,9 @@ import com.continueo.autologin.R
 import com.continueo.autologin.automation.AutomationState
 import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.automation.StatusMessage
+import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.viewmodels.LoginViewModel
+import com.continueo.autologin.utils.FeedbackCategory
 import com.continueo.autologin.utils.NetworkUtils
 import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateManager
@@ -55,6 +58,7 @@ fun LoginScreen(
     var showStatusPanel by remember { mutableStateOf(true) }
     var hasStarted by remember { mutableStateOf(false) }
     var showNoInternet by remember { mutableStateOf(false) }
+    var showFeedbackDialog by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()
     val activeAccount = remember { loginViewModel.activeAccount }
@@ -278,6 +282,18 @@ fun LoginScreen(
                                     Text("Continue Manually")
                                 }
                             }
+                            TextButton(
+                                onClick = { showFeedbackDialog = true },
+                                modifier = Modifier.align(Alignment.End)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Feedback,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Report Portal Issue")
+                            }
                         }
 
                         // Success state — option to view dashboard or open in browser or share
@@ -348,6 +364,14 @@ fun LoginScreen(
                     .weight(1f)
             )
         }
+    }
+
+    if (showFeedbackDialog) {
+        FeedbackDialog(
+            onDismiss = { showFeedbackDialog = false },
+            initialCategory = FeedbackCategory.BUG,
+            initialSubject = "Portal login issue"
+        )
     }
 }
 

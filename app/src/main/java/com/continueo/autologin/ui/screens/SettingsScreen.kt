@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.continueo.autologin.R
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.security.CredentialManager
+import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ColorAccent
 import com.continueo.autologin.ui.theme.ThemeManager
@@ -80,9 +82,10 @@ fun SettingsScreen(
     var importInputText by remember { mutableStateOf("") }
     var importErrorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Auto-update states
+    // Auto-update & Feedback states
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var updateDialogInfo by remember { mutableStateOf<UpdateInfo?>(null) }
+    var showFeedbackDialog by remember { mutableStateOf(false) }
 
     fun refreshAccounts() {
         accounts = credentialManager.getAllAccounts()
@@ -521,11 +524,60 @@ fun SettingsScreen(
 
             // Share & Community Section
             Text(
-                text = "Share & Community",
+                text = "Feedback & Community",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
             )
+
+            ListItem(
+                headlineContent = { Text("Send Feedback / Report Complaint") },
+                supportingContent = { Text("Report bugs, complaints, or feature suggestions directly from the app") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Feedback,
+                        contentDescription = "Send Feedback",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    FilledTonalButton(
+                        onClick = { showFeedbackDialog = true }
+                    ) {
+                        Text("Write")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    showFeedbackDialog = true
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Feedback Form on Website") },
+                supportingContent = { Text("Open bmsit-cp.vercel.app/feedback in browser") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_globe),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = { ShareUtils.openFeedbackPage(context) }
+                    ) {
+                        Text("Open ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    ShareUtils.openFeedbackPage(context)
+                }
+            )
+
+            HorizontalDivider()
 
             ListItem(
                 headlineContent = { Text("Share via WhatsApp") },
@@ -1116,5 +1168,9 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+
+    if (showFeedbackDialog) {
+        FeedbackDialog(onDismiss = { showFeedbackDialog = false })
     }
 }

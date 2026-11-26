@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Feedback &amp; Complaints — BMSIT CP</title>
+<meta name="description" content="Report bugs, share complaints, or suggest features for BMSIT CP Android App and ContinueO Desktop Extension."/>
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  (function() {
+    try {
+      const storedTheme = localStorage.getItem('continueo_theme');
+      const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#1A73E8",
+        "primary-container": "#D8E2FF",
+        "on-primary-container": "#001A41",
+        surface: "#FAF9FD",
+        "surface-container-lowest": "#FFFFFF",
+        "surface-container-low": "#F4F3F7",
+        "surface-container": "#EFEDF1",
+        "surface-container-high": "#E9E7EB",
+        "on-surface": "#1A1B1E",
+        "on-surface-variant": "#414754",
+        secondary: "#006E2A",
+        outline: "#727785",
+        "outline-variant": "#C1C6D6"
+      },
+      fontFamily: {
+        sans: ["Plus Jakarta Sans", "sans-serif"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  .dark body { background-color: #0F131C; color: #E3E6F0; }
+  .dark header { background-color: rgba(15, 19, 28, 0.88) !important; border-bottom-color: rgba(255, 255, 255, 0.08) !important; }
+  .dark .bg-surface { background-color: #0F131C !important; }
+  .dark .bg-surface-container-lowest { background-color: #1A1E2C !important; }
+  .dark .bg-surface-container-low { background-color: #141722 !important; }
+  .dark .bg-surface-container { background-color: #181B26 !important; }
+  .dark .text-on-surface { color: #FFFFFF !important; }
+  .dark .text-on-surface-variant { color: #9AA1B5 !important; }
+  .dark .border-outline-variant,
+  .dark .border-outline-variant\/30 { border-color: rgba(255, 255, 255, 0.09) !important; }
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: #141722 !important;
+    color: #F1F4FB !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder { color: #6E768B !important; }
+</style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+<!-- Header -->
+<header class="w-full border-b border-outline-variant/30 py-4 px-6 bg-surface-container-lowest/80 backdrop-blur-md sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+    <a href="index.html" class="flex items-center gap-2 group">
+      <span class="material-symbols-outlined text-primary text-[28px]">bolt</span>
+      <span class="text-xl font-bold tracking-tight text-on-surface">Continue<span class="text-primary">O</span></span>
+    </a>
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <a href="index.html" class="text-on-surface-variant hover:text-on-surface transition-colors">Home</a>
+      <a href="android.html" class="text-on-surface-variant hover:text-on-surface transition-colors">Android App</a>
+      <a href="extension.html" class="text-on-surface-variant hover:text-on-surface transition-colors">Desktop Extension</a>
+      <a href="feedback.html" aria-current="page" class="text-primary font-semibold px-3 py-1 rounded-full bg-primary/10">Feedback</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button aria-label="Toggle theme mode" id="theme-toggle" type="button"
+              class="w-9 h-9 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center transition-all">
+        <span class="material-symbols-outlined text-[19px]" id="theme-icon">dark_mode</span>
+      </button>
+      <a href="download.html" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-white text-xs font-semibold shadow-sm hover:bg-blue-600 transition-colors">
+        <span class="material-symbols-outlined text-[16px]">download</span>
+        <span>Get APK</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Main Feedback Card -->
+<main class="flex-1 w-full max-w-2xl mx-auto px-5 py-10 sm:py-14">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-3">
+      <span class="material-symbols-outlined text-[16px]">feedback</span>
+      <span>Direct Support &amp; Anonymous Box</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight mb-2">
+      Feedback &amp; Complaints
+    </h1>
+    <p class="text-sm sm:text-base text-on-surface-variant max-w-lg mx-auto">
+      Found a login bug on the BMSIT portal, have a complaint, or want a new feature? Send it directly here — no account or login needed.
+    </p>
+  </div>
+
+  <!-- Feedback Form Container -->
+  <div class="bg-surface-container-lowest rounded-3xl p-6 sm:p-8 border border-outline-variant/30 shadow-md">
+    <form id="feedback-form" class="space-y-5" novalidate>
+      <!-- Honeypot against bots -->
+      <input type="checkbox" name="botcheck" id="botcheck" class="hidden" style="display:none"/>
+
+      <!-- Category Chips -->
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
+          Category
+        </label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="category-group">
+          <button type="button" data-category="Bug Report"
+                  class="cat-btn px-3 py-2.5 rounded-xl text-xs font-semibold border border-primary bg-primary text-white shadow-sm transition-all">
+            🐛 Bug Report
+          </button>
+          <button type="button" data-category="Complaint"
+                  class="cat-btn px-3 py-2.5 rounded-xl text-xs font-semibold border border-outline-variant/40 bg-surface-container-low text-on-surface-variant hover:border-primary transition-all">
+            ⚠️ Complaint
+          </button>
+          <button type="button" data-category="Feature Request"
+                  class="cat-btn px-3 py-2.5 rounded-xl text-xs font-semibold border border-outline-variant/40 bg-surface-container-low text-on-surface-variant hover:border-primary transition-all">
+            💡 Feature
+          </button>
+          <button type="button" data-category="General Feedback"
+                  class="cat-btn px-3 py-2.5 rounded-xl text-xs font-semibold border border-outline-variant/40 bg-surface-container-low text-on-surface-variant hover:border-primary transition-all">
+            💬 General
+          </button>
+        </div>
+        <input type="hidden" id="category-input" value="Bug Report"/>
+      </div>
+
+      <!-- Platform -->
+      <div>
+        <label for="platform-select" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Where did you face this?
+        </label>
+        <select id="platform-select"
+                class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3.5 py-2.5 text-sm font-medium focus:border-primary focus:ring-primary">
+          <option value="Android App (BMSIT CP)">Android App (BMSIT CP)</option>
+          <option value="Desktop Chrome Extension">Desktop Chrome Extension</option>
+          <option value="Website (bmsit-cp.vercel.app)">Website (bmsit-cp.vercel.app)</option>
+        </select>
+      </div>
+
+      <!-- Subject -->
+      <div>
+        <label for="subject-input" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Summary <span class="font-normal opacity-75">(Optional)</span>
+        </label>
+        <input type="text" id="subject-input" placeholder="e.g., Login stuck on ID card page or app UI suggestion"
+               class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3.5 py-2.5 text-sm focus:border-primary focus:ring-primary"/>
+      </div>
+
+      <!-- Message -->
+      <div>
+        <label for="message-input" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Details / Complaint <span class="text-red-500">*</span>
+        </label>
+        <textarea id="message-input" rows="5" required
+                  placeholder="Describe what happened, what device/browser you were using, or what we should improve..."
+                  class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3.5 py-2.5 text-sm focus:border-primary focus:ring-primary"></textarea>
+        <p id="message-error" class="hidden text-xs text-red-500 mt-1 font-medium">
+          Please enter your feedback or complaint details before submitting.
+        </p>
+      </div>
+
+      <!-- Optional Contact -->
+      <div>
+        <label for="contact-input" class="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
+          Email or Phone <span class="font-normal opacity-75">(Optional — leave blank to stay anonymous)</span>
+        </label>
+        <input type="text" id="contact-input" placeholder="yourname@example.com or WhatsApp number"
+               class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3.5 py-2.5 text-sm focus:border-primary focus:ring-primary"/>
+      </div>
+
+      <!-- Privacy Pill -->
+      <div class="flex items-start gap-2.5 p-3.5 rounded-2xl bg-secondary/10 border border-secondary/20 text-xs text-on-surface-variant">
+        <span class="material-symbols-outlined text-secondary text-[18px] shrink-0">lock</span>
+        <span>
+          <strong class="text-on-surface">Privacy Guarantee:</strong> Please do <em>not</em> include your USN password or ID card number. Submissions are sent privately to the developer.
+        </span>
+      </div>
+
+      <!-- Status Banner -->
+      <div id="status-banner" class="hidden rounded-2xl p-4 text-sm font-medium"></div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submit-btn"
+              class="w-full py-3.5 px-6 rounded-full bg-primary hover:bg-blue-600 text-white font-semibold text-sm shadow-lg shadow-primary/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">send</span>
+        <span id="submit-btn-text">Submit Feedback</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Secondary Options -->
+  <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-on-surface-variant">
+    <a href="https://github.com/adityasing9/BMSIT-CP/issues" target="_blank" rel="noopener noreferrer"
+       class="inline-flex items-center gap-1.5 hover:text-primary transition-colors font-medium">
+      <span class="material-symbols-outlined text-[16px]">bug_report</span>
+      <span>Public GitHub Issues ↗</span>
+    </a>
+    <span>•</span>
+    <a href="android.html" class="inline-flex items-center gap-1.5 hover:text-primary transition-colors font-medium">
+      <span class="material-symbols-outlined text-[16px]">android</span>
+      <span>BMSIT CP Android App</span>
+    </a>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full py-6 text-center text-xs text-on-surface-variant border-t border-outline-variant/20">
+  <p>© 2025-2026 BMSIT CP (ContinueO) • Independent Open Source Utility for BMSIT Students</p>
+</footer>
+
+<script>
+  const DEFAULT_WEB3FORMS_ACCESS_KEY = "605e48ce-89a3-44c9-b19c-c2fe53896441";
+  const VERSION_JSON_URL = "https://raw.githubusercontent.com/adityasing9/BMSIT-CP/main/version.json";
+
+  // Theme toggle
+  (function() {
+    const btn = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+    function syncIcon() {
+      icon.textContent = document.documentElement.classList.contains('dark') ? 'light_mode' : 'dark_mode';
+    }
+    syncIcon();
+    btn.addEventListener('click', function() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('continueo_theme', isDark ? 'dark' : 'light');
+      syncIcon();
+    });
+  })();
+
+  // Category chip switcher
+  const catButtons = document.querySelectorAll('.cat-btn');
+  const categoryInput = document.getElementById('category-input');
+  catButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      categoryInput.value = btn.getAttribute('data-category');
+      catButtons.forEach((b) => {
+        b.classList.remove('bg-primary', 'text-white', 'border-primary', 'shadow-sm');
+        b.classList.add('bg-surface-container-low', 'text-on-surface-variant', 'border-outline-variant/40');
+      });
+      btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant', 'border-outline-variant/40');
+      btn.classList.add('bg-primary', 'text-white', 'border-primary', 'shadow-sm');
+    });
+  });
+
+  async function resolveAccessKey() {
+    if (DEFAULT_WEB3FORMS_ACCESS_KEY && DEFAULT_WEB3FORMS_ACCESS_KEY.trim().length > 0) {
+      return DEFAULT_WEB3FORMS_ACCESS_KEY.trim();
+    }
+    try {
+      const resp = await fetch(`${VERSION_JSON_URL}?_t=${Date.now()}`, { cache: 'no-store' });
+      if (resp.ok) {
+        const data = await resp.json();
+        return (data.web3formsAccessKey || '').trim();
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  function showStatus(isSuccess, text) {
+    const banner = document.getElementById('status-banner');
+    banner.classList.remove('hidden', 'bg-emerald-500/15', 'text-emerald-700', 'dark:text-emerald-300', 'border', 'border-emerald-500/30', 'bg-red-500/15', 'text-red-600', 'dark:text-red-300', 'border-red-500/30');
+    if (isSuccess) {
+      banner.classList.add('bg-emerald-500/15', 'text-emerald-700', 'dark:text-emerald-300', 'border', 'border-emerald-500/30');
+    } else {
+      banner.classList.add('bg-red-500/15', 'text-red-600', 'dark:text-red-300', 'border', 'border-red-500/30');
+    }
+    banner.textContent = text;
+  }
+
+  const form = document.getElementById('feedback-form');
+  const messageInput = document.getElementById('message-input');
+  const messageError = document.getElementById('message-error');
+  const submitBtn = document.getElementById('submit-btn');
+  const submitBtnText = document.getElementById('submit-btn-text');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (!message) {
+      messageError.classList.remove('hidden');
+      messageInput.focus();
+      return;
+    }
+    messageError.classList.add('hidden');
+
+    if (document.getElementById('botcheck').checked) return;
+
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    submitBtnText.textContent = 'Sending...';
+
+    try {
+      const accessKey = await resolveAccessKey();
+      if (!accessKey) {
+        showStatus(false, 'Feedback form is not yet configured with a Web3Forms key. Please try again shortly or open GitHub Issues.');
+        return;
+      }
+
+      const category = categoryInput.value;
+      const platform = document.getElementById('platform-select').value;
+      const summary = document.getElementById('subject-input').value.trim() || category;
+      const contact = document.getElementById('contact-input').value.trim();
+
+      const payload = {
+        access_key: accessKey,
+        from_name: 'BMSIT CP Web Feedback',
+        subject: `BMSIT CP [${category}]: ${summary}`,
+        category: category,
+        platform: platform,
+        message: message,
+        user_agent: navigator.userAgent
+      };
+
+      if (contact) {
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) {
+          payload.email = contact;
+          payload.replyto = contact;
+        } else {
+          payload.contact = contact;
+        }
+      } else {
+        payload.contact = 'Anonymous';
+      }
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (response.ok && result.success) {
+        showStatus(true, '✅ Thank you! Your feedback has been received by the developer.');
+        form.reset();
+        catButtons[0].click();
+      } else {
+        showStatus(false, result.message || 'Could not submit feedback right now. Please try again.');
+      }
+    } catch (err) {
+      showStatus(false, 'Network error while submitting feedback. Please check your connection and try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+      submitBtnText.textContent = 'Submit Feedback';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -5,6 +5,7 @@
   "rewrites": [
     { "source": "/android", "destination": "/android.html" },
     { "source": "/extension", "destination": "/extension.html" },
-    { "source": "/download", "destination": "/download.html" }
+    { "source": "/download", "destination": "/download.html" },
+    { "source": "/feedback", "destination": "/feedback.html" }
   ]
 }

@@ -49,7 +49,7 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.14`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
+| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.15`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
 > **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
@@ -356,6 +356,7 @@ If you want to say thank you or you are happy with **BMSIT CP**, please consider
 - **Giving this repository a ⭐ star!** It helps more BMSIT students and parents discover the utility.
 - **[Following @adityasing9 on GitHub](https://github.com/adityasing9)** for more interesting tools, utilities, and open-source projects!
 - **Sharing BMSIT CP** with your classmates, batchmates, and friends via WhatsApp!
+- **Sending Feedback or Reporting Issues** right inside the app (**Settings → Send Feedback**) or at [**bmsit-cp.vercel.app/feedback**](https://bmsit-cp.vercel.app/feedback)!
 
 ---
 
