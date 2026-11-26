@@ -49,8 +49,6 @@ import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,10 +83,6 @@ fun SettingsScreen(
     // Auto-update states
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var updateDialogInfo by remember { mutableStateOf<UpdateInfo?>(null) }
-    var isDownloadingUpdate by remember { mutableStateOf(false) }
-    var updateDownloadProgress by remember { mutableStateOf(0) }
-    var updateDownloadBytesText by remember { mutableStateOf("") }
-    var downloadedApkFile by remember { mutableStateOf<File?>(null) }
 
     fun refreshAccounts() {
         accounts = credentialManager.getAllAccounts()
@@ -454,90 +448,74 @@ fun SettingsScreen(
                 modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
             )
 
-            if (UpdateManager.isSelfUpdateEnabled) {
-                ListItem(
-                    headlineContent = { Text("Check for Updates") },
-                    supportingContent = {
-                        Text("Current version: v${UpdateManager.getCurrentVersionName(context)}")
-                    },
-                    leadingContent = {
-                        if (isCheckingUpdate) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    },
-                    trailingContent = {
-                        TextButton(
-                            onClick = {
-                                if (!isCheckingUpdate) {
-                                    isCheckingUpdate = true
-                                    coroutineScope.launch {
-                                        val result = UpdateManager.checkForUpdates(context)
-                                        isCheckingUpdate = false
-                                        result.onSuccess { info ->
-                                            if (info.isUpdateAvailable) {
-                                                updateDialogInfo = info
-                                            } else {
-                                                Toast.makeText(context, "You're on the latest version! (v${info.latestVersionName})", Toast.LENGTH_SHORT).show()
-                                            }
-                                        }.onFailure { err ->
-                                            Toast.makeText(context, "Update check failed: ${err.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                }
-                            }
-                        ) {
-                            Text(if (isCheckingUpdate) "Checking..." else "Check Now")
-                        }
-                    }
-                )
-
-                HorizontalDivider()
-
-                ListItem(
-                    headlineContent = { Text("GitHub Releases") },
-                    supportingContent = { Text("View changelogs, assets, and download APKs from GitHub") },
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_open_in_browser),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingContent = {
-                        TextButton(
-                            onClick = {
-                                UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
-                            }
-                        ) {
-                            Text("Releases ↗")
-                        }
-                    },
-                    modifier = Modifier.clickable {
-                        UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
-                    }
-                )
-            } else {
-                ListItem(
-                    headlineContent = { Text("Managed by F-Droid") },
-                    supportingContent = {
-                        Text("Current version: v${UpdateManager.getCurrentVersionName(context)} • Updates are delivered through F-Droid")
-                    },
-                    leadingContent = {
+            ListItem(
+                headlineContent = { Text("Check for Updates") },
+                supportingContent = {
+                    Text("Current version: v${UpdateManager.getCurrentVersionName(context)}")
+                },
+                leadingContent = {
+                    if (isCheckingUpdate) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                )
-            }
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            if (!isCheckingUpdate) {
+                                isCheckingUpdate = true
+                                coroutineScope.launch {
+                                    val result = UpdateManager.checkForUpdates(context)
+                                    isCheckingUpdate = false
+                                    result.onSuccess { info ->
+                                        if (info.isUpdateAvailable) {
+                                            updateDialogInfo = info
+                                        } else {
+                                            Toast.makeText(context, "You're on the latest version! (v${info.latestVersionName})", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }.onFailure { err ->
+                                        Toast.makeText(context, "Update check failed: ${err.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text(if (isCheckingUpdate) "Checking..." else "Check Now")
+                    }
+                }
+            )
+
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("GitHub Releases") },
+                supportingContent = { Text("View changelogs, assets, and download APKs from GitHub") },
+                leadingContent = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_open_in_browser),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                        }
+                    ) {
+                        Text("Releases ↗")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                }
+            )
 
             HorizontalDivider()
 
@@ -891,70 +869,16 @@ fun SettingsScreen(
                             }
                         }
                     }
-                    if (isDownloadingUpdate) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        LinearProgressIndicator(
-                            progress = { if (updateDownloadProgress > 0) updateDownloadProgress / 100f else 0f },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = if (updateDownloadProgress > 0) "⏳ Downloading update: $updateDownloadProgress% ($updateDownloadBytesText)" else "⏳ Connecting to download server...",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium
-                        )
-                    } else if (downloadedApkFile != null) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(
-                            text = "✅ Update downloaded! Ready to install.",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
                 }
             },
             confirmButton = {
-                if (downloadedApkFile != null) {
-                    Button(
-                        onClick = {
-                            UpdateManager.installApk(context, downloadedApkFile!!)
-                            updateDialogInfo = null
-                        }
-                    ) {
-                        Text("Install Now 🚀")
+                Button(
+                    onClick = {
+                        UpdateManager.openBrowserDownload(context, update.downloadUrl)
+                        updateDialogInfo = null
                     }
-                } else {
-                    Button(
-                        enabled = !isDownloadingUpdate,
-                        onClick = {
-                            isDownloadingUpdate = true
-                            updateDownloadProgress = 0
-                            coroutineScope.launch {
-                                UpdateManager.downloadApkDirect(
-                                    context = context,
-                                    downloadUrl = update.downloadUrl,
-                                    versionName = update.latestVersionName
-                                ) { percent, read, total ->
-                                    updateDownloadProgress = percent
-                                    val readMb = String.format(Locale.US, "%.1f", read / (1024f * 1024f))
-                                    val totalMb = if (total > 0) String.format(Locale.US, "%.1f", total / (1024f * 1024f)) else "?"
-                                    updateDownloadBytesText = "$readMb / $totalMb MB"
-                                }.onSuccess { apkFile ->
-                                    isDownloadingUpdate = false
-                                    downloadedApkFile = apkFile
-                                    Toast.makeText(context, "Update downloaded! Installing...", Toast.LENGTH_SHORT).show()
-                                    UpdateManager.installApk(context, apkFile)
-                                }.onFailure { err ->
-                                    isDownloadingUpdate = false
-                                    Toast.makeText(context, "Direct download failed: ${err.message}. Opening browser...", Toast.LENGTH_SHORT).show()
-                                    UpdateManager.openBrowserDownload(context, update.downloadUrl)
-                                }
-                            }
-                        }
-                    ) {
-                        Text(if (isDownloadingUpdate) "Downloading..." else "Install Update 🚀")
-                    }
+                ) {
+                    Text("Update Now 🚀")
                 }
             },
             dismissButton = {

@@ -49,7 +49,7 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.13`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
+| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.14`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
 > **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
@@ -83,11 +83,11 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 - **Account Management in Settings:** Add, edit, switch, or delete accounts individually with confirmation safeguards.
 - **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the multi-account architecture without data loss.
 
-### 🔄 2. Over-The-Air (OTA) In-App Updates
+### 🔄 2. In-App Update Alerts & 1-Tap Browser Install
 - **Multi-Tier Update Engine:** Checks updates via Fastly CDN (`raw.githubusercontent.com`), HTTP 302 release redirects, and the GitHub REST API. Immune to GitHub API 403 rate limits on mobile networks (Jio, Airtel).
 - **Cache-Busting Fallthrough:** Ensures newly pushed releases are detected immediately without waiting for CDN cache expiration.
-- **In-App Notification Banner:** Presents release version and release notes preview directly on the Home Screen.
-- **Seamless Wireless Download:** Tapping "Update Now" downloads the APK directly with a live progress bar and launches the system installer.
+- **Main Screen Update Popup:** Presents release version and release notes preview directly on the Home Screen.
+- **1-Tap Browser Download & Install:** Tapping "Update Now" opens the direct APK download in Chrome/your default browser for clean installation without triggering Play Protect dropper permissions.
 - **Permanent Release Keystore:** Signed with a permanent 10,000-day keystore, eliminating signature mismatch conflicts across updates.
 
 ### 🌐 3. Open Portal in External Browser
@@ -285,8 +285,8 @@ You can save as many accounts as you need (e.g. for multiple siblings or wards).
 </details>
 
 <details>
-<summary><b>2. How does the in-app auto update work?</b></summary>
-On startup or via "Check for Updates" in Settings, BMSIT CP checks for new APK builds. If an update is found, an update popup appears with release highlights. Tapping "Update Now" downloads the APK directly with a live progress bar and launches the package installer. A direct browser download link is also available.
+<summary><b>2. How does the in-app update check work?</b></summary>
+On startup or via "Check for Updates" in Settings, BMSIT CP checks for new releases. If an update is found, an update popup appears with release highlights. Tapping "Update Now" launches the direct APK download in your browser so Chrome/your system installer updates the app seamlessly without extra dropper permissions.
 </details>
 
 <details>

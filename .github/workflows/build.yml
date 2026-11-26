@@ -28,7 +28,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleGithubDebug --stacktrace
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Prepare APK
       shell: bash
@@ -37,9 +37,9 @@ jobs:
         echo "=== Listing all outputs ==="
         find app/build/outputs/ -type f || true
         
-        APK_FILE=$(find app/build/outputs/apk/github/debug/ -name "*.apk" -type f | head -n 1)
+        APK_FILE=$(find app/build/outputs/apk/debug/ -name "*.apk" -type f | head -n 1)
         if [ -z "$APK_FILE" ]; then
-          echo "No APK found in app/build/outputs/apk/github/debug/! Searching everywhere..."
+          echo "No APK found in app/build/outputs/apk/debug/! Searching everywhere..."
           APK_FILE=$(find . -name "*.apk" -type f | head -n 1)
         fi
 
@@ -82,7 +82,7 @@ jobs:
         name: "BMSIT CP v${{ steps.get_version.outputs.version }}"
         body: |
           ### BMSIT CP v${{ steps.get_version.outputs.version }}
-          - Automated OTA build generated from commit `${{ github.sha }}`
+          - Automated build generated from commit `${{ github.sha }}`
           - Direct APK download available below (`BMSIT-CP.apk`).
         files: |
           release-apk/BMSIT-CP.apk

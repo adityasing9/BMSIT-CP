@@ -1,8 +1,8 @@
 {
-  "versionCode": 16,
-  "versionName": "1.2.13",
-  "releaseTitle": "BMSIT CP v1.2.13",
-  "releaseNotes": "• App renamed to BMSIT CP — same great features, new name!\n• Added MIT License for F-Droid and open-source compliance\n• Updated all branding references throughout the app\n• Play Protect safety maintained with zero unnecessary permissions",
+  "versionCode": 17,
+  "versionName": "1.2.14",
+  "releaseTitle": "BMSIT CP v1.2.14",
+  "releaseNotes": "• Switched update installer to seamless 1-tap browser download & install (fixes 'downloaded but can't install' on v1.2.12 and avoids Play Protect dropper warnings)\n• Note if upgrading from v1.2.12: tap 'Releases' / 'Changelog ↗' to download this update via Chrome, and future updates will open browser install in 1 tap\n• App renamed cleanly to BMSIT CP throughout",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest"
 }

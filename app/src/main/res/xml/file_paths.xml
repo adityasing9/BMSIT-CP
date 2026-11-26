@@ -2,8 +2,6 @@
 <paths>
     <cache-path name="shares" path="shares" />
     <cache-path name="shares_slash" path="shares/" />
-    <cache-path name="updates" path="updates" />
-    <cache-path name="updates_slash" path="updates/" />
     <files-path name="files_shares" path="shares" />
     <files-path name="files_shares_slash" path="shares/" />
     <external-cache-path name="ext_shares" path="shares" />

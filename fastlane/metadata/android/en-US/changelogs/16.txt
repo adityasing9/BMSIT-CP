@@ -1,4 +1,0 @@
-- Renamed Android app to BMSIT CP across launcher, UI, and documentation
-- Added dedicated F-Droid product flavor without self-updating code
-- Added MIT License and Fastlane metadata for F-Droid
-- Disabled APK DependencyInfo block for reproducible builds
