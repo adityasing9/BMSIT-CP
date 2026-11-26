@@ -1,5 +1,14 @@
 package com.continueo.autologin.ui.viewmodels
 
+import androidx.lifecycle.viewModelScope
+import com.continueo.autologin.automation.AttendanceExtractor
+import com.continueo.autologin.security.AttendanceSnapshotStore
+import com.continueo.autologin.widget.AttendanceWidgetProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 import android.app.Application
 import android.webkit.WebView
 import androidx.lifecycle.AndroidViewModel
@@ -18,9 +27,20 @@ import kotlinx.coroutines.flow.StateFlow
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val credentialManager = CredentialManager(application)
+    private val snapshotStore = AttendanceSnapshotStore(application)
     private val webViewManager = WebViewManager()
     private val adapter = ContineoAdapter()
     private val automationEngine = AutomationEngine(webViewManager, adapter)
+
+    private var attendanceSyncJob: Job? = null
+
+    init {
+        webViewManager.onPageFinishedCallback = { view ->
+            if (automationEngine.automationState.value == AutomationState.SUCCESS) {
+                syncAttendanceFromPage(view)
+            }
+        }
+    }
 
     val automationState: StateFlow<AutomationState> = automationEngine.automationState
     val statusMessages: StateFlow<List<StatusMessage>> = automationEngine.statusMessages
@@ -84,6 +104,39 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         webView.reload()
     }
 
+    fun syncAttendanceFromPage(webView: WebView) {
+        attendanceSyncJob?.cancel()
+        attendanceSyncJob = viewModelScope.launch {
+            val delaysMs = longArrayOf(0L, 1500L, 3500L)
+            for (waitMs in delaysMs) {
+                if (waitMs > 0L) delay(waitMs)
+                extractAndSaveAttendance(webView)
+            }
+        }
+    }
+
+    private fun extractAndSaveAttendance(webView: WebView) {
+        val account = credentialManager.getActiveAccount() ?: return
+        try {
+            webView.evaluateJavascript(AttendanceExtractor.EXTRACT_SCRIPT) { rawResult ->
+                if (rawResult.isNullOrBlank() || rawResult == "null") return@evaluateJavascript
+                viewModelScope.launch(Dispatchers.IO) {
+                    val snapshot = AttendanceExtractor.parseExtractedJson(
+                        rawJsResult = rawResult,
+                        accountId = account.id,
+                        accountName = account.getDisplayName()
+                    )
+                    if (snapshot != null && snapshot.hasData) {
+                        snapshotStore.saveSnapshot(snapshot)
+                        AttendanceWidgetProvider.refreshAllWidgets(getApplication())
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            // WebView may have been detached during navigation
+        }
+    }
+
     /**
      * Cancels the running automation.
      */
@@ -92,6 +145,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
+        attendanceSyncJob?.cancel()
+        webViewManager.onPageFinishedCallback = null
         super.onCleared()
         automationEngine.destroy()
     }

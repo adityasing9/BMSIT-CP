@@ -12,4 +12,19 @@
     <color name="success">#4CAF50</color>
     <color name="error">#D32F2F</color>
     <color name="warning">#FF9800</color>
+
+    <!-- Home Screen Widget Light Colors -->
+    <color name="widget_bg">#FFFFFF</color>
+    <color name="widget_border">#1F1A3A6B</color>
+    <color name="widget_card">#F2F5FA</color>
+    <color name="widget_text_primary">#111827</color>
+    <color name="widget_text_secondary">#5B6478</color>
+    <color name="widget_pill_bg">#E0E9FF</color>
+    <color name="widget_pill_text">#1A3A6B</color>
+    <color name="widget_button_bg">#1A3A6B</color>
+    <color name="widget_button_text">#FFFFFF</color>
+    <color name="widget_track">#DCE3EE</color>
+    <color name="attendance_safe">#16A34A</color>
+    <color name="attendance_warn">#D97706</color>
+    <color name="attendance_danger">#DC2626</color>
 </resources>

@@ -73,4 +73,15 @@
     <string name="cd_back">Go back</string>
     <string name="cd_success_icon">Step completed</string>
     <string name="cd_error_icon">Step failed</string>
+
+    <!-- Home Screen Attendance Widget -->
+    <string name="widget_description">Shows your visual attendance overview, subject progress bars, account switcher, and 1-tap login &amp; sync.</string>
+    <string name="widget_cd_ring">Overall attendance percentage</string>
+    <string name="widget_title_default">Attendance</string>
+    <string name="widget_subtitle_default">Tap Sync to update</string>
+    <string name="widget_action_switch">Switch</string>
+    <string name="widget_action_sync">Sync</string>
+    <string name="widget_action_login_sync">Login &amp; Sync</string>
+    <string name="widget_action_portal">Portal &#8599;</string>
+    <string name="widget_empty_message">Tap Login &amp; Sync once to display your latest attendance snapshot here.</string>
 </resources>

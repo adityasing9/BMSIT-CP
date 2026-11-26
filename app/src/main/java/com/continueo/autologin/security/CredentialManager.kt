@@ -6,11 +6,14 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.models.Credentials
+import com.continueo.autologin.widget.AttendanceWidgetProvider
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
 class CredentialManager(context: Context) {
+
+    private val appContext = context.applicationContext
 
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -83,6 +86,7 @@ class CredentialManager(context: Context) {
             .putString(KEY_DOB_YEAR, account.credentials.dobYear)
             .putString(KEY_ID_CARD, account.credentials.idCardNumber)
             .apply()
+        AttendanceWidgetProvider.refreshAllWidgets(appContext)
     }
 
     fun saveAccount(account: AccountProfile) {
@@ -109,6 +113,7 @@ class CredentialManager(context: Context) {
         }
 
         editor.apply()
+        AttendanceWidgetProvider.refreshAllWidgets(appContext)
     }
 
     fun deleteAccount(accountId: String) {
@@ -140,6 +145,8 @@ class CredentialManager(context: Context) {
             }
         }
         editor.apply()
+        AttendanceSnapshotStore(appContext).deleteSnapshot(accountId)
+        AttendanceWidgetProvider.refreshAllWidgets(appContext)
     }
 
     /**
@@ -185,6 +192,8 @@ class CredentialManager(context: Context) {
         val desktopMode = isDesktopMode()
         sharedPreferences.edit().clear().apply()
         setDesktopMode(desktopMode)
+        AttendanceSnapshotStore(appContext).clearAll()
+        AttendanceWidgetProvider.refreshAllWidgets(appContext)
     }
 
     fun hasCredentials(): Boolean {

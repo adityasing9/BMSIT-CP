@@ -1,12 +1,17 @@
 package com.continueo.autologin
 
+import com.continueo.autologin.automation.AttendanceExtractor
 import com.continueo.autologin.models.AccountProfile
+import com.continueo.autologin.models.AttendanceSnapshot
+import com.continueo.autologin.models.AttendanceStatus
 import com.continueo.autologin.models.Credentials
+import com.continueo.autologin.models.SubjectAttendance
 import com.continueo.autologin.utils.FeedbackCategory
 import com.continueo.autologin.utils.FeedbackManager
 import com.continueo.autologin.utils.UpdateManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -93,5 +98,88 @@ class UpdateAndAccountTest {
         assertEquals("student@bmsit.in", emailPayload["replyto"])
         assertEquals("v1.2.15", emailPayload["app_version"])
         assertEquals("Pixel 8", emailPayload["device"])
+    }
+
+    @Test
+    fun testSubjectAttendanceClampingAndThresholds() {
+        val safe = SubjectAttendance("Algorithms", 85)
+        val over = SubjectAttendance("Operating Systems", 120)
+        val warnHigh = SubjectAttendance("Networks", 84)
+        val warnLow = SubjectAttendance("DBMS", 75)
+        val danger = SubjectAttendance("Math", 74)
+        val negative = SubjectAttendance("Lab", -5)
+
+        assertEquals(AttendanceStatus.SAFE, safe.status)
+        assertEquals(100, over.clampedPercentage)
+        assertEquals(AttendanceStatus.SAFE, over.status)
+
+        assertEquals(AttendanceStatus.WARNING, warnHigh.status)
+        assertEquals(AttendanceStatus.WARNING, warnLow.status)
+
+        assertEquals(AttendanceStatus.DANGER, danger.status)
+        assertEquals(0, negative.clampedPercentage)
+        assertEquals(AttendanceStatus.DANGER, negative.status)
+    }
+
+    @Test
+    fun testAttendanceSnapshotOverallAndHasData() {
+        val explicitOverall = AttendanceSnapshot(
+            accountId = "acc-1",
+            accountName = "Aditya",
+            overallPercentage = 104,
+            subjects = listOf(SubjectAttendance("CS101", 80)),
+            updatedAtMillis = 123456L
+        )
+        assertEquals(100, explicitOverall.displayOverallPercentage)
+        assertTrue(explicitOverall.hasData)
+
+        val derivedOverall = AttendanceSnapshot(
+            accountId = "acc-2",
+            accountName = "Student",
+            overallPercentage = null,
+            subjects = listOf(
+                SubjectAttendance("Sub 1", 90),
+                SubjectAttendance("Sub 2", 80),
+                SubjectAttendance("Sub 3", 70)
+            ),
+            updatedAtMillis = 123456L
+        )
+        assertEquals(80, derivedOverall.displayOverallPercentage)
+        assertTrue(derivedOverall.hasData)
+
+        val overallOnly = AttendanceSnapshot(
+            accountId = "acc-3",
+            accountName = "Student",
+            overallPercentage = 78,
+            subjects = emptyList(),
+            updatedAtMillis = 123456L
+        )
+        assertTrue(overallOnly.hasData)
+
+        val empty = AttendanceSnapshot(
+            accountId = "acc-4",
+            accountName = "Student",
+            overallPercentage = null,
+            subjects = emptyList(),
+            updatedAtMillis = 0L
+        )
+        assertNull(empty.displayOverallPercentage)
+        assertFalse(empty.hasData)
+    }
+
+    @Test
+    fun testAttendanceExtractorUnquotingAndBlankGuard() {
+        val quoted = "\"{\\\"found\\\":true,\\\"overallPercentage\\\":88}\""
+        assertEquals(
+            "{\"found\":true,\"overallPercentage\":88}",
+            AttendanceExtractor.unquoteEvaluateJavascriptResult(quoted)
+        )
+
+        val raw = "{\"found\":false}"
+        assertEquals(raw, AttendanceExtractor.unquoteEvaluateJavascriptResult(raw))
+
+        assertNull(AttendanceExtractor.parseExtractedJson("", "acc-1", "Student"))
+        assertNull(AttendanceExtractor.parseExtractedJson("   ", "acc-1", "Student"))
+        assertNull(AttendanceExtractor.parseExtractedJson("null", "acc-1", "Student"))
     }
 }

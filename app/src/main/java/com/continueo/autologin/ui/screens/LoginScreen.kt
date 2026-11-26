@@ -73,6 +73,7 @@ fun LoginScreen(
     // Auto-minimize status panel once logged in so user sees full desktop dashboard
     LaunchedEffect(automationState) {
         if (automationState == AutomationState.SUCCESS) {
+            webViewRef?.let { loginViewModel.syncAttendanceFromPage(it) }
             kotlinx.coroutines.delay(1500)
             showStatusPanel = false
         }

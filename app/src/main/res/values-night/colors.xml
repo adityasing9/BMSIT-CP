@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home Screen Widget Night Colors -->
+    <color name="widget_bg">#161B26</color>
+    <color name="widget_border">#2BFFFFFF</color>
+    <color name="widget_card">#1F2636</color>
+    <color name="widget_text_primary">#F3F4F6</color>
+    <color name="widget_text_secondary">#9AA5BA</color>
+    <color name="widget_pill_bg">#253659</color>
+    <color name="widget_pill_text">#B8D0FF</color>
+    <color name="widget_button_bg">#3B6CB7</color>
+    <color name="widget_button_text">#FFFFFF</color>
+    <color name="widget_track">#2E374A</color>
+    <color name="attendance_safe">#22C55E</color>
+    <color name="attendance_warn">#F59E0B</color>
+    <color name="attendance_danger">#EF4444</color>
+</resources>

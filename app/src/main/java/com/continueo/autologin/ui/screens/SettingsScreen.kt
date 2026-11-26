@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ColorAccent
 import com.continueo.autologin.ui.theme.ThemeManager
 import com.continueo.autologin.utils.ShareUtils
+import com.continueo.autologin.widget.AttendanceWidgetProvider
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
 import kotlinx.coroutines.launch
@@ -517,6 +519,54 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.clickable {
                     UpdateManager.openInBrowser(context, UpdateManager.RELEASES_PAGE_URL)
+                }
+            )
+
+            HorizontalDivider()
+
+            // Home Screen Widget Section
+            Text(
+                text = "Home Screen Widget",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Add Attendance Widget to Home") },
+                supportingContent = { Text("Pin your live attendance ring, subject bars, account switcher, and 1-tap sync widget") },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Widgets,
+                        contentDescription = "Attendance Widget",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    FilledTonalButton(
+                        onClick = {
+                            val requested = AttendanceWidgetProvider.requestPinWidget(context)
+                            if (!requested) {
+                                Toast.makeText(
+                                    context,
+                                    "Long-press home screen > Widgets > BMSIT CP to add widget",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    ) {
+                        Text("Pin")
+                    }
+                },
+                modifier = Modifier.clickable {
+                    val requested = AttendanceWidgetProvider.requestPinWidget(context)
+                    if (!requested) {
+                        Toast.makeText(
+                            context,
+                            "Long-press home screen > Widgets > BMSIT CP to add widget",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             )
 
@@ -1077,6 +1127,7 @@ fun SettingsScreen(
                     onClick = {
                         val result = credentialManager.importBackupJson(importInputText)
                         result.onSuccess { count ->
+                            AttendanceWidgetProvider.refreshAllWidgets(context)
                             refreshAccounts()
                             Toast.makeText(context, "Successfully imported $count account(s)!", Toast.LENGTH_SHORT).show()
                             showImportDialog = false

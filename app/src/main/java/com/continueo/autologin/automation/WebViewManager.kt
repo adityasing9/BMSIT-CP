@@ -22,6 +22,8 @@ class WebViewManager {
     private val _pageLoaded = MutableStateFlow(false)
     val pageLoaded: StateFlow<Boolean> = _pageLoaded.asStateFlow()
 
+    var onPageFinishedCallback: ((WebView) -> Unit)? = null
+
     private val _currentUrl = MutableStateFlow("")
     val currentUrl: StateFlow<String> = _currentUrl.asStateFlow()
 
@@ -98,7 +100,10 @@ class WebViewManager {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 url?.let { _currentUrl.value = it }
-                view?.let { applyViewport(it) }
+                view?.let {
+                    applyViewport(it)
+                    onPageFinishedCallback?.invoke(it)
+                }
                 _pageLoaded.value = true
             }
 
