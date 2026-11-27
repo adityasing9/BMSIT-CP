@@ -7,7 +7,10 @@ import com.continueo.autologin.widget.AttendanceWidgetProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import android.app.Application
 import android.webkit.WebView
@@ -33,10 +36,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val automationEngine = AutomationEngine(webViewManager, adapter)
 
     private var attendanceSyncJob: Job? = null
+    private val _widgetSyncNotice = MutableStateFlow<String?>(null)
+    val widgetSyncNotice: StateFlow<String?> = _widgetSyncNotice.asStateFlow()
 
     init {
         webViewManager.onPageFinishedCallback = { view ->
-            if (automationEngine.automationState.value == AutomationState.SUCCESS) {
+            if (!automationEngine.automationState.value.isInProgress) {
                 syncAttendanceFromPage(view)
             }
         }
@@ -104,36 +109,56 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         webView.reload()
     }
 
+    fun clearWidgetSyncNotice() {
+        _widgetSyncNotice.value = null
+    }
+
     fun syncAttendanceFromPage(webView: WebView) {
         attendanceSyncJob?.cancel()
         attendanceSyncJob = viewModelScope.launch {
-            val delaysMs = longArrayOf(0L, 1500L, 3500L)
+            var syncedAccountIdForSession: String? = null
+            val delaysMs = longArrayOf(0L, 1200L, 3000L, 5500L)
             for (waitMs in delaysMs) {
                 if (waitMs > 0L) delay(waitMs)
-                extractAndSaveAttendance(webView)
+                val saved = extractAndSaveAttendance(webView)
+                if (saved != null) {
+                    if (syncedAccountIdForSession != saved.accountId) {
+                        syncedAccountIdForSession = saved.accountId
+                        _widgetSyncNotice.value = if (saved.subjects.isNotEmpty()) {
+                            "Widget synced (${saved.subjects.size} subjects)"
+                        } else {
+                            "Widget synced (${saved.displayOverallPercentage ?: 0}%)"
+                        }
+                    }
+                    if (saved.subjects.isNotEmpty()) {
+                        break
+                    }
+                }
             }
         }
     }
 
-    private fun extractAndSaveAttendance(webView: WebView) {
-        val account = credentialManager.getActiveAccount() ?: return
-        try {
-            webView.evaluateJavascript(AttendanceExtractor.EXTRACT_SCRIPT) { rawResult ->
-                if (rawResult.isNullOrBlank() || rawResult == "null") return@evaluateJavascript
-                viewModelScope.launch(Dispatchers.IO) {
-                    val snapshot = AttendanceExtractor.parseExtractedJson(
-                        rawJsResult = rawResult,
-                        accountId = account.id,
-                        accountName = account.getDisplayName()
-                    )
-                    if (snapshot != null && snapshot.hasData) {
-                        snapshotStore.saveSnapshot(snapshot)
-                        AttendanceWidgetProvider.refreshAllWidgets(getApplication())
-                    }
+    private suspend fun extractAndSaveAttendance(webView: WebView): com.continueo.autologin.models.AttendanceSnapshot? {
+        val account = credentialManager.getActiveAccount() ?: return null
+        return try {
+            val rawResult = webViewManager.evaluateJavascript(webView, AttendanceExtractor.EXTRACT_SCRIPT)
+            if (rawResult.isBlank() || rawResult == "null") return null
+            withContext(Dispatchers.IO) {
+                val snapshot = AttendanceExtractor.parseExtractedJson(
+                    rawJsResult = rawResult,
+                    accountId = account.id,
+                    accountName = account.getDisplayName()
+                )
+                if (snapshot != null && snapshot.hasData) {
+                    snapshotStore.saveSnapshot(snapshot)
+                    AttendanceWidgetProvider.refreshAllWidgets(getApplication())
+                    snapshot
+                } else {
+                    null
                 }
             }
         } catch (_: Exception) {
-            // WebView may have been detached during navigation
+            null
         }
     }
 

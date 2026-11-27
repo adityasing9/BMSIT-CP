@@ -175,6 +175,12 @@ class UpdateAndAccountTest {
             AttendanceExtractor.unquoteEvaluateJavascriptResult(quoted)
         )
 
+        val escapedUnicodeAndSlash = """"{\"name\":\"CS\u0026E\/AI\",\"pct\":91}""""
+        assertEquals(
+            """{"name":"CS&E/AI","pct":91}""",
+            AttendanceExtractor.unquoteEvaluateJavascriptResult(escapedUnicodeAndSlash)
+        )
+
         val raw = "{\"found\":false}"
         assertEquals(raw, AttendanceExtractor.unquoteEvaluateJavascriptResult(raw))
 

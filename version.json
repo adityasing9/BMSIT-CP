@@ -1,8 +1,8 @@
 {
-  "versionCode": 19,
-  "versionName": "1.2.16",
-  "releaseTitle": "BMSIT CP v1.2.16",
-  "releaseNotes": "• Added Android Home Screen Attendance Widget with overall circular ring gauge and color-coded subject progress bars (85%+ safe, 75-84% warning, <75% shortage)\n• Sync-on-login snapshot engine automatically updates your widget whenever you log in or refresh the portal dashboard\n• Switch student accounts and trigger 1-tap Login & Sync directly from your home screen, plus pin the widget from Settings",
+  "versionCode": 20,
+  "versionName": "1.2.17",
+  "releaseTitle": "BMSIT CP v1.2.17",
+  "releaseNotes": "• Added native Billboard.js & Contineo (.bb, .sc-progress, combined Attendance + CIE course tables) support to the Attendance Widget extractor\n• Improved empty-state widget layout spacing and N/A ring readability\n• Added instant in-app Toast confirmation when attendance syncs to your Home Screen widget",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
   "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441"

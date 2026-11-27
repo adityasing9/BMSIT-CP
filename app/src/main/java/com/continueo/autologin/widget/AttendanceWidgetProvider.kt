@@ -419,12 +419,16 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
                 canvas.drawArc(rect, -90f, (clamped * 360f) / 100f, false, arcPaint)
             }
 
-            val label = if (overallPercentage != null) "${overallPercentage.coerceIn(0, 100)}%" else "--"
+            val label = if (overallPercentage != null) "${overallPercentage.coerceIn(0, 100)}%" else "N/A"
             val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = textColor
                 textAlign = Paint.Align.CENTER
                 isFakeBoldText = true
-                textSize = if (label.length >= 4) 30f else 34f
+                textSize = when {
+                    overallPercentage == null -> 26f
+                    label.length >= 4 -> 30f
+                    else -> 34f
+                }
             }
             val fontMetrics = textPaint.fontMetrics
             val textY = sizePx / 2f - (fontMetrics.ascent + fontMetrics.descent) / 2f

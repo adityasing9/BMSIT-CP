@@ -53,6 +53,7 @@ fun LoginScreen(
     val automationState by loginViewModel.automationState.collectAsState()
     val statusMessages by loginViewModel.statusMessages.collectAsState()
     val isDesktopMode by loginViewModel.isDesktopMode.collectAsState()
+    val widgetSyncNotice by loginViewModel.widgetSyncNotice.collectAsState()
 
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
     var showStatusPanel by remember { mutableStateOf(true) }
@@ -76,6 +77,14 @@ fun LoginScreen(
             webViewRef?.let { loginViewModel.syncAttendanceFromPage(it) }
             kotlinx.coroutines.delay(1500)
             showStatusPanel = false
+        }
+    }
+
+    LaunchedEffect(widgetSyncNotice) {
+        val msg = widgetSyncNotice
+        if (!msg.isNullOrBlank()) {
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            loginViewModel.clearWidgetSyncNotice()
         }
     }
 

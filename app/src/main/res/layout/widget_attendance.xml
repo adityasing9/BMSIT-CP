@@ -110,13 +110,12 @@
     <LinearLayout
         android:id="@+id/widget_empty_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="@drawable/widget_card_bg"
-        android:gravity="center_vertical"
+        android:gravity="top"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="12dp">
 
         <TextView
             android:id="@+id/widget_empty_text"

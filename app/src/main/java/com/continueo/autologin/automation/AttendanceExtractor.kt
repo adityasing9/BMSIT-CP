@@ -9,29 +9,51 @@ object AttendanceExtractor {
     private const val MAX_SUBJECTS = 10
 
     /**
-     * Multi-strategy JavaScript extractor for Contineo portal attendance dashboards:
-     * 1. window.Highcharts.charts (Contineo UIkit bar/column charts)
-     * 2. Rendered Highcharts SVG DOM labels (.highcharts-container)
-     * 3. Chart.js instances
-     * 4. Attendance HTML tables & UIkit progress elements
-     *
-     * Marks/CIE tables and unrelated numeric cells are ignored.
+     * Multi-strategy JavaScript extractor tailored for BMSIT&M Contineo portals:
+     * 1. Billboard.js instances (window.bb.instance — Contineo's primary chart engine)
+     * 2. Rendered Billboard.js SVG DOM (.bb, .bb-bars, .bb-texts, .bb-gauge-value, D3 __data__)
+     * 3. Contineo progress cards & attendance stats (.cn-att-stat, .sc-progress, .cn-stu-progress, .cn-attendance)
+     * 4. Contineo & UIkit tables (.cn-attend-list1/2, .cn-course-table, .uk-table, combined Attendance + CIE tables)
+     * 5. Highcharts (JS API & SVG) & Chart.js fallbacks
+     * 6. Course card + course-code regex fallback
      */
     val EXTRACT_SCRIPT = """
         (function() {
             try {
-                // Skip login and ID-card pages cleanly
-                if (document.getElementById('username') || document.getElementById('dd')) {
-                    return JSON.stringify({found: false, reason: 'login_page'});
+                // Collect main document and any accessible same-origin iframes
+                var contexts = [];
+                function addContext(doc, win) {
+                    if (!doc) return;
+                    contexts.push({ doc: doc, win: win });
+                    try {
+                        var frames = doc.querySelectorAll('iframe, frame');
+                        for (var f = 0; f < frames.length; f++) {
+                            try {
+                                var fDoc = frames[f].contentDocument;
+                                var fWin = frames[f].contentWindow;
+                                if (fDoc) addContext(fDoc, fWin);
+                            } catch (_) {}
+                        }
+                    } catch (_) {}
                 }
-                var bodyText = document.body ? (document.body.innerText || '') : '';
-                if (bodyText.indexOf('Enter the ID Card Number') !== -1) {
-                    return JSON.stringify({found: false, reason: 'id_card_page'});
+                addContext(document, window);
+
+                // Skip login and ID-card pages if no dashboard containers are present
+                var hasDashboardMarkers = !!document.querySelector('.bb, .cn-att-stat, .cn-course-table, .cn-attend-list1, .cn-attend-list2, .sc-progress');
+                if (!hasDashboardMarkers) {
+                    if (document.getElementById('username') || document.getElementById('dd')) {
+                        return JSON.stringify({found: false, reason: 'login_page'});
+                    }
+                    var mainBodyText = document.body ? (document.body.innerText || '') : '';
+                    if (mainBodyText.indexOf('Enter the ID Card Number') !== -1) {
+                        return JSON.stringify({found: false, reason: 'id_card_page'});
+                    }
                 }
 
                 var subjects = [];
                 var seen = {};
                 var overallPct = null;
+                var usedSource = '';
 
                 function cleanText(s) {
                     return (s || '').replace(/\s+/g, ' ').trim();
@@ -39,42 +61,88 @@ object AttendanceExtractor {
 
                 function isOverallLabel(label) {
                     var l = cleanText(label).toLowerCase();
-                    return l === 'overall' || l === 'total' || l === 'average' || l === 'overall attendance' || l === 'aggregate';
+                    return l === 'overall' ||
+                        l === 'total' ||
+                        l === 'average' ||
+                        l === 'avg' ||
+                        l === 'overall attendance' ||
+                        l === 'aggregate';
                 }
 
                 function looksLikeNoise(label) {
                     var l = cleanText(label).toLowerCase();
-                    if (!l || l.length < 2 || l.length > 60) return true;
-                    if (/^\d+(\.\d+)?%?$/.test(l)) return true;
-                    if (l.indexOf('cie') !== -1 || l.indexOf('marks') !== -1 || l.indexOf('sgpa') !== -1 || l.indexOf('cgpa') !== -1) return true;
-                    if (l === 'sl' || l === 'sl.no' || l === 'subject' || l === 'course' || l === 'attendance' || l === 'percentage') return true;
+                    if (!l || l.length < 2 || l.length > 75) return true;
+                    if (/^\d+(?:\.\d+)?%?$/.test(l)) return true;
+                    if (/^\d{1,3}\s*\/\s*\d{1,3}$/.test(l)) return true;
+                    if (/\b(cie|marks|sgpa|cgpa|total marks|internal|credits)\b/.test(l)) return true;
+                    if (/^(sl\.?\s*no\.?|subject|course|course code|course name|attendance|percentage|present|absent|action|details?)$/.test(l)) return true;
+                    if (/^(present|absent|still to be updated)$/.test(l)) return true;
                     return false;
                 }
 
-                function parsePercent(raw) {
+                function parsePercent(raw, allowPlainNumber) {
                     if (raw === null || raw === undefined) return null;
                     if (typeof raw === 'number' && !isNaN(raw)) {
                         var n = Math.round(raw);
                         return (n >= 0 && n <= 100) ? n : null;
                     }
-                    var str = String(raw).trim();
+                    var str = cleanText(String(raw));
                     var m = str.match(/(\d{1,3}(?:\.\d+)?)\s*%/);
                     if (m) {
                         var val = Math.round(parseFloat(m[1]));
                         return (val >= 0 && val <= 100) ? val : null;
                     }
-                    if (/^\d{1,3}(\.\d+)?$/.test(str)) {
+                    if (allowPlainNumber && /^\d{1,3}(?:\.\d+)?$/.test(str)) {
                         var plain = Math.round(parseFloat(str));
                         return (plain >= 0 && plain <= 100) ? plain : null;
                     }
                     return null;
                 }
 
-                function addSubject(name, pct, detail) {
+                function parseFractionPercent(str) {
+                    var m = cleanText(str).match(/^(\d{1,3})\s*\/\s*(\d{1,3})$/);
+                    if (!m) return null;
+                    var num = parseInt(m[1], 10);
+                    var den = parseInt(m[2], 10);
+                    if (den <= 0 || num > den) return null;
+                    return Math.round((num * 100) / den);
+                }
+
+                function isCieOnlyText(str) {
+                    var l = cleanText(str).toLowerCase();
+                    if (!l) return false;
+                    var hasAttend = /(attend|present|\batt\b)/.test(l);
+                    var hasCie = /(\bcie\b|marks|internal|\bsgpa\b|\bcgpa\b|\bfee\b)/.test(l);
+                    return hasCie && !hasAttend;
+                }
+
+                function hasAttendKeyword(str) {
+                    return /(attend|present|\batt\b)/i.test(str || '');
+                }
+
+                function getLocalContainerHeading(el) {
+                    if (!el) return '';
+                    try {
+                        // Prefer immediate card/panel without climbing into multi-chart wrappers like .cn-att-cie
+                        var card = el.closest ? el.closest('.cn-att-stat, .uk-card, .uk-panel, .card, section') : el.parentElement;
+                        if (card) {
+                            var heading = card.querySelector('h1, h2, h3, h4, .uk-card-title, caption');
+                            if (heading) return cleanText(heading.innerText || heading.textContent);
+                            return cleanText((card.innerText || '').substring(0, 140));
+                        }
+                        if (el.parentElement) {
+                            return cleanText((el.parentElement.innerText || '').substring(0, 120));
+                        }
+                    } catch (_) {}
+                    return '';
+                }
+
+                function addSubject(name, pct, detail, sourceName) {
                     var clean = cleanText(name);
                     if (pct === null || pct === undefined || pct < 0 || pct > 100) return;
                     if (isOverallLabel(clean)) {
                         if (overallPct === null) overallPct = pct;
+                        if (!usedSource && sourceName) usedSource = sourceName;
                         return;
                     }
                     if (looksLikeNoise(clean)) return;
@@ -86,224 +154,456 @@ object AttendanceExtractor {
                         percentage: pct,
                         detail: cleanText(detail || '')
                     });
+                    if (!usedSource && sourceName) usedSource = sourceName;
                 }
 
-                // Strategy 1: window.Highcharts.charts
-                if (window.Highcharts && Array.isArray(window.Highcharts.charts)) {
-                    for (var c = 0; c < window.Highcharts.charts.length; c++) {
-                        var chart = window.Highcharts.charts[c];
-                        if (!chart || !chart.series || !chart.series.length) continue;
+                var bbCount = 0;
+                var bbSvgCount = 0;
+                var scProgCount = 0;
+                var tableCount = 0;
 
-                        var titleText = '';
-                        try {
-                            titleText = ((chart.title && chart.title.textStr) ||
-                                (chart.options && chart.options.title && chart.options.title.text) ||
-                                (chart.renderTo && chart.renderTo.id) || '').toLowerCase();
-                        } catch(e) {}
+                for (var ctxIdx = 0; ctxIdx < contexts.length; ctxIdx++) {
+                    var doc = contexts[ctxIdx].doc;
+                    var win = contexts[ctxIdx].win;
 
-                        var parentHeading = '';
-                        try {
-                            var container = chart.renderTo;
-                            if (container && container.parentElement) {
-                                parentHeading = (container.parentElement.innerText || '').substring(0, 120).toLowerCase();
-                            }
-                        } catch(e) {}
+                    // Strategy 1: Billboard.js live instances (win.bb.instance)
+                    if (win && win.bb && Array.isArray(win.bb.instance)) {
+                        bbCount += win.bb.instance.length;
+                        for (var b = 0; b < win.bb.instance.length; b++) {
+                            var chart = win.bb.instance[b];
+                            if (!chart) continue;
 
-                        var contextStr = titleText + ' ' + parentHeading;
-                        if (contextStr.indexOf('cie') !== -1 || contextStr.indexOf('marks') !== -1 || contextStr.indexOf('internal') !== -1) {
-                            continue;
-                        }
-
-                        var categories = [];
-                        try {
-                            if (chart.xAxis && chart.xAxis[0] && Array.isArray(chart.xAxis[0].categories)) {
-                                categories = chart.xAxis[0].categories;
-                            }
-                        } catch(e) {}
-
-                        var series = chart.series[0];
-                        if (series && Array.isArray(series.data) && series.data.length > 0) {
-                            var isAttendChart = contextStr.indexOf('attend') !== -1 ||
-                                (chart.renderTo && (chart.renderTo.id || '').toLowerCase().indexOf('attend') !== -1);
-
-                            // If title unclear, inspect whether values look like 0..100 percentages with course-like categories
-                            var validCount = 0;
-                            for (var p = 0; p < series.data.length; p++) {
-                                var pt = series.data[p];
-                                var yVal = (pt && typeof pt.y === 'number') ? pt.y : null;
-                                if (yVal !== null && yVal >= 0 && yVal <= 100) validCount++;
+                            var cats = [];
+                            try {
+                                if (typeof chart.categories === 'function') {
+                                    cats = chart.categories() || [];
+                                }
+                            } catch (_) {}
+                            if ((!cats || !cats.length) && chart.internal && chart.internal.config && Array.isArray(chart.internal.config.axis_x_categories)) {
+                                cats = chart.internal.config.axis_x_categories;
                             }
 
-                            if (isAttendChart || (validCount === series.data.length && categories.length >= 2 && series.data.length <= 15)) {
-                                for (var p = 0; p < series.data.length; p++) {
-                                    var pt = series.data[p];
-                                    if (!pt) continue;
-                                    var label = pt.name || pt.category || categories[p] || '';
-                                    var pct = parsePercent(pt.y);
-                                    if (label && pct !== null) {
-                                        addSubject(label, pct, '');
+                            var dataTargets = [];
+                            try {
+                                if (typeof chart.data === 'function') {
+                                    dataTargets = chart.data() || [];
+                                }
+                            } catch (_) {}
+                            if ((!dataTargets || !dataTargets.length) && chart.internal && chart.internal.data && Array.isArray(chart.internal.data.targets)) {
+                                dataTargets = chart.internal.data.targets;
+                            }
+                            if (!dataTargets || !dataTargets.length) continue;
+
+                            var chartEl = null;
+                            try {
+                                chartEl = (chart.$ && chart.$.chart && chart.$.chart.node) ? chart.$.chart.node() : (chart.element || null);
+                            } catch (_) {}
+                            var heading = getLocalContainerHeading(chartEl);
+                            if (isCieOnlyText(heading)) continue;
+
+                            var chartType = '';
+                            try {
+                                if (typeof chart.config === 'function') {
+                                    chartType = String(chart.config('data.type') || '').toLowerCase();
+                                }
+                            } catch (_) {}
+
+                            // Check if chart explicitly has an attendance series
+                            var hasExplicitAttendSeries = false;
+                            for (var dtCheck = 0; dtCheck < dataTargets.length; dtCheck++) {
+                                var idChk = String((dataTargets[dtCheck] && dataTargets[dtCheck].id) || '').toLowerCase();
+                                if (hasAttendKeyword(idChk)) {
+                                    hasExplicitAttendSeries = true;
+                                    break;
+                                }
+                            }
+
+                            for (var tIdx = 0; tIdx < dataTargets.length; tIdx++) {
+                                var target = dataTargets[tIdx];
+                                if (!target || !Array.isArray(target.values) || !target.values.length) continue;
+                                var tId = String(target.id || '');
+                                var tIdLower = tId.toLowerCase();
+                                if (/(\bcie\b|marks|internal|\bia\b|sgpa|cgpa)/.test(tIdLower)) continue;
+                                if (hasExplicitAttendSeries && !hasAttendKeyword(tIdLower) && dataTargets.length > 1) {
+                                    continue;
+                                }
+
+                                // Single-value gauge/donut/pie
+                                if (target.values.length === 1 && (!cats || cats.length === 0) &&
+                                    (chartType === 'gauge' || hasAttendKeyword(tIdLower) || hasAttendKeyword(heading))) {
+                                    var gPct = parsePercent(target.values[0] ? target.values[0].value : null, true);
+                                    if (gPct !== null && overallPct === null) {
+                                        overallPct = gPct;
+                                        if (!usedSource) usedSource = 'billboard_gauge';
+                                    }
+                                    continue;
+                                }
+
+                                var looksValidSeries = hasAttendKeyword(tIdLower) ||
+                                    hasAttendKeyword(heading) ||
+                                    (cats && cats.length >= 2);
+                                if (!looksValidSeries) continue;
+
+                                for (var vi = 0; vi < target.values.length; vi++) {
+                                    var v = target.values[vi];
+                                    if (!v) continue;
+                                    var xIdx = (typeof v.x === 'number') ? Math.round(v.x) : vi;
+                                    var lbl = (cats && cats[xIdx] !== undefined) ? cats[xIdx] : (v.name || target.id || '');
+                                    var pct = parsePercent(v.value, true);
+                                    if (lbl && pct !== null) {
+                                        addSubject(lbl, pct, '', 'billboard_api');
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                // Strategy 2: Rendered Highcharts SVG DOM fallback
-                if (subjects.length === 0) {
-                    var hcContainers = document.querySelectorAll('.highcharts-container, svg.highcharts-root');
-                    for (var h = 0; h < hcContainers.length; h++) {
-                        var root = hcContainers[h];
-                        var surroundText = '';
-                        try {
-                            var box = root.closest ? root.closest('div, section, article, .uk-card, .card') : root.parentElement;
-                            if (box) surroundText = (box.innerText || '').substring(0, 160).toLowerCase();
-                        } catch(e) {}
-                        if (surroundText.indexOf('cie') !== -1 || surroundText.indexOf('marks') !== -1) continue;
-                        if (surroundText.indexOf('attend') === -1 && hcContainers.length > 1) continue;
+                    // Strategy 2: Rendered Billboard.js SVG DOM (.bb) & D3 bound data
+                    var bbNodes = doc.querySelectorAll('.bb, svg');
+                    for (var s = 0; s < bbNodes.length; s++) {
+                        var bbEl = bbNodes[s];
+                        var isBbNode = (bbEl.classList && bbEl.classList.contains('bb')) || !!bbEl.querySelector('.bb-bars, .bb-chart-arcs, .bb-axis-x');
+                        if (!isBbNode) continue;
+                        bbSvgCount++;
 
-                        var xLabels = root.querySelectorAll('.highcharts-xaxis-labels text');
-                        var dLabels = root.querySelectorAll('.highcharts-data-labels text');
-                        if (xLabels.length > 0 && xLabels.length === dLabels.length) {
-                            for (var i = 0; i < xLabels.length; i++) {
-                                var subName = cleanText(xLabels[i].textContent);
-                                var pct = parsePercent(cleanText(dLabels[i].textContent));
-                                if (subName && pct !== null) {
-                                    addSubject(subName, pct, '');
-                                }
-                            }
-                        }
-                    }
-                }
+                        var svgHeading = getLocalContainerHeading(bbEl);
+                        if (isCieOnlyText(svgHeading)) continue;
 
-                // Strategy 3: Chart.js fallback
-                if (subjects.length === 0 && window.Chart && window.Chart.instances) {
-                    var instances = Array.isArray(window.Chart.instances)
-                        ? window.Chart.instances
-                        : Object.keys(window.Chart.instances).map(function(k) { return window.Chart.instances[k]; });
-                    for (var j = 0; j < instances.length; j++) {
-                        var ch = instances[j];
-                        if (!ch || !ch.data || !ch.data.datasets || !ch.data.datasets.length) continue;
-                        var labels = ch.data.labels || [];
-                        var ds = ch.data.datasets[0];
-                        var dsLabel = (ds.label || '').toLowerCase();
-                        if (dsLabel.indexOf('cie') !== -1 || dsLabel.indexOf('marks') !== -1) continue;
-                        if (dsLabel.indexOf('attend') !== -1 || (labels.length >= 2 && Array.isArray(ds.data))) {
-                            for (var idx = 0; idx < labels.length; idx++) {
-                                var pct = parsePercent(ds.data[idx]);
-                                if (labels[idx] && pct !== null) {
-                                    addSubject(String(labels[idx]), pct, '');
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Strategy 4: HTML Tables related to Attendance
-                if (subjects.length === 0) {
-                    var tables = document.querySelectorAll('table');
-                    for (var t = 0; t < tables.length; t++) {
-                        var table = tables[t];
-                        var tableText = cleanText(table.innerText).toLowerCase();
-                        if (!tableText) continue;
-                        if (tableText.indexOf('cie') !== -1 || tableText.indexOf('marks') !== -1 || tableText.indexOf('fee') !== -1) continue;
-
-                        var rows = table.querySelectorAll('tr');
-                        var headerText = rows.length > 0 ? cleanText(rows[0].innerText).toLowerCase() : '';
-                        var hasPercentCells = (table.innerText || '').indexOf('%') !== -1;
-                        if (headerText.indexOf('attend') === -1 && tableText.indexOf('attend') === -1 && !hasPercentCells) {
-                            continue;
-                        }
-
-                        var attendCol = -1;
-                        var nameCol = -1;
-                        if (rows.length > 0) {
-                            var ths = rows[0].querySelectorAll('th, td');
-                            for (var hi = 0; hi < ths.length; hi++) {
-                                var hTxt = cleanText(ths[hi].innerText).toLowerCase();
-                                if (hTxt.indexOf('attend') !== -1 || hTxt.indexOf('%') !== -1) attendCol = hi;
-                                if (nameCol === -1 && (hTxt.indexOf('subject') !== -1 || hTxt.indexOf('course') !== -1 || hTxt.indexOf('code') !== -1 || hTxt.indexOf('title') !== -1)) {
-                                    nameCol = hi;
+                        // Check gauge value inside .bb SVG
+                        var gaugeValEl = bbEl.querySelector('.bb-gauge-value, .bb-chart-arcs-title');
+                        if (gaugeValEl && (hasAttendKeyword(svgHeading) || subjects.length === 0)) {
+                            var gaugeTitleEl = bbEl.querySelector('.bb-chart-arcs-gauge-title');
+                            var gTitle = gaugeTitleEl ? cleanText(gaugeTitleEl.textContent) : '';
+                            if (!isCieOnlyText(gTitle)) {
+                                var gVal = parsePercent(gaugeValEl.textContent, true);
+                                if (gVal !== null && overallPct === null) {
+                                    overallPct = gVal;
+                                    if (!usedSource) usedSource = 'billboard_svg_gauge';
                                 }
                             }
                         }
 
-                        for (var r = 0; r < rows.length; r++) {
-                            var cells = rows[r].querySelectorAll('td');
-                            if (cells.length < 2) continue;
+                        if (subjects.length > 0) continue;
 
-                            var candName = '';
-                            var candPct = null;
-                            var candDetail = '';
+                        var xTickEls = bbEl.querySelectorAll('.bb-axis-x .tick text');
+                        var xCats = [];
+                        for (var xi = 0; xi < xTickEls.length; xi++) {
+                            xCats.push(cleanText(xTickEls[xi].textContent));
+                        }
+                        if (xCats.length === 0) continue;
 
-                            if (nameCol >= 0 && nameCol < cells.length) {
-                                candName = cleanText(cells[nameCol].innerText);
+                        // Inspect D3 bound __data__ on .bb-texts text or .bb-bars .bb-bar
+                        var d3Nodes = bbEl.querySelectorAll('.bb-texts text.bb-text, .bb-bars .bb-bar');
+                        var d3Entries = [];
+                        var d3HasAttendId = false;
+                        for (var di = 0; di < d3Nodes.length; di++) {
+                            var dObj = d3Nodes[di].__data__;
+                            if (!dObj || typeof dObj.value !== 'number') continue;
+                            var dId = String(dObj.id || '').toLowerCase();
+                            if (/(\bcie\b|marks|internal|\bia\b|sgpa|cgpa)/.test(dId)) continue;
+                            if (hasAttendKeyword(dId)) d3HasAttendId = true;
+                            d3Entries.push(dObj);
+                        }
+
+                        if (d3Entries.length > 0) {
+                            for (var de = 0; de < d3Entries.length; de++) {
+                                var entry = d3Entries[de];
+                                var entryId = String(entry.id || '').toLowerCase();
+                                if (d3HasAttendId && !hasAttendKeyword(entryId)) continue;
+                                var idx = (typeof entry.x === 'number') ? Math.round(entry.x) : entry.index;
+                                if (idx >= 0 && idx < xCats.length) {
+                                    var pVal = parsePercent(entry.value, true);
+                                    if (pVal !== null) {
+                                        addSubject(xCats[idx], pVal, '', 'billboard_d3_dom');
+                                    }
+                                }
                             }
-                            if (attendCol >= 0 && attendCol < cells.length) {
-                                candPct = parsePercent(cleanText(cells[attendCol].innerText));
-                            }
+                        }
 
-                            if (!candName || candPct === null) {
-                                for (var ci = 0; ci < cells.length; ci++) {
-                                    var cTxt = cleanText(cells[ci].innerText);
-                                    if (!cTxt) continue;
-                                    var mFraction = cTxt.match(/^(\d{1,3})\s*\/\s*(\d{1,3})$/);
-                                    if (mFraction && parseInt(mFraction[2], 10) > 0) {
-                                        candDetail = cTxt;
-                                        if (candPct === null) {
-                                            candPct = Math.round((parseInt(mFraction[1], 10) * 100) / parseInt(mFraction[2], 10));
+                        // Pure SVG text fallback without __data__
+                        if (subjects.length === 0) {
+                            var textEls = bbEl.querySelectorAll('.bb-texts text');
+                            if (textEls.length >= xCats.length && xCats.length > 0) {
+                                // Try finding explicit Attendance target group first
+                                var attendTexts = bbEl.querySelectorAll('.bb-target-Attendance text, .bb-target-attendance text');
+                                var chosenTexts = (attendTexts.length === xCats.length) ? attendTexts : textEls;
+                                if (chosenTexts.length === xCats.length) {
+                                    for (var ti = 0; ti < xCats.length; ti++) {
+                                        var tp = parsePercent(chosenTexts[ti].textContent, hasAttendKeyword(svgHeading));
+                                        if (tp !== null) {
+                                            addSubject(xCats[ti], tp, '', 'billboard_svg_text');
                                         }
-                                        continue;
                                     }
-                                    if (cTxt.indexOf('%') !== -1 && candPct === null) {
-                                        candPct = parsePercent(cTxt);
-                                        continue;
+                                }
+                            }
+                        }
+                    }
+
+                    // Strategy 3: Contineo progress widgets (.cn-att-stat, .cn-stu-progress, .sc-progress, .uk-progress, .cn-attendance)
+                    var attStatEls = doc.querySelectorAll('.cn-student-data2 .cn-attendance, .cn-att-stat .cn-attendance');
+                    for (var as = 0; as < attStatEls.length; as++) {
+                        var asPct = parsePercent(attStatEls[as].innerText || attStatEls[as].textContent, true);
+                        if (asPct !== null && overallPct === null) {
+                            overallPct = asPct;
+                            if (!usedSource) usedSource = 'contineo_stat_overall';
+                        }
+                    }
+
+                    if (subjects.length === 0) {
+                        var progEls = doc.querySelectorAll('.sc-progress, .cn-stu-progress, .uk-progress, progress, [role="progressbar"]');
+                        scProgCount += progEls.length;
+                        for (var pe = 0; pe < progEls.length; pe++) {
+                            var pEl = progEls[pe];
+                            var pCardText = getLocalContainerHeading(pEl);
+                            if (isCieOnlyText(pCardText)) continue;
+
+                            var barPct = null;
+                            if (pEl.tagName === 'PROGRESS' && pEl.max > 0) {
+                                barPct = Math.round((pEl.value * 100) / pEl.max);
+                            } else if (pEl.getAttribute && pEl.getAttribute('aria-valuenow')) {
+                                barPct = parsePercent(pEl.getAttribute('aria-valuenow'), true);
+                            }
+                            if (barPct === null && pEl.style && pEl.style.width && pEl.style.width.indexOf('%') !== -1) {
+                                barPct = parsePercent(pEl.style.width, false);
+                            }
+                            if (barPct === null) {
+                                var innerBar = pEl.querySelector('.sc-progress-bar, .uk-progress-bar, [style*="width"]');
+                                if (innerBar) {
+                                    if (innerBar.style && innerBar.style.width) {
+                                        barPct = parsePercent(innerBar.style.width, false);
                                     }
-                                    if (!candName && !/^\d+$/.test(cTxt) && cTxt.length >= 2) {
-                                        candName = cTxt;
+                                    if (barPct === null) {
+                                        barPct = parsePercent(innerBar.innerText || innerBar.textContent, false);
                                     }
                                 }
                             }
 
-                            if (candName && candPct !== null) {
-                                addSubject(candName, candPct, candDetail);
+                            var rowCard = pEl.closest ? pEl.closest('.cn-stu-progress, .cn-course, li, tr, .uk-card > div, div') : pEl.parentElement;
+                            var labelNode = (rowCard && rowCard.querySelector('.cn-course-name, .sc-progress-label, h4, h5, strong')) || null;
+                            var rawRowTxt = cleanText((rowCard && (rowCard.innerText || rowCard.textContent)) || '');
+                            if (barPct === null) {
+                                barPct = parsePercent(rawRowTxt, false);
+                            }
+                            if (barPct === null) continue;
+
+                            var rawTitle = labelNode ? cleanText(labelNode.innerText || labelNode.textContent) : rawRowTxt;
+                            var subTitle = cleanText(rawTitle.replace(/\d{1,3}(?:\.\d+)?\s*%/g, '').replace(/\b\d{1,3}\s*\/\s*\d{1,3}\b/g, ''));
+                            if (subTitle) {
+                                addSubject(subTitle, barPct, '', 'contineo_progress');
                             }
                         }
                     }
-                }
 
-                // Strategy 5: UIkit/HTML progress bars or attendance cards
-                if (subjects.length === 0) {
-                    var progressEls = document.querySelectorAll('progress, .uk-progress, [role="progressbar"]');
-                    for (var k = 0; k < progressEls.length; k++) {
-                        var bar = progressEls[k];
-                        var pct = null;
-                        if (bar.tagName === 'PROGRESS' && bar.max > 0) {
-                            pct = Math.round((bar.value * 100) / bar.max);
-                        } else if (bar.getAttribute('aria-valuenow')) {
-                            pct = parsePercent(bar.getAttribute('aria-valuenow'));
-                        } else if (bar.style && bar.style.width && bar.style.width.indexOf('%') !== -1) {
-                            pct = parsePercent(bar.style.width);
+                    // Strategy 4: Contineo & HTML Tables (handles combined Attendance + CIE course tables safely)
+                    if (subjects.length === 0) {
+                        var tables = doc.querySelectorAll('.cn-attend-list1, .cn-attend-list2, .cn-course-table, .cn-reg-table, .cn-present-table, table');
+                        tableCount += tables.length;
+                        for (var tb = 0; tb < tables.length; tb++) {
+                            var table = tables[tb];
+                            if (table.tagName !== 'TABLE') continue;
+                            var fullTableTxt = cleanText(table.innerText || table.textContent).toLowerCase();
+                            if (!fullTableTxt) continue;
+
+                            var tableClass = String(table.className || '').toLowerCase();
+                            var isKnownCourseTable = /(cn-attend|cn-course|cn-reg|cn-present|uk-table)/.test(tableClass);
+                            var hasAttInTable = hasAttendKeyword(fullTableTxt) || !!table.querySelector('.cn-attendanceclr, .cn-attendance');
+
+                            // Skip unrelated tables (fees/result/CIE-only tables without attendance)
+                            if (!hasAttInTable && /(cie|marks|sgpa|cgpa|fee|amount|receipt|timetable)/.test(fullTableTxt)) {
+                                continue;
+                            }
+                            if (!hasAttInTable && !isKnownCourseTable && fullTableTxt.indexOf('%') === -1) {
+                                continue;
+                            }
+
+                            var allRows = table.querySelectorAll('tr');
+                            if (allRows.length < 2) continue;
+
+                            var attendCol = -1;
+                            var nameCol = -1;
+                            var codeCol = -1;
+
+                            // Inspect header row(s)
+                            var headerRows = table.querySelectorAll('thead tr');
+                            var hdrRow = headerRows.length > 0 ? headerRows[headerRows.length - 1] : allRows[0];
+                            if (hdrRow) {
+                                var hdrCells = hdrRow.querySelectorAll('th, td');
+                                for (var hc = 0; hc < hdrCells.length; hc++) {
+                                    var hTxt = cleanText(hdrCells[hc].innerText || hdrCells[hc].textContent).toLowerCase();
+                                    if (!hTxt) continue;
+                                    var isCieCol = /(\bcie\b|marks|\bia\b|score|grade)/.test(hTxt);
+                                    if (attendCol === -1 && !isCieCol && (hasAttendKeyword(hTxt) || hTxt.indexOf('%') !== -1)) {
+                                        attendCol = hc;
+                                    }
+                                    if (codeCol === -1 && /\bcode\b/.test(hTxt)) {
+                                        codeCol = hc;
+                                    }
+                                    if (nameCol === -1 && /(course name|subject|course|title|paper)/.test(hTxt) && !/\bcode\b/.test(hTxt)) {
+                                        nameCol = hc;
+                                    }
+                                }
+                            }
+                            if (nameCol === -1 && codeCol >= 0) nameCol = codeCol;
+
+                            for (var r = 0; r < allRows.length; r++) {
+                                if (allRows[r].closest && allRows[r].closest('thead')) continue;
+                                var cells = allRows[r].querySelectorAll('td');
+                                if (cells.length < 2) continue;
+
+                                var rowName = '';
+                                if (nameCol >= 0 && nameCol < cells.length) {
+                                    rowName = cleanText(cells[nameCol].innerText || cells[nameCol].textContent);
+                                } else if (codeCol >= 0 && codeCol < cells.length) {
+                                    rowName = cleanText(cells[codeCol].innerText || cells[codeCol].textContent);
+                                }
+                                if (looksLikeNoise(rowName) && codeCol >= 0 && codeCol < cells.length) {
+                                    rowName = cleanText(cells[codeCol].innerText || cells[codeCol].textContent);
+                                }
+
+                                var rowPct = null;
+                                var rowDetail = '';
+
+                                // 1) Explicit attendance column
+                                if (attendCol >= 0 && attendCol < cells.length) {
+                                    var attCell = cells[attendCol];
+                                    var attTxt = cleanText(attCell.innerText || attCell.textContent);
+                                    rowPct = parsePercent(attTxt, true);
+                                    if (rowPct === null) {
+                                        rowPct = parseFractionPercent(attTxt);
+                                        if (rowPct !== null) rowDetail = attTxt;
+                                    }
+                                }
+
+                                // 2) Contineo .cn-attendanceclr / .cn-attendance cell badge
+                                if (rowPct === null) {
+                                    var attBadge = allRows[r].querySelector('.cn-attendanceclr, .cn-attendance, [href*="attend"]');
+                                    if (attBadge) {
+                                        var badgeTxt = cleanText(attBadge.innerText || attBadge.textContent);
+                                        rowPct = parsePercent(badgeTxt, false);
+                                        if (rowPct === null) {
+                                            rowPct = parseFractionPercent(badgeTxt);
+                                            if (rowPct !== null) rowDetail = badgeTxt;
+                                        }
+                                    }
+                                }
+
+                                // 3) Cell-by-cell % scan excluding explicit CIE elements
+                                if (rowPct === null || !rowName) {
+                                    for (var ci = 0; ci < cells.length; ci++) {
+                                        var cellEl = cells[ci];
+                                        if (cellEl.querySelector && cellEl.querySelector('.cn-cieclr, .cn-cie')) continue;
+                                        var cTxt = cleanText(cellEl.innerText || cellEl.textContent);
+                                        if (!cTxt) continue;
+                                        if (!rowName && cTxt.indexOf('%') === -1 && !/^\d+(?:\.\d+)?$/.test(cTxt) && !looksLikeNoise(cTxt)) {
+                                            rowName = cTxt;
+                                            continue;
+                                        }
+                                        if (rowPct === null && cTxt.indexOf('%') !== -1) {
+                                            rowPct = parsePercent(cTxt, false);
+                                        }
+                                    }
+                                }
+
+                                if (rowName && rowPct !== null) {
+                                    addSubject(rowName, rowPct, rowDetail, 'contineo_table');
+                                }
+                            }
                         }
-                        if (pct === null) continue;
-                        var card = bar.closest ? bar.closest('div, li, tr, section') : bar.parentElement;
-                        var cardTxt = card ? cleanText(card.innerText) : '';
-                        if (!cardTxt) continue;
-                        var title = cleanText(cardTxt.replace(/\d{1,3}(?:\.\d+)?\s*%/g, ''));
-                        if (title) {
-                            addSubject(title, pct, '');
+                    }
+
+                    // Strategy 5: Highcharts JS API / SVG & Chart.js fallback
+                    if (subjects.length === 0 && win && win.Highcharts && Array.isArray(win.Highcharts.charts)) {
+                        for (var c = 0; c < win.Highcharts.charts.length; c++) {
+                            var hChart = win.Highcharts.charts[c];
+                            if (!hChart || !hChart.series || !hChart.series.length) continue;
+
+                            var hcTitle = '';
+                            try {
+                                hcTitle = ((hChart.title && hChart.title.textStr) ||
+                                    (hChart.options && hChart.options.title && hChart.options.title.text) || '').toLowerCase();
+                            } catch (_) {}
+                            var hcHeading = getLocalContainerHeading(hChart.renderTo);
+                            if (isCieOnlyText(hcTitle + ' ' + hcHeading)) continue;
+
+                            var hCats = [];
+                            try {
+                                if (hChart.xAxis && hChart.xAxis[0] && Array.isArray(hChart.xAxis[0].categories)) {
+                                    hCats = hChart.xAxis[0].categories;
+                                }
+                            } catch (_) {}
+
+                            var hSeries = hChart.series[0];
+                            if (hSeries && Array.isArray(hSeries.data) && hSeries.data.length > 0) {
+                                if (hasAttendKeyword(hcTitle + ' ' + hcHeading) || hCats.length >= 2) {
+                                    for (var hp = 0; hp < hSeries.data.length; hp++) {
+                                        var hPt = hSeries.data[hp];
+                                        if (!hPt) continue;
+                                        var hLbl = hPt.name || hPt.category || hCats[hp] || '';
+                                        var hPct = parsePercent(hPt.y, true);
+                                        if (hLbl && hPct !== null) {
+                                            addSubject(hLbl, hPct, '', 'highcharts');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (subjects.length === 0 && win && win.Chart && win.Chart.instances) {
+                        var cInsts = Array.isArray(win.Chart.instances)
+                            ? win.Chart.instances
+                            : Object.keys(win.Chart.instances).map(function(k) { return win.Chart.instances[k]; });
+                        for (var cj = 0; cj < cInsts.length; cj++) {
+                            var cjs = cInsts[cj];
+                            if (!cjs || !cjs.data || !cjs.data.datasets || !cjs.data.datasets.length) continue;
+                            var cLabels = cjs.data.labels || [];
+                            var cds = cjs.data.datasets[0];
+                            if (isCieOnlyText(cds.label || '')) continue;
+                            if (hasAttendKeyword(cds.label || '') || cLabels.length >= 2) {
+                                for (var cl = 0; cl < cLabels.length; cl++) {
+                                    var cPct = parsePercent(cds.data[cl], true);
+                                    if (cLabels[cl] && cPct !== null) {
+                                        addSubject(String(cLabels[cl]), cPct, '', 'chartjs');
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Strategy 6: Generic course card / course-code + % text fallback
+                    if (subjects.length === 0) {
+                        var cardEls = doc.querySelectorAll('.cn-course, .cn-course-info, .cn-course-details, .uk-card');
+                        for (var cc = 0; cc < cardEls.length; cc++) {
+                            var cardTxt = cleanText(cardEls[cc].innerText || cardEls[cc].textContent);
+                            if (!cardTxt || cardTxt.length > 240 || isCieOnlyText(cardTxt)) continue;
+                            var mCode = cardTxt.match(/\b(\d{2}[A-Z]{2,5}\d{1,3}[A-Z]?|[A-Z]{2,6}\d{3}[A-Z]?)\b/);
+                            var mPct = cardTxt.match(/(\d{1,3}(?:\.\d+)?)\s*%/);
+                            if (mCode && mPct && hasAttendKeyword(cardTxt)) {
+                                addSubject(mCode[1], parsePercent(mPct[1], true), '', 'course_card');
+                            }
                         }
                     }
                 }
 
                 if (subjects.length === 0 && overallPct === null) {
-                    return JSON.stringify({found: false, reason: 'no_attendance_found'});
+                    return JSON.stringify({
+                        found: false,
+                        reason: 'no_attendance_found',
+                        debug: {
+                            path: String(location.pathname || ''),
+                            bbCount: bbCount,
+                            bbSvgCount: bbSvgCount,
+                            scProgCount: scProgCount,
+                            tableCount: tableCount
+                        }
+                    });
                 }
 
                 return JSON.stringify({
                     found: true,
                     overallPercentage: overallPct,
-                    subjects: subjects.slice(0, $MAX_SUBJECTS)
+                    subjects: subjects.slice(0, $MAX_SUBJECTS),
+                    source: usedSource
                 });
             } catch (e) {
                 return JSON.stringify({found: false, error: e.toString()});
@@ -357,14 +657,46 @@ object AttendanceExtractor {
     }
 
     /**
-     * WebView.evaluateJavascript wraps returned strings in quotes with escaped inner quotes/backslashes.
+     * WebView.evaluateJavascript wraps returned strings in quotes and escapes JSON inner characters.
+     * Implemented in pure Kotlin so JVM unit tests work without Android org.json stubs.
      */
     internal fun unquoteEvaluateJavascriptResult(raw: String): String {
         val trimmed = raw.trim()
         if (trimmed.length >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
-            return trimmed.substring(1, trimmed.length - 1)
-                .replace("\\\"", "\"")
-                .replace("\\\\", "\\")
+            val inner = trimmed.substring(1, trimmed.length - 1)
+            val sb = StringBuilder(inner.length)
+            var i = 0
+            while (i < inner.length) {
+                val ch = inner[i]
+                if (ch == '\\' && i + 1 < inner.length) {
+                    val next = inner[i + 1]
+                    when (next) {
+                        '\\' -> { sb.append('\\'); i += 2 }
+                        '"' -> { sb.append('"'); i += 2 }
+                        '/' -> { sb.append('/'); i += 2 }
+                        'n' -> { sb.append('\n'); i += 2 }
+                        'r' -> { sb.append('\r'); i += 2 }
+                        't' -> { sb.append('\t'); i += 2 }
+                        'u' -> {
+                            if (i + 5 < inner.length) {
+                                val code = inner.substring(i + 2, i + 6).toIntOrNull(16)
+                                if (code != null) {
+                                    sb.append(code.toChar())
+                                    i += 6
+                                    continue
+                                }
+                            }
+                            sb.append(next)
+                            i += 2
+                        }
+                        else -> { sb.append(next); i += 2 }
+                    }
+                } else {
+                    sb.append(ch)
+                    i++
+                }
+            }
+            return sb.toString()
         }
         return trimmed
     }
