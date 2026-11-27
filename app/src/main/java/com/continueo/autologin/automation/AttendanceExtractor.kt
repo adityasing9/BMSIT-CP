@@ -126,7 +126,7 @@ object AttendanceExtractor {
                         // Prefer immediate card/panel without climbing into multi-chart wrappers like .cn-att-cie
                         var card = el.closest ? el.closest('.cn-att-stat, .uk-card, .uk-panel, .card, section') : el.parentElement;
                         if (card) {
-                            var heading = card.querySelector('h1, h2, h3, h4, .uk-card-title, caption');
+                            var heading = card.querySelector('.uk-card-header, .uk-card-title, h1, h2, h3, h4, caption, .cn-att, .cn-cie, .cn-attendance');
                             if (heading) return cleanText(heading.innerText || heading.textContent);
                             return cleanText((card.innerText || '').substring(0, 140));
                         }
@@ -196,16 +196,20 @@ object AttendanceExtractor {
 
                             var chartEl = null;
                             try {
-                                chartEl = (chart.$ && chart.$.chart && chart.$.chart.node) ? chart.$.chart.node() : (chart.element || null);
+                                chartEl = (chart.internal && chart.internal.selectChart && chart.internal.selectChart.node && chart.internal.selectChart.node()) ||
+                                    (chart.$ && chart.$.chart && chart.$.chart.node && chart.$.chart.node()) ||
+                                    chart.element || null;
                             } catch (_) {}
                             var heading = getLocalContainerHeading(chartEl);
                             if (isCieOnlyText(heading)) continue;
 
                             var chartType = '';
                             try {
-                                if (typeof chart.config === 'function') {
-                                    chartType = String(chart.config('data.type') || '').toLowerCase();
-                                }
+                                chartType = String(
+                                    (typeof chart.config === 'function' ? chart.config('data.type') : '') ||
+                                    (chart.internal && chart.internal.config && chart.internal.config.data_type) ||
+                                    ''
+                                ).toLowerCase();
                             } catch (_) {}
 
                             // Check if chart explicitly has an attendance series
@@ -218,6 +222,8 @@ object AttendanceExtractor {
                                 }
                             }
 
+                            var hasAttendContext = hasAttendKeyword(heading) || hasExplicitAttendSeries || chartType === 'gauge';
+
                             for (var tIdx = 0; tIdx < dataTargets.length; tIdx++) {
                                 var target = dataTargets[tIdx];
                                 if (!target || !Array.isArray(target.values) || !target.values.length) continue;
@@ -228,20 +234,29 @@ object AttendanceExtractor {
                                     continue;
                                 }
 
-                                // Single-value gauge/donut/pie
-                                if (target.values.length === 1 && (!cats || cats.length === 0) &&
-                                    (chartType === 'gauge' || hasAttendKeyword(tIdLower) || hasAttendKeyword(heading))) {
-                                    var gPct = parsePercent(target.values[0] ? target.values[0].value : null, true);
-                                    if (gPct !== null && overallPct === null) {
-                                        overallPct = gPct;
-                                        if (!usedSource) usedSource = 'billboard_gauge';
+                                // Single-value series without X categories:
+                                // - If there is 1 target named Overall/Attendance -> overall gauge %
+                                // - If there are multiple targets (Contineo multi-ring gauge per subject) -> each target.id is a subject!
+                                if (target.values.length === 1 && (!cats || cats.length === 0)) {
+                                    if (!hasAttendContext && !hasAttendKeyword(tIdLower)) continue;
+
+                                    var singlePct = parsePercent(target.values[0] ? target.values[0].value : null, true);
+                                    if (singlePct === null) continue;
+
+                                    if (dataTargets.length === 1 && (isOverallLabel(tId) || hasAttendKeyword(tId))) {
+                                        if (overallPct === null) {
+                                            overallPct = singlePct;
+                                            if (!usedSource) usedSource = 'billboard_gauge';
+                                        }
+                                    } else {
+                                        addSubject(tId, singlePct, '', 'billboard_multi_gauge');
                                     }
                                     continue;
                                 }
 
                                 var looksValidSeries = hasAttendKeyword(tIdLower) ||
                                     hasAttendKeyword(heading) ||
-                                    (cats && cats.length >= 2);
+                                    (cats && cats.length >= 2 && hasAttendContext);
                                 if (!looksValidSeries) continue;
 
                                 for (var vi = 0; vi < target.values.length; vi++) {
@@ -269,16 +284,36 @@ object AttendanceExtractor {
                         var svgHeading = getLocalContainerHeading(bbEl);
                         if (isCieOnlyText(svgHeading)) continue;
 
-                        // Check gauge value inside .bb SVG
-                        var gaugeValEl = bbEl.querySelector('.bb-gauge-value, .bb-chart-arcs-title');
-                        if (gaugeValEl && (hasAttendKeyword(svgHeading) || subjects.length === 0)) {
-                            var gaugeTitleEl = bbEl.querySelector('.bb-chart-arcs-gauge-title');
-                            var gTitle = gaugeTitleEl ? cleanText(gaugeTitleEl.textContent) : '';
-                            if (!isCieOnlyText(gTitle)) {
-                                var gVal = parsePercent(gaugeValEl.textContent, true);
-                                if (gVal !== null && overallPct === null) {
-                                    overallPct = gVal;
-                                    if (!usedSource) usedSource = 'billboard_svg_gauge';
+                        // Check single vs multi-arc gauge inside .bb SVG
+                        var arcEls = bbEl.querySelectorAll('.bb-chart-arcs .bb-chart-arc');
+                        if (arcEls.length > 1 && subjects.length === 0) {
+                            for (var ai = 0; ai < arcEls.length; ai++) {
+                                var arcEl = arcEls[ai];
+                                var arcData = arcEl.__data__;
+                                var arcId = (arcData && arcData.data && arcData.data.id) ? String(arcData.data.id) : '';
+                                if (!arcId) {
+                                    var clsStr = String((arcEl.className && arcEl.className.baseVal) || arcEl.getAttribute('class') || '');
+                                    var mTarget = clsStr.match(/bb-target-([^\s]+)/);
+                                    if (mTarget) arcId = mTarget[1];
+                                }
+                                var arcValEl = arcEl.querySelector ? arcEl.querySelector('.bb-gauge-value') : null;
+                                var rawArcVal = arcValEl ? arcValEl.textContent : (arcData ? arcData.value : null);
+                                var arcPct = parsePercent(rawArcVal, true);
+                                if (arcId && arcPct !== null) {
+                                    addSubject(arcId, arcPct, '', 'billboard_svg_multi_arc');
+                                }
+                            }
+                        } else if (arcEls.length <= 1) {
+                            var gaugeValEl = bbEl.querySelector('.bb-gauge-value, .bb-chart-arcs-title');
+                            if (gaugeValEl && (hasAttendKeyword(svgHeading) || subjects.length === 0)) {
+                                var gaugeTitleEl = bbEl.querySelector('.bb-chart-arcs-gauge-title');
+                                var gTitle = gaugeTitleEl ? cleanText(gaugeTitleEl.textContent) : '';
+                                if (!isCieOnlyText(gTitle)) {
+                                    var gVal = parsePercent(gaugeValEl.textContent, true);
+                                    if (gVal !== null && overallPct === null) {
+                                        overallPct = gVal;
+                                        if (!usedSource) usedSource = 'billboard_svg_gauge';
+                                    }
                                 }
                             }
                         }
@@ -570,16 +605,19 @@ object AttendanceExtractor {
                         }
                     }
 
-                    // Strategy 6: Generic course card / course-code + % text fallback
+                    // Strategy 6: Generic individual course card (skip container cards holding charts/tables or multiple codes)
                     if (subjects.length === 0) {
                         var cardEls = doc.querySelectorAll('.cn-course, .cn-course-info, .cn-course-details, .uk-card');
                         for (var cc = 0; cc < cardEls.length; cc++) {
-                            var cardTxt = cleanText(cardEls[cc].innerText || cardEls[cc].textContent);
+                            var cardNode = cardEls[cc];
+                            if (cardNode.querySelector && cardNode.querySelector('.bb, svg, table, canvas')) continue;
+                            var cardTxt = cleanText(cardNode.innerText || cardNode.textContent);
                             if (!cardTxt || cardTxt.length > 240 || isCieOnlyText(cardTxt)) continue;
-                            var mCode = cardTxt.match(/\b(\d{2}[A-Z]{2,5}\d{1,3}[A-Z]?|[A-Z]{2,6}\d{3}[A-Z]?)\b/);
+                            var allCodes = cardTxt.match(/\b(?:\d{2}[A-Z]{2,5}\d{1,3}[A-Z]?|[A-Z]{2,6}\d{3}[A-Z]?)\b/g);
+                            if (!allCodes || allCodes.length !== 1) continue;
                             var mPct = cardTxt.match(/(\d{1,3}(?:\.\d+)?)\s*%/);
-                            if (mCode && mPct && hasAttendKeyword(cardTxt)) {
-                                addSubject(mCode[1], parsePercent(mPct[1], true), '', 'course_card');
+                            if (mPct && hasAttendKeyword(cardTxt)) {
+                                addSubject(allCodes[0], parsePercent(mPct[1], true), '', 'course_card');
                             }
                         }
                     }

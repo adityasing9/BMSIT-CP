@@ -87,12 +87,15 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2,
             R.id.widget_cell_3,
             R.id.widget_cell_4,
-            R.id.widget_cell_5
+            R.id.widget_cell_5,
+            R.id.widget_cell_6,
+            R.id.widget_cell_7
         )
         private val ROW_IDS = intArrayOf(
             R.id.widget_grid_row_0,
             R.id.widget_grid_row_1,
-            R.id.widget_grid_row_2
+            R.id.widget_grid_row_2,
+            R.id.widget_grid_row_3
         )
         private val NAME_IDS = intArrayOf(
             R.id.widget_cell_0_name,
@@ -100,7 +103,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2_name,
             R.id.widget_cell_3_name,
             R.id.widget_cell_4_name,
-            R.id.widget_cell_5_name
+            R.id.widget_cell_5_name,
+            R.id.widget_cell_6_name,
+            R.id.widget_cell_7_name
         )
         private val PCT_IDS = intArrayOf(
             R.id.widget_cell_0_pct,
@@ -108,7 +113,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2_pct,
             R.id.widget_cell_3_pct,
             R.id.widget_cell_4_pct,
-            R.id.widget_cell_5_pct
+            R.id.widget_cell_5_pct,
+            R.id.widget_cell_6_pct,
+            R.id.widget_cell_7_pct
         )
         private val SAFE_BAR_IDS = intArrayOf(
             R.id.widget_cell_0_progress_safe,
@@ -116,7 +123,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2_progress_safe,
             R.id.widget_cell_3_progress_safe,
             R.id.widget_cell_4_progress_safe,
-            R.id.widget_cell_5_progress_safe
+            R.id.widget_cell_5_progress_safe,
+            R.id.widget_cell_6_progress_safe,
+            R.id.widget_cell_7_progress_safe
         )
         private val WARN_BAR_IDS = intArrayOf(
             R.id.widget_cell_0_progress_warn,
@@ -124,7 +133,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2_progress_warn,
             R.id.widget_cell_3_progress_warn,
             R.id.widget_cell_4_progress_warn,
-            R.id.widget_cell_5_progress_warn
+            R.id.widget_cell_5_progress_warn,
+            R.id.widget_cell_6_progress_warn,
+            R.id.widget_cell_7_progress_warn
         )
         private val DANGER_BAR_IDS = intArrayOf(
             R.id.widget_cell_0_progress_danger,
@@ -132,7 +143,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             R.id.widget_cell_2_progress_danger,
             R.id.widget_cell_3_progress_danger,
             R.id.widget_cell_4_progress_danger,
-            R.id.widget_cell_5_progress_danger
+            R.id.widget_cell_5_progress_danger,
+            R.id.widget_cell_6_progress_danger,
+            R.id.widget_cell_7_progress_danger
         )
 
         fun refreshAllWidgets(context: Context) {
@@ -167,12 +180,17 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             appWidgetIds: IntArray
         ) {
             for (appWidgetId in appWidgetIds) {
-                val views = buildRemoteViews(context)
+                val options = try {
+                    appWidgetManager.getAppWidgetOptions(appWidgetId)
+                } catch (_: Exception) {
+                    null
+                }
+                val views = buildRemoteViews(context, options)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
         }
 
-        private fun buildRemoteViews(context: Context): RemoteViews {
+        private fun buildRemoteViews(context: Context, options: Bundle? = null): RemoteViews {
             val views = RemoteViews(context.packageName, R.layout.widget_attendance)
 
             val accountState = try {
@@ -241,7 +259,9 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             } else {
                 views.setViewVisibility(R.id.widget_empty_container, View.GONE)
                 views.setViewVisibility(R.id.widget_subjects_container, View.VISIBLE)
-                bindSubjectsGrid(context, views, snapshot)
+                val minHeightDp = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) ?: 0
+                val maxVisibleCells = if (minHeightDp in 1..145) 4 else CELL_IDS.size
+                bindSubjectsGrid(context, views, snapshot, maxVisibleCells)
             }
 
             bindClickActions(context, views)
@@ -251,9 +271,11 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
         private fun bindSubjectsGrid(
             context: Context,
             views: RemoteViews,
-            snapshot: AttendanceSnapshot
+            snapshot: AttendanceSnapshot,
+            maxVisibleCells: Int = CELL_IDS.size
         ) {
-            val displaySubjects = snapshot.subjects.take(CELL_IDS.size)
+            val cellLimit = maxVisibleCells.coerceIn(2, CELL_IDS.size)
+            val displaySubjects = snapshot.subjects.take(cellLimit)
 
             for (row in ROW_IDS.indices) {
                 val firstCellIndex = row * 2
@@ -280,11 +302,11 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
                     views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
                     views.setTextViewText(R.id.widget_more_text, "Overall attendance: $pct%")
                 }
-                snapshot.subjects.size > CELL_IDS.size -> {
+                snapshot.subjects.size > cellLimit -> {
                     views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
                     views.setTextViewText(
                         R.id.widget_more_text,
-                        "+${snapshot.subjects.size - CELL_IDS.size} more subjects"
+                        "+${snapshot.subjects.size - cellLimit} more subjects"
                     )
                 }
                 else -> {

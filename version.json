@@ -1,8 +1,8 @@
 {
-  "versionCode": 20,
-  "versionName": "1.2.17",
-  "releaseTitle": "BMSIT CP v1.2.17",
-  "releaseNotes": "• Added native Billboard.js & Contineo (.bb, .sc-progress, combined Attendance + CIE course tables) support to the Attendance Widget extractor\n• Improved empty-state widget layout spacing and N/A ring readability\n• Added instant in-app Toast confirmation when attendance syncs to your Home Screen widget",
+  "versionCode": 21,
+  "versionName": "1.2.18",
+  "releaseTitle": "BMSIT CP v1.2.18",
+  "releaseNotes": "• Fixed multi-ring Billboard.js attendance gauge extraction on BMSIT Contineo dashboard so ALL enrolled subjects sync individually (not just 1)\n• Computed true overall average attendance across all extracted subjects cleanly\n• Expanded Home Screen Attendance Widget grid up to 8 subjects (4×2 layout on standard/tall placements, 2×2 on compact resize)",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
   "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441"
