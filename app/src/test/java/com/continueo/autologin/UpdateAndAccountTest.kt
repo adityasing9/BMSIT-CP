@@ -6,6 +6,7 @@ import com.continueo.autologin.models.AttendanceSnapshot
 import com.continueo.autologin.models.AttendanceStatus
 import com.continueo.autologin.models.Credentials
 import com.continueo.autologin.models.SubjectAttendance
+import com.continueo.autologin.utils.AttendanceUiHelper
 import com.continueo.autologin.utils.FeedbackCategory
 import com.continueo.autologin.utils.FeedbackManager
 import com.continueo.autologin.utils.UpdateManager
@@ -187,5 +188,55 @@ class UpdateAndAccountTest {
         assertNull(AttendanceExtractor.parseExtractedJson("", "acc-1", "Student"))
         assertNull(AttendanceExtractor.parseExtractedJson("   ", "acc-1", "Student"))
         assertNull(AttendanceExtractor.parseExtractedJson("null", "acc-1", "Student"))
+    }
+
+    @Test
+    fun testNotificationSummarySortingThresholdsAndShouldPost() {
+        val snapshot = AttendanceSnapshot(
+            accountId = "acc-1",
+            accountName = "Aaditya Singh",
+            overallPercentage = null,
+            subjects = listOf(
+                SubjectAttendance("BCS501", 88),
+                SubjectAttendance("BAI502", 79),
+                SubjectAttendance("BAI503", 68),
+                SubjectAttendance("BAIL504", 95)
+            ),
+            updatedAtMillis = 1_000_000L
+        )
+
+        val summary85 = AttendanceUiHelper.buildAlertSummary(snapshot, thresholdPercent = 85)
+        assertEquals(68, summary85.sortedSubjects.first().clampedPercentage)
+        assertEquals("BAI503", summary85.lowestSubject?.name)
+        assertEquals(2, summary85.belowThresholdCount)
+        assertEquals(1, summary85.dangerCount)
+        assertEquals(AttendanceStatus.DANGER, summary85.severity)
+        assertEquals("SHORTAGE", summary85.badgeText)
+
+        val safeSnapshot = AttendanceSnapshot(
+            accountId = "acc-2",
+            accountName = "Student",
+            overallPercentage = null,
+            subjects = listOf(
+                SubjectAttendance("BCS501", 90),
+                SubjectAttendance("BAI502", 86)
+            ),
+            updatedAtMillis = 1_000_000L
+        )
+        assertTrue(AttendanceUiHelper.shouldPostNotification(safeSnapshot, onlyBelowThreshold = false, thresholdPercent = 85))
+        assertFalse(AttendanceUiHelper.shouldPostNotification(safeSnapshot, onlyBelowThreshold = true, thresholdPercent = 85))
+        assertTrue(AttendanceUiHelper.shouldPostNotification(snapshot, onlyBelowThreshold = true, thresholdPercent = 75))
+    }
+
+    @Test
+    fun testSafeAccountNameMaskingForNotificationsAndWidget() {
+        val creds = Credentials("1TD24AI002", "01", "01", "2006", "ID999")
+        val unnamed = AccountProfile(id = "a1", label = "1TD24AI002", credentials = creds)
+        val named = AccountProfile(id = "a2", label = "Aaditya Singh", credentials = creds)
+        val list = listOf(unnamed, named)
+
+        assertEquals("1T***02 (1/2)", AttendanceUiHelper.formatSafeAccountName(unnamed, list))
+        assertEquals("Aaditya Singh (2/2)", AttendanceUiHelper.formatSafeAccountName(named, list))
+        assertEquals("Aaditya Singh", AttendanceUiHelper.formatSafeAccountName(named, listOf(named)))
     }
 }

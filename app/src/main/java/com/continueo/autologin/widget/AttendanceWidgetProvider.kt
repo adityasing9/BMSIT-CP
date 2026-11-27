@@ -6,27 +6,19 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.content.ContextCompat
 import com.continueo.autologin.MainActivity
 import com.continueo.autologin.R
 import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.models.AttendanceSnapshot
-import com.continueo.autologin.models.AttendanceStatus
-import com.continueo.autologin.models.SubjectAttendance
 import com.continueo.autologin.security.AttendanceSnapshotStore
 import com.continueo.autologin.security.CredentialManager
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.continueo.autologin.utils.AttendanceUiHelper
+import com.continueo.autologin.utils.SubjectGridSpec
 
 class AttendanceWidgetProvider : AppWidgetProvider() {
 
@@ -81,71 +73,73 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
         private const val REQUEST_SWITCH_ACCOUNT = 3003
         private const val REQUEST_OPEN_PORTAL = 3004
 
-        private val CELL_IDS = intArrayOf(
-            R.id.widget_cell_0,
-            R.id.widget_cell_1,
-            R.id.widget_cell_2,
-            R.id.widget_cell_3,
-            R.id.widget_cell_4,
-            R.id.widget_cell_5,
-            R.id.widget_cell_6,
-            R.id.widget_cell_7
-        )
-        private val ROW_IDS = intArrayOf(
-            R.id.widget_grid_row_0,
-            R.id.widget_grid_row_1,
-            R.id.widget_grid_row_2,
-            R.id.widget_grid_row_3
-        )
-        private val NAME_IDS = intArrayOf(
-            R.id.widget_cell_0_name,
-            R.id.widget_cell_1_name,
-            R.id.widget_cell_2_name,
-            R.id.widget_cell_3_name,
-            R.id.widget_cell_4_name,
-            R.id.widget_cell_5_name,
-            R.id.widget_cell_6_name,
-            R.id.widget_cell_7_name
-        )
-        private val PCT_IDS = intArrayOf(
-            R.id.widget_cell_0_pct,
-            R.id.widget_cell_1_pct,
-            R.id.widget_cell_2_pct,
-            R.id.widget_cell_3_pct,
-            R.id.widget_cell_4_pct,
-            R.id.widget_cell_5_pct,
-            R.id.widget_cell_6_pct,
-            R.id.widget_cell_7_pct
-        )
-        private val SAFE_BAR_IDS = intArrayOf(
-            R.id.widget_cell_0_progress_safe,
-            R.id.widget_cell_1_progress_safe,
-            R.id.widget_cell_2_progress_safe,
-            R.id.widget_cell_3_progress_safe,
-            R.id.widget_cell_4_progress_safe,
-            R.id.widget_cell_5_progress_safe,
-            R.id.widget_cell_6_progress_safe,
-            R.id.widget_cell_7_progress_safe
-        )
-        private val WARN_BAR_IDS = intArrayOf(
-            R.id.widget_cell_0_progress_warn,
-            R.id.widget_cell_1_progress_warn,
-            R.id.widget_cell_2_progress_warn,
-            R.id.widget_cell_3_progress_warn,
-            R.id.widget_cell_4_progress_warn,
-            R.id.widget_cell_5_progress_warn,
-            R.id.widget_cell_6_progress_warn,
-            R.id.widget_cell_7_progress_warn
-        )
-        private val DANGER_BAR_IDS = intArrayOf(
-            R.id.widget_cell_0_progress_danger,
-            R.id.widget_cell_1_progress_danger,
-            R.id.widget_cell_2_progress_danger,
-            R.id.widget_cell_3_progress_danger,
-            R.id.widget_cell_4_progress_danger,
-            R.id.widget_cell_5_progress_danger,
-            R.id.widget_cell_6_progress_danger,
-            R.id.widget_cell_7_progress_danger
+        private val GRID_SPEC = SubjectGridSpec(
+            rowIds = intArrayOf(
+                R.id.widget_grid_row_0,
+                R.id.widget_grid_row_1,
+                R.id.widget_grid_row_2,
+                R.id.widget_grid_row_3
+            ),
+            cellIds = intArrayOf(
+                R.id.widget_cell_0,
+                R.id.widget_cell_1,
+                R.id.widget_cell_2,
+                R.id.widget_cell_3,
+                R.id.widget_cell_4,
+                R.id.widget_cell_5,
+                R.id.widget_cell_6,
+                R.id.widget_cell_7
+            ),
+            nameIds = intArrayOf(
+                R.id.widget_cell_0_name,
+                R.id.widget_cell_1_name,
+                R.id.widget_cell_2_name,
+                R.id.widget_cell_3_name,
+                R.id.widget_cell_4_name,
+                R.id.widget_cell_5_name,
+                R.id.widget_cell_6_name,
+                R.id.widget_cell_7_name
+            ),
+            pctIds = intArrayOf(
+                R.id.widget_cell_0_pct,
+                R.id.widget_cell_1_pct,
+                R.id.widget_cell_2_pct,
+                R.id.widget_cell_3_pct,
+                R.id.widget_cell_4_pct,
+                R.id.widget_cell_5_pct,
+                R.id.widget_cell_6_pct,
+                R.id.widget_cell_7_pct
+            ),
+            safeBarIds = intArrayOf(
+                R.id.widget_cell_0_progress_safe,
+                R.id.widget_cell_1_progress_safe,
+                R.id.widget_cell_2_progress_safe,
+                R.id.widget_cell_3_progress_safe,
+                R.id.widget_cell_4_progress_safe,
+                R.id.widget_cell_5_progress_safe,
+                R.id.widget_cell_6_progress_safe,
+                R.id.widget_cell_7_progress_safe
+            ),
+            warnBarIds = intArrayOf(
+                R.id.widget_cell_0_progress_warn,
+                R.id.widget_cell_1_progress_warn,
+                R.id.widget_cell_2_progress_warn,
+                R.id.widget_cell_3_progress_warn,
+                R.id.widget_cell_4_progress_warn,
+                R.id.widget_cell_5_progress_warn,
+                R.id.widget_cell_6_progress_warn,
+                R.id.widget_cell_7_progress_warn
+            ),
+            dangerBarIds = intArrayOf(
+                R.id.widget_cell_0_progress_danger,
+                R.id.widget_cell_1_progress_danger,
+                R.id.widget_cell_2_progress_danger,
+                R.id.widget_cell_3_progress_danger,
+                R.id.widget_cell_4_progress_danger,
+                R.id.widget_cell_5_progress_danger,
+                R.id.widget_cell_6_progress_danger,
+                R.id.widget_cell_7_progress_danger
+            )
         )
 
         fun refreshAllWidgets(context: Context) {
@@ -195,9 +189,7 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
 
             val accountState = try {
                 val credentialManager = CredentialManager(context)
-                val accounts = credentialManager.getAllAccounts()
-                val active = credentialManager.getActiveAccount()
-                Pair(accounts, active)
+                Pair(credentialManager.getAllAccounts(), credentialManager.getActiveAccount())
             } catch (_: Exception) {
                 Pair(emptyList(), null)
             }
@@ -208,29 +200,13 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
                 AttendanceSnapshotStore(context).getSnapshot(it.id)
             }
 
-            val accountDisplayName = if (activeAccount == null) {
-                "No account configured"
-            } else {
-                val rawLabel = activeAccount.getDisplayName().trim()
-                val safeLabel = if (rawLabel.isBlank() || rawLabel.equals(activeAccount.credentials.usn.trim(), ignoreCase = true)) {
-                    maskIdentifier(activeAccount.credentials.usn.trim())
-                } else {
-                    rawLabel
-                }
-                if (accounts.size > 1) {
-                    val idx = accounts.indexOfFirst { it.id == activeAccount.id }.coerceAtLeast(0)
-                    "$safeLabel (${idx + 1}/${accounts.size})"
-                } else {
-                    safeLabel
-                }
-            }
-
+            val accountDisplayName = AttendanceUiHelper.formatSafeAccountName(activeAccount, accounts)
             val overallPct = snapshot?.displayOverallPercentage
             val subtitleText = when {
                 activeAccount == null -> "Open app to set up"
                 snapshot == null || !snapshot.hasData -> "Not synced yet"
-                snapshot.subjects.isNotEmpty() -> "${formatSyncTime(snapshot.updatedAtMillis)} • ${snapshot.subjects.size} subj"
-                else -> formatSyncTime(snapshot.updatedAtMillis)
+                snapshot.subjects.isNotEmpty() -> "${AttendanceUiHelper.formatSyncTime(snapshot.updatedAtMillis)} • ${snapshot.subjects.size} subj"
+                else -> AttendanceUiHelper.formatSyncTime(snapshot.updatedAtMillis)
             }
 
             views.setTextViewText(R.id.widget_title, context.getString(R.string.widget_title_default))
@@ -242,7 +218,7 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             )
             views.setImageViewBitmap(
                 R.id.widget_ring_image,
-                drawAttendanceRingBitmap(context, overallPct)
+                AttendanceUiHelper.drawAttendanceRingBitmap(context, overallPct)
             )
 
             if (snapshot == null || !snapshot.hasData) {
@@ -260,95 +236,36 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.widget_empty_container, View.GONE)
                 views.setViewVisibility(R.id.widget_subjects_container, View.VISIBLE)
                 val minHeightDp = options?.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0) ?: 0
-                val maxVisibleCells = if (minHeightDp in 1..145) 4 else CELL_IDS.size
-                bindSubjectsGrid(context, views, snapshot, maxVisibleCells)
-            }
-
-            bindClickActions(context, views)
-            return views
-        }
-
-        private fun bindSubjectsGrid(
-            context: Context,
-            views: RemoteViews,
-            snapshot: AttendanceSnapshot,
-            maxVisibleCells: Int = CELL_IDS.size
-        ) {
-            val cellLimit = maxVisibleCells.coerceIn(2, CELL_IDS.size)
-            val displaySubjects = snapshot.subjects.take(cellLimit)
-
-            for (row in ROW_IDS.indices) {
-                val firstCellIndex = row * 2
-                if (firstCellIndex >= displaySubjects.size) {
-                    views.setViewVisibility(ROW_IDS[row], View.GONE)
-                    continue
-                }
-                views.setViewVisibility(ROW_IDS[row], View.VISIBLE)
-
-                for (col in 0..1) {
-                    val cellIndex = firstCellIndex + col
-                    if (cellIndex >= displaySubjects.size) {
-                        views.setViewVisibility(CELL_IDS[cellIndex], View.INVISIBLE)
-                    } else {
-                        views.setViewVisibility(CELL_IDS[cellIndex], View.VISIBLE)
-                        bindSubjectCell(context, views, cellIndex, displaySubjects[cellIndex])
+                val maxVisibleCells = if (minHeightDp in 1..145) 4 else GRID_SPEC.cellIds.size
+                val shown = AttendanceUiHelper.bindSubjectsGrid(
+                    context = context,
+                    views = views,
+                    spec = GRID_SPEC,
+                    subjects = snapshot.subjects,
+                    maxVisibleCells = maxVisibleCells
+                )
+                when {
+                    snapshot.subjects.isEmpty() -> {
+                        val pct = overallPct ?: 0
+                        views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
+                        views.setTextViewText(R.id.widget_more_text, "Overall attendance: $pct%")
+                    }
+                    snapshot.subjects.size > shown -> {
+                        views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
+                        views.setTextViewText(
+                            R.id.widget_more_text,
+                            "+${snapshot.subjects.size - shown} more subjects"
+                        )
+                    }
+                    else -> {
+                        views.setViewVisibility(R.id.widget_more_text, View.INVISIBLE)
+                        views.setTextViewText(R.id.widget_more_text, "")
                     }
                 }
             }
 
-            when {
-                snapshot.subjects.isEmpty() -> {
-                    val pct = snapshot.displayOverallPercentage ?: 0
-                    views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
-                    views.setTextViewText(R.id.widget_more_text, "Overall attendance: $pct%")
-                }
-                snapshot.subjects.size > cellLimit -> {
-                    views.setViewVisibility(R.id.widget_more_text, View.VISIBLE)
-                    views.setTextViewText(
-                        R.id.widget_more_text,
-                        "+${snapshot.subjects.size - cellLimit} more subjects"
-                    )
-                }
-                else -> {
-                    views.setViewVisibility(R.id.widget_more_text, View.INVISIBLE)
-                    views.setTextViewText(R.id.widget_more_text, "")
-                }
-            }
-        }
-
-        private fun bindSubjectCell(
-            context: Context,
-            views: RemoteViews,
-            index: Int,
-            subject: SubjectAttendance
-        ) {
-            val pct = subject.clampedPercentage
-            views.setTextViewText(NAME_IDS[index], subject.name)
-            views.setTextViewText(PCT_IDS[index], "$pct%")
-
-            val statusColorRes = statusColorRes(subject.status)
-            views.setTextColor(PCT_IDS[index], ContextCompat.getColor(context, statusColorRes))
-
-            when (subject.status) {
-                AttendanceStatus.SAFE -> {
-                    views.setViewVisibility(SAFE_BAR_IDS[index], View.VISIBLE)
-                    views.setProgressBar(SAFE_BAR_IDS[index], 100, pct, false)
-                    views.setViewVisibility(WARN_BAR_IDS[index], View.GONE)
-                    views.setViewVisibility(DANGER_BAR_IDS[index], View.GONE)
-                }
-                AttendanceStatus.WARNING -> {
-                    views.setViewVisibility(SAFE_BAR_IDS[index], View.GONE)
-                    views.setViewVisibility(WARN_BAR_IDS[index], View.VISIBLE)
-                    views.setProgressBar(WARN_BAR_IDS[index], 100, pct, false)
-                    views.setViewVisibility(DANGER_BAR_IDS[index], View.GONE)
-                }
-                AttendanceStatus.DANGER -> {
-                    views.setViewVisibility(SAFE_BAR_IDS[index], View.GONE)
-                    views.setViewVisibility(WARN_BAR_IDS[index], View.GONE)
-                    views.setViewVisibility(DANGER_BAR_IDS[index], View.VISIBLE)
-                    views.setProgressBar(DANGER_BAR_IDS[index], 100, pct, false)
-                }
-            }
+            bindClickActions(context, views)
+            return views
         }
 
         private fun bindClickActions(context: Context, views: RemoteViews) {
@@ -401,88 +318,6 @@ class AttendanceWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_btn_portal, portalPendingIntent)
             views.setOnClickPendingIntent(R.id.widget_btn_portal_active, portalPendingIntent)
-        }
-
-        private fun drawAttendanceRingBitmap(context: Context, overallPercentage: Int?): Bitmap {
-            val sizePx = 144
-            val strokePx = 13f
-            val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-
-            val trackColor = ContextCompat.getColor(context, R.color.widget_track)
-            val textColor = ContextCompat.getColor(context, R.color.widget_text_primary)
-            val ringColorRes = when {
-                overallPercentage == null -> R.color.widget_track
-                overallPercentage >= 85 -> R.color.attendance_safe
-                overallPercentage >= 75 -> R.color.attendance_warn
-                else -> R.color.attendance_danger
-            }
-            val arcColor = ContextCompat.getColor(context, ringColorRes)
-
-            val inset = strokePx / 2f + 4f
-            val rect = RectF(inset, inset, sizePx - inset, sizePx - inset)
-
-            val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                style = Paint.Style.STROKE
-                strokeWidth = strokePx
-                strokeCap = Paint.Cap.ROUND
-                color = trackColor
-            }
-            canvas.drawArc(rect, 0f, 360f, false, trackPaint)
-
-            if (overallPercentage != null) {
-                val clamped = overallPercentage.coerceIn(0, 100)
-                val arcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    style = Paint.Style.STROKE
-                    strokeWidth = strokePx
-                    strokeCap = Paint.Cap.ROUND
-                    color = arcColor
-                }
-                canvas.drawArc(rect, -90f, (clamped * 360f) / 100f, false, arcPaint)
-            }
-
-            val label = if (overallPercentage != null) "${overallPercentage.coerceIn(0, 100)}%" else "N/A"
-            val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = textColor
-                textAlign = Paint.Align.CENTER
-                isFakeBoldText = true
-                textSize = when {
-                    overallPercentage == null -> 26f
-                    label.length >= 4 -> 30f
-                    else -> 34f
-                }
-            }
-            val fontMetrics = textPaint.fontMetrics
-            val textY = sizePx / 2f - (fontMetrics.ascent + fontMetrics.descent) / 2f
-            canvas.drawText(label, sizePx / 2f, textY, textPaint)
-
-            return bitmap
-        }
-
-        private fun statusColorRes(status: AttendanceStatus): Int {
-            return when (status) {
-                AttendanceStatus.SAFE -> R.color.attendance_safe
-                AttendanceStatus.WARNING -> R.color.attendance_warn
-                AttendanceStatus.DANGER -> R.color.attendance_danger
-            }
-        }
-
-        private fun maskIdentifier(raw: String): String {
-            if (raw.length < 5) return "Account"
-            return "${raw.take(2)}***${raw.takeLast(2)}"
-        }
-
-        private fun formatSyncTime(updatedAtMillis: Long): String {
-            if (updatedAtMillis <= 0L) return "Synced"
-            val diffMillis = (System.currentTimeMillis() - updatedAtMillis).coerceAtLeast(0L)
-            val minutes = diffMillis / 60_000L
-            val hours = minutes / 60L
-            return when {
-                minutes < 1L -> "Just now"
-                minutes < 60L -> "${minutes}m ago"
-                hours < 24L -> "${hours}h ago"
-                else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(updatedAtMillis))
-            }
         }
     }
 }

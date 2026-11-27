@@ -2,6 +2,8 @@ package com.continueo.autologin.ui.viewmodels
 
 import androidx.lifecycle.viewModelScope
 import com.continueo.autologin.automation.AttendanceExtractor
+import com.continueo.autologin.models.AttendanceSnapshot
+import com.continueo.autologin.notifications.AttendanceNotificationManager
 import com.continueo.autologin.security.AttendanceSnapshotStore
 import com.continueo.autologin.widget.AttendanceWidgetProvider
 import kotlinx.coroutines.Dispatchers
@@ -117,11 +119,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         attendanceSyncJob?.cancel()
         attendanceSyncJob = viewModelScope.launch {
             var syncedAccountIdForSession: String? = null
+            var notificationSent = false
+            var lastSavedSnapshot: AttendanceSnapshot? = null
             val delaysMs = longArrayOf(0L, 1200L, 3000L, 5500L)
             for (waitMs in delaysMs) {
                 if (waitMs > 0L) delay(waitMs)
                 val saved = extractAndSaveAttendance(webView)
                 if (saved != null) {
+                    lastSavedSnapshot = saved
                     if (syncedAccountIdForSession != saved.accountId) {
                         syncedAccountIdForSession = saved.accountId
                         _widgetSyncNotice.value = if (saved.subjects.isNotEmpty()) {
@@ -131,11 +136,27 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                     if (saved.subjects.isNotEmpty()) {
+                        postAttendanceNotification(saved)
+                        notificationSent = true
                         break
                     }
                 }
             }
+            if (!notificationSent && lastSavedSnapshot != null) {
+                postAttendanceNotification(lastSavedSnapshot)
+            }
         }
+    }
+
+    private fun postAttendanceNotification(snapshot: AttendanceSnapshot) {
+        val accounts = credentialManager.getAllAccounts()
+        val activeAccount = accounts.find { it.id == snapshot.accountId } ?: credentialManager.getActiveAccount()
+        AttendanceNotificationManager.notifyFromSync(
+            context = getApplication(),
+            snapshot = snapshot,
+            activeAccount = activeAccount,
+            accounts = accounts
+        )
     }
 
     private suspend fun extractAndSaveAttendance(webView: WebView): com.continueo.autologin.models.AttendanceSnapshot? {

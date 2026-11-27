@@ -1,8 +1,12 @@
 package com.continueo.autologin.ui.screens
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +28,7 @@ import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
@@ -36,13 +41,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.continueo.autologin.R
 import com.continueo.autologin.models.AccountProfile
+import com.continueo.autologin.models.AttendanceSnapshot
+import com.continueo.autologin.models.SubjectAttendance
+import com.continueo.autologin.notifications.AttendanceNotificationManager
+import com.continueo.autologin.notifications.NotificationPreferences
+import com.continueo.autologin.security.AttendanceSnapshotStore
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.theme.AppThemeMode
@@ -88,6 +101,100 @@ fun SettingsScreen(
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var updateDialogInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var showFeedbackDialog by remember { mutableStateOf(false) }
+
+    // Notification Bar Preferences
+    val notificationPrefs = remember { NotificationPreferences(context) }
+    var notificationsEnabled by remember { mutableStateOf(notificationPrefs.isEnabled) }
+    var hasNotificationPermission by remember {
+        mutableStateOf(AttendanceNotificationManager.hasPermission(context))
+    }
+    var onlyBelowThreshold by remember { mutableStateOf(notificationPrefs.onlyBelowThreshold) }
+    var thresholdPercent by remember { mutableStateOf(notificationPrefs.thresholdPercent) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasNotificationPermission = AttendanceNotificationManager.hasPermission(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasNotificationPermission = granted
+        if (granted) {
+            notificationsEnabled = true
+            notificationPrefs.isEnabled = true
+            Toast.makeText(context, "Notifications enabled!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(
+                context,
+                "Notification permission required — opening app settings or allow from system settings",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    fun openSystemNotificationSettings() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        }
+        try {
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            Toast.makeText(context, "Enable notifications in Android Settings", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun sendNotificationPreview() {
+        val currentPermission = AttendanceNotificationManager.hasPermission(context)
+        hasNotificationPermission = currentPermission
+        if (!currentPermission) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                openSystemNotificationSettings()
+            }
+            return
+        }
+        val currentActive = credentialManager.getActiveAccount()
+        val currentAccounts = credentialManager.getAllAccounts()
+        val realSnapshot = currentActive?.let { AttendanceSnapshotStore(context).getSnapshot(it.id) }
+        val previewSnapshot = if (realSnapshot != null && realSnapshot.hasData) {
+            realSnapshot
+        } else {
+            AttendanceSnapshot(
+                accountId = currentActive?.id ?: "preview",
+                accountName = currentActive?.getDisplayName() ?: "Student",
+                overallPercentage = null,
+                subjects = listOf(
+                    SubjectAttendance("BCS501", 88),
+                    SubjectAttendance("BAI502", 80),
+                    SubjectAttendance("BAI503", 71),
+                    SubjectAttendance("BAIL504", 94),
+                    SubjectAttendance("BAI506", 76),
+                    SubjectAttendance("BRMK507", 68)
+                ),
+                updatedAtMillis = System.currentTimeMillis()
+            )
+        }
+        val posted = AttendanceNotificationManager.notifyFromSync(
+            context = context,
+            snapshot = previewSnapshot,
+            activeAccount = currentActive,
+            accounts = currentAccounts,
+            forceShow = true
+        )
+        Toast.makeText(
+            context,
+            if (posted) "Preview posted — pull down your notification bar" else "Couldn't post notification",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
     fun refreshAccounts() {
         accounts = credentialManager.getAllAccounts()
@@ -566,6 +673,128 @@ fun SettingsScreen(
                             "Long-press home screen > Widgets > BMSIT CP to add widget",
                             Toast.LENGTH_LONG
                         ).show()
+                    }
+                }
+            )
+
+            HorizontalDivider()
+
+            // Notification Bar Alerts Section
+            Text(
+                text = "Notification Bar Alerts",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Sync & Shortage Alerts") },
+                supportingContent = {
+                    Text(
+                        if (hasNotificationPermission) {
+                            "Dismissible mini-dashboard card in notification shade with lock-screen privacy"
+                        } else {
+                            "Tap to grant notification permission so sync & shortage alerts can appear"
+                        }
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notification Alerts",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    Switch(
+                        checked = notificationsEnabled && hasNotificationPermission,
+                        onCheckedChange = { checked ->
+                            if (checked) {
+                                val currentPermission = AttendanceNotificationManager.hasPermission(context)
+                                hasNotificationPermission = currentPermission
+                                if (!currentPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    notificationPrefs.isEnabled = true
+                                    notificationsEnabled = true
+                                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    notificationPrefs.isEnabled = true
+                                    notificationsEnabled = true
+                                }
+                            } else {
+                                notificationPrefs.isEnabled = false
+                                notificationsEnabled = false
+                                AttendanceNotificationManager.cancelAttendanceNotification(context)
+                            }
+                        }
+                    )
+                },
+                modifier = Modifier.clickable {
+                    if (!hasNotificationPermission) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationPrefs.hasPromptedPermission) {
+                            notificationPrefs.hasPromptedPermission = true
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            openSystemNotificationSettings()
+                        }
+                    } else {
+                        val next = !notificationsEnabled
+                        notificationPrefs.isEnabled = next
+                        notificationsEnabled = next
+                        if (!next) AttendanceNotificationManager.cancelAttendanceNotification(context)
+                    }
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Alert Only Below Threshold") },
+                supportingContent = {
+                    Text(
+                        if (onlyBelowThreshold) {
+                            "Quiet unless any subject falls below $thresholdPercent%"
+                        } else {
+                            "Notify on every sync & highlight subjects below $thresholdPercent%"
+                        }
+                    )
+                },
+                trailingContent = {
+                    Switch(
+                        checked = onlyBelowThreshold,
+                        enabled = notificationsEnabled,
+                        onCheckedChange = { checked ->
+                            onlyBelowThreshold = checked
+                            notificationPrefs.onlyBelowThreshold = checked
+                        }
+                    )
+                },
+                modifier = Modifier.clickable(enabled = notificationsEnabled) {
+                    val next = !onlyBelowThreshold
+                    onlyBelowThreshold = next
+                    notificationPrefs.onlyBelowThreshold = next
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Warning Threshold") },
+                supportingContent = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
+                        listOf(85 to "85% (BMSIT Target)", 75 to "75% (Minimum)").forEach { (pct, label) ->
+                            FilterChip(
+                                selected = thresholdPercent == pct,
+                                onClick = {
+                                    thresholdPercent = pct
+                                    notificationPrefs.thresholdPercent = pct
+                                },
+                                label = { Text(label) }
+                            )
+                        }
+                    }
+                },
+                trailingContent = {
+                    FilledTonalButton(onClick = { sendNotificationPreview() }) {
+                        Text("Preview")
                     }
                 }
             )

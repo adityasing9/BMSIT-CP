@@ -1,5 +1,6 @@
 package com.continueo.autologin.ui.screens
 
+import android.Manifest
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,6 +8,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -39,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import com.continueo.autologin.R
 import com.continueo.autologin.automation.ContineoSelectors
 import com.continueo.autologin.models.AccountProfile
+import com.continueo.autologin.notifications.AttendanceNotificationManager
+import com.continueo.autologin.notifications.NotificationPreferences
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.theme.AppThemeMode
@@ -57,6 +62,11 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val credentialManager = remember { CredentialManager(context) }
+    val notificationPrefs = remember { NotificationPreferences(context) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { _ -> }
 
     var accounts by remember { mutableStateOf(credentialManager.getAllAccounts()) }
     var activeAccount by remember { mutableStateOf(credentialManager.getActiveAccount()) }
@@ -88,6 +98,14 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         refreshAccounts()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            notificationPrefs.isEnabled &&
+            !notificationPrefs.hasPromptedPermission &&
+            !AttendanceNotificationManager.hasPermission(context)
+        ) {
+            notificationPrefs.hasPromptedPermission = true
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     Column(

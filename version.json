@@ -1,8 +1,8 @@
 {
-  "versionCode": 21,
-  "versionName": "1.2.18",
-  "releaseTitle": "BMSIT CP v1.2.18",
-  "releaseNotes": "• Fixed multi-ring Billboard.js attendance gauge extraction on BMSIT Contineo dashboard so ALL enrolled subjects sync individually (not just 1)\n• Computed true overall average attendance across all extracted subjects cleanly\n• Expanded Home Screen Attendance Widget grid up to 8 subjects (4×2 layout on standard/tall placements, 2×2 on compact resize)",
+  "versionCode": 22,
+  "versionName": "1.2.19",
+  "releaseTitle": "BMSIT CP v1.2.19",
+  "releaseNotes": "• Added Notification Bar Attendance & Shortage Alerts: dismissible visual mini-dashboard with circular attendance ring, lowest-attendance subject progress bars sorted first, and quick Sync Now / Switch / Portal actions\n• Built-in Lock-Screen Privacy Mode (VISIBILITY_PRIVATE) hides your name, subjects, and exact percentages on the lock screen until unlocked\n• Added Settings → Notification Bar Alerts controls (85% / 75% threshold, alert-only mode, and live Preview button)",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
   "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441"

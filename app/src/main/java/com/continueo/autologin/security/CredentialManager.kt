@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.continueo.autologin.models.AccountProfile
 import com.continueo.autologin.models.Credentials
+import com.continueo.autologin.notifications.AttendanceNotificationManager
 import com.continueo.autologin.widget.AttendanceWidgetProvider
 import org.json.JSONArray
 import org.json.JSONObject
@@ -193,6 +194,7 @@ class CredentialManager(context: Context) {
         sharedPreferences.edit().clear().apply()
         setDesktopMode(desktopMode)
         AttendanceSnapshotStore(appContext).clearAll()
+        AttendanceNotificationManager.cancelAttendanceNotification(appContext)
         AttendanceWidgetProvider.refreshAllWidgets(appContext)
     }
 

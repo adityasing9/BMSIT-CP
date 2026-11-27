@@ -34,6 +34,7 @@ Furthermore, mobile browsers often render the portal in a cramped, single-column
 - **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
 - **Multiple Accounts:** Store multiple student profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
 - **Home Screen Attendance Widget:** Pin a live resizable widget showing your overall circular attendance ring gauge, color-coded subject progress bars, account switcher, and 1-tap Login & Sync.
+- **Notification Bar Visual Alerts:** Get a dismissible mini-dashboard notification after syncing with shortage alerts (<85% / <75%), lowest-attendance subjects highlighted first, quick Sync/Switch actions, and lock-screen privacy.
 - **Full In-App File Downloads:** Download subject notes (`[NOTES]`), circulars, and syllabus PDFs directly through Android's native `DownloadManager` with session cookies preserved.
 - **Open in External Browser:** One-tap option to launch the portal in your preferred browser (Chrome, Brave, Firefox) directly from the Home Screen or from the top navigation bar.
 - **Over-The-Air (OTA) Updates:** Seamlessly checks for new builds via Fastly CDN & GitHub Releases with zero rate-limit issues, and installs updates wirelessly.
@@ -50,7 +51,7 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
-| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.18`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
+| **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.19`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
 
 > **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).

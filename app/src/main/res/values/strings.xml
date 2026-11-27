@@ -84,4 +84,13 @@
     <string name="widget_action_login_sync">Login &amp; Sync</string>
     <string name="widget_action_portal">Portal &#8599;</string>
     <string name="widget_empty_message">Tap Login &amp; Sync once to display your latest attendance snapshot here.</string>
+
+    <!-- Notification Bar Alerts -->
+    <string name="notif_channel_sync_name">Attendance Sync Updates</string>
+    <string name="notif_channel_sync_desc">Visual attendance summary shown after portal sync</string>
+    <string name="notif_channel_alert_name">Low Attendance Alerts</string>
+    <string name="notif_channel_alert_desc">Alerts when subjects drop below your attendance threshold</string>
+    <string name="notif_public_sync_body">Attendance updated — unlock device to view</string>
+    <string name="notif_public_alert_body">Low attendance alert — unlock device to view</string>
+    <string name="notif_action_sync">Sync Now</string>
 </resources>

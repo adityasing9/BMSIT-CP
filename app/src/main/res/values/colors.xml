@@ -27,4 +27,16 @@
     <color name="attendance_safe">#16A34A</color>
     <color name="attendance_warn">#D97706</color>
     <color name="attendance_danger">#DC2626</color>
+
+    <!-- Notification Bar Light Colors -->
+    <color name="notif_cell_bg">#EEF3FA</color>
+    <color name="notif_cell_border">#1A1A3A6B</color>
+    <color name="notif_text_primary">#111827</color>
+    <color name="notif_text_secondary">#525E75</color>
+    <color name="notif_badge_safe_bg">#DCFCE7</color>
+    <color name="notif_badge_safe_text">#15803D</color>
+    <color name="notif_badge_warn_bg">#FEF3C7</color>
+    <color name="notif_badge_warn_text">#B45309</color>
+    <color name="notif_badge_danger_bg">#FEE2E2</color>
+    <color name="notif_badge_danger_text">#B91C1C</color>
 </resources>

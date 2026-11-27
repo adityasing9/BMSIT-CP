@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
+
+    <!-- Header Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/notif_exp_ring"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:contentDescription="@string/widget_cd_ring"
+            android:scaleType="fitCenter" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/notif_exp_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/notif_text_primary"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/notif_exp_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/notif_text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/notif_exp_badge_safe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/notif_badge_safe_bg"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="3dp"
+            android:textColor="@color/notif_badge_safe_text"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/notif_exp_badge_warn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/notif_badge_warn_bg"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="3dp"
+            android:textColor="@color/notif_badge_warn_text"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/notif_exp_badge_danger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/notif_badge_danger_bg"
+            android:maxLines="1"
+            android:paddingStart="8dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="3dp"
+            android:textColor="@color/notif_badge_danger_text"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- 3x2 Mini-Dashboard Subjects Grid (Lowest Attendance First) -->
+    <LinearLayout
+        android:id="@+id/notif_subjects_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- Row 0 -->
+        <LinearLayout
+            android:id="@+id/notif_grid_row_0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/notif_cell_0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_0_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_0_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_0_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_0_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_0_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/notif_cell_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_1_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_1_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_1_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_1_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_1_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 1 -->
+        <LinearLayout
+            android:id="@+id/notif_grid_row_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/notif_cell_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_2_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_2_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_2_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_2_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_2_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/notif_cell_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_3_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_3_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_3_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_3_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_3_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 2 -->
+        <LinearLayout
+            android:id="@+id/notif_grid_row_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/notif_cell_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_4_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_4_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_4_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_4_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_4_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/notif_cell_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/notif_cell_bg"
+                android:orientation="vertical"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/notif_cell_5_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="@color/notif_text_primary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/notif_cell_5_pct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="@color/attendance_safe"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_5_progress_safe"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_safe" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_5_progress_warn"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_warn"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/notif_cell_5_progress_danger"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_marginTop="3dp"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progressDrawable="@drawable/widget_progress_danger"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/notif_footer_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/notif_text_secondary"
+            android:textSize="10sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
