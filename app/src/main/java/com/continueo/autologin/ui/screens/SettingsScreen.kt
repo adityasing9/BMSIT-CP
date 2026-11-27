@@ -55,6 +55,7 @@ import com.continueo.autologin.models.AttendanceSnapshot
 import com.continueo.autologin.models.SubjectAttendance
 import com.continueo.autologin.notifications.AttendanceNotificationManager
 import com.continueo.autologin.notifications.NotificationPreferences
+import com.continueo.autologin.notifications.NotificationScheduler
 import com.continueo.autologin.security.AttendanceSnapshotStore
 import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.components.FeedbackDialog
@@ -110,6 +111,10 @@ fun SettingsScreen(
     }
     var onlyBelowThreshold by remember { mutableStateOf(notificationPrefs.onlyBelowThreshold) }
     var thresholdPercent by remember { mutableStateOf(notificationPrefs.thresholdPercent) }
+    var remoteAnnouncementsEnabled by remember { mutableStateOf(notificationPrefs.remoteAnnouncementsEnabled) }
+    var backgroundUpdateAlertsEnabled by remember { mutableStateOf(notificationPrefs.backgroundUpdateAlertsEnabled) }
+    var dailyReminderEnabled by remember { mutableStateOf(notificationPrefs.dailyReminderEnabled) }
+    var reminderHour by remember { mutableStateOf(notificationPrefs.reminderHour) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -720,10 +725,12 @@ fun SettingsScreen(
                                     notificationPrefs.isEnabled = true
                                     notificationsEnabled = true
                                 }
+                                NotificationScheduler.syncAllSchedules(context)
                             } else {
                                 notificationPrefs.isEnabled = false
                                 notificationsEnabled = false
                                 AttendanceNotificationManager.cancelAttendanceNotification(context)
+                                NotificationScheduler.syncAllSchedules(context)
                             }
                         }
                     )
@@ -741,6 +748,7 @@ fun SettingsScreen(
                         notificationPrefs.isEnabled = next
                         notificationsEnabled = next
                         if (!next) AttendanceNotificationManager.cancelAttendanceNotification(context)
+                        NotificationScheduler.syncAllSchedules(context)
                     }
                 }
             )
@@ -796,6 +804,106 @@ fun SettingsScreen(
                     FilledTonalButton(onClick = { sendNotificationPreview() }) {
                         Text("Preview")
                     }
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Remote Announcements") },
+                supportingContent = {
+                    Text("Deliver portal notices & alerts from version.json every 6h without app updates")
+                },
+                trailingContent = {
+                    Switch(
+                        checked = remoteAnnouncementsEnabled,
+                        enabled = notificationsEnabled,
+                        onCheckedChange = { checked ->
+                            remoteAnnouncementsEnabled = checked
+                            notificationPrefs.remoteAnnouncementsEnabled = checked
+                            NotificationScheduler.syncAllSchedules(context)
+                        }
+                    )
+                },
+                modifier = Modifier.clickable(enabled = notificationsEnabled) {
+                    val next = !remoteAnnouncementsEnabled
+                    remoteAnnouncementsEnabled = next
+                    notificationPrefs.remoteAnnouncementsEnabled = next
+                    NotificationScheduler.syncAllSchedules(context)
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Background Update Alerts") },
+                supportingContent = {
+                    Text("Check automatically every 6h and notify when a new release APK drops")
+                },
+                trailingContent = {
+                    Switch(
+                        checked = backgroundUpdateAlertsEnabled,
+                        enabled = notificationsEnabled,
+                        onCheckedChange = { checked ->
+                            backgroundUpdateAlertsEnabled = checked
+                            notificationPrefs.backgroundUpdateAlertsEnabled = checked
+                            NotificationScheduler.syncAllSchedules(context)
+                        }
+                    )
+                },
+                modifier = Modifier.clickable(enabled = notificationsEnabled) {
+                    val next = !backgroundUpdateAlertsEnabled
+                    backgroundUpdateAlertsEnabled = next
+                    notificationPrefs.backgroundUpdateAlertsEnabled = next
+                    NotificationScheduler.syncAllSchedules(context)
+                }
+            )
+
+            ListItem(
+                headlineContent = { Text("Daily Sync Reminder") },
+                supportingContent = {
+                    Column {
+                        Text(
+                            if (dailyReminderEnabled) {
+                                "Remind once daily if attendance hasn't been synced yet today"
+                            } else {
+                                "Daily sync reminders turned off"
+                            }
+                        )
+                        if (dailyReminderEnabled) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.padding(top = 6.dp)
+                            ) {
+                                listOf(9 to "9 AM", 18 to "6 PM", 20 to "8 PM").forEach { (hr, label) ->
+                                    FilterChip(
+                                        selected = reminderHour == hr,
+                                        enabled = notificationsEnabled,
+                                        onClick = {
+                                            reminderHour = hr
+                                            notificationPrefs.reminderHour = hr
+                                            notificationPrefs.reminderMinute = 0
+                                            NotificationScheduler.syncAllSchedules(context, replaceReminderSchedule = true)
+                                        },
+                                        label = { Text(label) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                trailingContent = {
+                    Switch(
+                        checked = dailyReminderEnabled,
+                        enabled = notificationsEnabled,
+                        onCheckedChange = { checked ->
+                            dailyReminderEnabled = checked
+                            notificationPrefs.dailyReminderEnabled = checked
+                            NotificationScheduler.syncAllSchedules(context, replaceReminderSchedule = true)
+                        }
+                    )
+                },
+                modifier = Modifier.clickable(enabled = notificationsEnabled) {
+                    val next = !dailyReminderEnabled
+                    dailyReminderEnabled = next
+                    notificationPrefs.dailyReminderEnabled = next
+                    NotificationScheduler.syncAllSchedules(context, replaceReminderSchedule = true)
                 }
             )
 

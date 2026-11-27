@@ -48,6 +48,7 @@ import com.continueo.autologin.security.CredentialManager
 import com.continueo.autologin.ui.components.FeedbackDialog
 import com.continueo.autologin.ui.theme.AppThemeMode
 import com.continueo.autologin.ui.theme.ThemeManager
+import com.continueo.autologin.utils.RemoteAnnouncement
 import com.continueo.autologin.utils.ShareUtils
 import com.continueo.autologin.utils.UpdateInfo
 import com.continueo.autologin.utils.UpdateManager
@@ -74,18 +75,43 @@ fun HomeScreen(
     var showAccountSwitcher by remember { mutableStateOf(false) }
     var showFeedbackDialog by remember { mutableStateOf(false) }
 
-    // Auto-update states
+    // Auto-update & announcement states
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     var isUpdateDismissed by remember { mutableStateOf(false) }
     var showUpdatePopup by remember { mutableStateOf(false) }
+    var remoteAnnouncement by remember { mutableStateOf<RemoteAnnouncement?>(null) }
 
-    // Check for updates on screen launch
+    // Check for remote announcements and updates on screen launch
     LaunchedEffect(Unit) {
-        val result = UpdateManager.checkForUpdates(context)
-        result.onSuccess { info ->
-            if (info.isUpdateAvailable) {
-                updateInfo = info
-                showUpdatePopup = true // Prominent modal popup directly on the main screen!
+        val currentVersionCode = UpdateManager.getCurrentVersionCode(context)
+        val remoteConfigResult = UpdateManager.fetchVersionJsonSnapshot(context)
+        var resolvedUpdate: UpdateInfo? = null
+        remoteConfigResult.onSuccess { snapshot ->
+            val ann = snapshot.announcement
+            if (notificationPrefs.remoteAnnouncementsEnabled &&
+                ann != null &&
+                ann.shouldDeliver(currentVersionCode, notificationPrefs.lastSeenAnnouncementId)
+            ) {
+                remoteAnnouncement = ann
+                if (notificationPrefs.isEnabled) {
+                    AttendanceNotificationManager.notifyAnnouncement(context, ann)
+                }
+                notificationPrefs.lastSeenAnnouncementId = ann.id
+            }
+            if (snapshot.updateInfo?.isUpdateAvailable == true) {
+                resolvedUpdate = snapshot.updateInfo
+            }
+        }
+        if (resolvedUpdate != null) {
+            updateInfo = resolvedUpdate
+            showUpdatePopup = true
+        } else {
+            val result = UpdateManager.checkForUpdates(context)
+            result.onSuccess { info ->
+                if (info.isUpdateAvailable) {
+                    updateInfo = info
+                    showUpdatePopup = true
+                }
             }
         }
     }
@@ -116,6 +142,76 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(28.dp))
+
+        // Remote Announcement Card (delivered via version.json without updating app)
+        AnimatedVisibility(
+            visible = remoteAnnouncement != null,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            remoteAnnouncement?.let { ann ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Notice",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = ann.title.ifBlank { "Announcement" },
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(
+                                onClick = { remoteAnnouncement = null },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Dismiss notice",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                        if (ann.message.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = ann.message,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        val safeUrl = ann.sanitizedActionUrl()
+                        if (safeUrl.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                FilledTonalButton(
+                                    onClick = { UpdateManager.openInBrowser(context, safeUrl) }
+                                ) {
+                                    Text(ann.actionLabel)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // Update Notification Card (if update available and not dismissed)
         AnimatedVisibility(

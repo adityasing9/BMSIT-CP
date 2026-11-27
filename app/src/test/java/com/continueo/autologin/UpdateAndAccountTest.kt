@@ -9,6 +9,7 @@ import com.continueo.autologin.models.SubjectAttendance
 import com.continueo.autologin.utils.AttendanceUiHelper
 import com.continueo.autologin.utils.FeedbackCategory
 import com.continueo.autologin.utils.FeedbackManager
+import com.continueo.autologin.utils.RemoteAnnouncement
 import com.continueo.autologin.utils.UpdateManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -238,5 +239,69 @@ class UpdateAndAccountTest {
         assertEquals("1T***02 (1/2)", AttendanceUiHelper.formatSafeAccountName(unnamed, list))
         assertEquals("Aaditya Singh (2/2)", AttendanceUiHelper.formatSafeAccountName(named, list))
         assertEquals("Aaditya Singh", AttendanceUiHelper.formatSafeAccountName(named, listOf(named)))
+    }
+
+    @Test
+    fun testRemoteAnnouncementTargetingAndDedupe() {
+        val notice = RemoteAnnouncement(
+            id = "exam-notice-1",
+            enabled = true,
+            title = "Portal Maintenance",
+            message = "BMSIT portal maintenance tonight",
+            actionUrl = "https://bmsit-cp.vercel.app",
+            minVersionCode = 20,
+            maxVersionCode = 30
+        )
+
+        assertTrue(notice.shouldDeliver(currentVersionCode = 23, lastSeenId = ""))
+        assertFalse(notice.shouldDeliver(currentVersionCode = 23, lastSeenId = "exam-notice-1"))
+        assertFalse(notice.shouldDeliver(currentVersionCode = 19, lastSeenId = ""))
+        assertFalse(notice.shouldDeliver(currentVersionCode = 31, lastSeenId = ""))
+        assertFalse(notice.copy(enabled = false).shouldDeliver(currentVersionCode = 23, lastSeenId = ""))
+        assertEquals("https://bmsit-cp.vercel.app", notice.sanitizedActionUrl())
+        assertEquals("", notice.copy(actionUrl = "javascript:alert(1)").sanitizedActionUrl())
+    }
+
+    @Test
+    fun testDailySyncReminderConditionsAndDelay() {
+        val nowMillis = 1_764_246_000_000L
+        val todayKey = AttendanceUiHelper.toLocalDayKey(nowMillis)
+        val yesterdayMillis = nowMillis - 86_400_000L
+
+        assertFalse(
+            AttendanceUiHelper.shouldSendDailySyncReminder(
+                hasAccount = false,
+                snapshotUpdatedAtMillis = 0L,
+                nowMillis = nowMillis,
+                lastReminderDayKey = ""
+            )
+        )
+        assertFalse(
+            AttendanceUiHelper.shouldSendDailySyncReminder(
+                hasAccount = true,
+                snapshotUpdatedAtMillis = nowMillis,
+                nowMillis = nowMillis,
+                lastReminderDayKey = ""
+            )
+        )
+        assertFalse(
+            AttendanceUiHelper.shouldSendDailySyncReminder(
+                hasAccount = true,
+                snapshotUpdatedAtMillis = yesterdayMillis,
+                nowMillis = nowMillis,
+                lastReminderDayKey = todayKey
+            )
+        )
+        assertTrue(
+            AttendanceUiHelper.shouldSendDailySyncReminder(
+                hasAccount = true,
+                snapshotUpdatedAtMillis = yesterdayMillis,
+                nowMillis = nowMillis,
+                lastReminderDayKey = ""
+            )
+        )
+
+        val delayMs = AttendanceUiHelper.computeInitialDelayMillis(nowMillis, targetHour = 18, targetMinute = 0)
+        assertTrue(delayMs in 60_000L..86_400_000L)
     }
 }

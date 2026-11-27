@@ -1,9 +1,19 @@
 {
-  "versionCode": 22,
-  "versionName": "1.2.19",
-  "releaseTitle": "BMSIT CP v1.2.19",
-  "releaseNotes": "• Added Notification Bar Attendance & Shortage Alerts: dismissible visual mini-dashboard with circular attendance ring, lowest-attendance subject progress bars sorted first, and quick Sync Now / Switch / Portal actions\n• Built-in Lock-Screen Privacy Mode (VISIBILITY_PRIVATE) hides your name, subjects, and exact percentages on the lock screen until unlocked\n• Added Settings → Notification Bar Alerts controls (85% / 75% threshold, alert-only mode, and live Preview button)",
+  "versionCode": 23,
+  "versionName": "1.2.20",
+  "releaseTitle": "BMSIT CP v1.2.20",
+  "releaseNotes": "• Added serverless Remote Announcements via version.json + WorkManager (deliver notices & portal alerts to users without needing APK updates)\n• Added Background Update Alerts checking automatically every 6h for new APK releases\n• Added customizable Daily Sync Reminder (9 AM / 6 PM / 8 PM) that notifies only if attendance hasn't been synced yet today",
   "downloadUrl": "https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk",
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
-  "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441"
+  "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441",
+  "announcement": {
+    "id": "v1.2.20-initial",
+    "enabled": false,
+    "title": "",
+    "message": "",
+    "actionUrl": "",
+    "actionLabel": "Open Link",
+    "minVersionCode": 0,
+    "maxVersionCode": 999999
+  }
 }

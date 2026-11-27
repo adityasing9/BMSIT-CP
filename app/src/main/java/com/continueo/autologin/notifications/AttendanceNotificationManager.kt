@@ -24,19 +24,31 @@ import com.continueo.autologin.models.AttendanceSnapshot
 import com.continueo.autologin.models.AttendanceStatus
 import com.continueo.autologin.utils.AttendanceAlertSummary
 import com.continueo.autologin.utils.AttendanceUiHelper
+import com.continueo.autologin.utils.RemoteAnnouncement
 import com.continueo.autologin.utils.SubjectGridSpec
+import com.continueo.autologin.utils.UpdateInfo
+import com.continueo.autologin.utils.UpdateManager
 import com.continueo.autologin.widget.AttendanceWidgetProvider
 
 object AttendanceNotificationManager {
 
     const val CHANNEL_SYNC_ID = "attendance_sync_updates"
     const val CHANNEL_ALERT_ID = "attendance_shortage_alerts"
+    const val CHANNEL_ANNOUNCEMENT_ID = "remote_announcements"
+    const val CHANNEL_REMINDER_ID = "daily_sync_reminders"
+
     const val NOTIFICATION_ID = 4201
+    const val NOTIFICATION_ANNOUNCEMENT_ID = 4202
+    const val NOTIFICATION_UPDATE_ID = 4203
+    const val NOTIFICATION_REMINDER_ID = 4204
 
     private const val REQUEST_NOTIF_OPEN_APP = 4101
     private const val REQUEST_NOTIF_SYNC = 4102
     private const val REQUEST_NOTIF_SWITCH = 4103
     private const val REQUEST_NOTIF_PORTAL = 4104
+    private const val REQUEST_NOTIF_ANNOUNCEMENT = 4105
+    private const val REQUEST_NOTIF_UPDATE = 4106
+    private const val REQUEST_NOTIF_REMINDER = 4107
 
     private val GRID_SPEC = SubjectGridSpec(
         rowIds = intArrayOf(
@@ -116,7 +128,27 @@ object AttendanceNotificationManager {
             lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         }
 
-        manager.createNotificationChannels(listOf(syncChannel, alertChannel))
+        val announceChannel = NotificationChannel(
+            CHANNEL_ANNOUNCEMENT_ID,
+            context.getString(R.string.notif_channel_announce_name),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = context.getString(R.string.notif_channel_announce_desc)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
+
+        val reminderChannel = NotificationChannel(
+            CHANNEL_REMINDER_ID,
+            context.getString(R.string.notif_channel_reminder_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.notif_channel_reminder_desc)
+            lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        }
+
+        manager.createNotificationChannels(
+            listOf(syncChannel, alertChannel, announceChannel, reminderChannel)
+        )
     }
 
     fun hasPermission(context: Context): Boolean {
@@ -233,6 +265,153 @@ object AttendanceNotificationManager {
 
         return try {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun notifyAnnouncement(
+        context: Context,
+        announcement: RemoteAnnouncement
+    ): Boolean {
+        if (!hasPermission(context)) return false
+        ensureChannels(context)
+
+        val title = announcement.title.ifBlank { "BMSIT CP Notice" }
+        val body = announcement.message.ifBlank { title }
+        val safeUrl = announcement.sanitizedActionUrl()
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
+        val contentPendingIntent = if (safeUrl.isNotBlank()) {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(safeUrl)).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            PendingIntent.getActivity(context, REQUEST_NOTIF_ANNOUNCEMENT, browserIntent, pendingFlags)
+        } else {
+            createOpenAppPendingIntent(context)
+        }
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ANNOUNCEMENT_ID)
+            .setSmallIcon(R.drawable.ic_stat_attendance)
+            .setColor(ContextCompat.getColor(context, R.color.primary))
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(contentPendingIntent)
+            .setOngoing(false)
+            .setAutoCancel(true)
+
+        if (safeUrl.isNotBlank()) {
+            builder.addAction(0, announcement.actionLabel, contentPendingIntent)
+        }
+
+        return try {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_ANNOUNCEMENT_ID, builder.build())
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun notifyUpdateAvailable(
+        context: Context,
+        updateInfo: UpdateInfo
+    ): Boolean {
+        if (!hasPermission(context)) return false
+        ensureChannels(context)
+
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val downloadUrl = updateInfo.downloadUrl.ifBlank { UpdateManager.DIRECT_APK_URL }
+        val downloadIntent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl)).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val downloadPendingIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_NOTIF_UPDATE,
+            downloadIntent,
+            pendingFlags
+        )
+
+        val body = updateInfo.releaseNotes.trim().ifBlank {
+            "New release BMSIT CP v${updateInfo.latestVersionName} is ready to download."
+        }
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ANNOUNCEMENT_ID)
+            .setSmallIcon(R.drawable.ic_stat_attendance)
+            .setColor(ContextCompat.getColor(context, R.color.primary))
+            .setContentTitle("Update Available: v${updateInfo.latestVersionName}")
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(createOpenAppPendingIntent(context))
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .addAction(0, "Download APK", downloadPendingIntent)
+            .build()
+
+        return try {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_UPDATE_ID, notification)
+            true
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun notifyDailySyncReminder(
+        context: Context,
+        activeAccount: AccountProfile?,
+        accounts: List<AccountProfile>
+    ): Boolean {
+        if (!hasPermission(context)) return false
+        ensureChannels(context)
+
+        val safeAccountName = AttendanceUiHelper.formatSafeAccountName(activeAccount, accounts)
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val syncIntent = Intent(context, MainActivity::class.java).apply {
+            action = AttendanceWidgetProvider.ACTION_WIDGET_LOGIN
+            putExtra(AttendanceWidgetProvider.EXTRA_WIDGET_ACTION, AttendanceWidgetProvider.ACTION_WIDGET_LOGIN)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val syncPendingIntent = PendingIntent.getActivity(
+            context,
+            REQUEST_NOTIF_REMINDER,
+            syncIntent,
+            pendingFlags
+        )
+
+        val publicNotification = NotificationCompat.Builder(context, CHANNEL_REMINDER_ID)
+            .setSmallIcon(R.drawable.ic_stat_attendance)
+            .setColor(ContextCompat.getColor(context, R.color.primary))
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText(context.getString(R.string.notif_public_reminder_body))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
+
+        val text = "Tap Sync Now to update $safeAccountName's attendance & home widget."
+        val notification = NotificationCompat.Builder(context, CHANNEL_REMINDER_ID)
+            .setSmallIcon(R.drawable.ic_stat_attendance)
+            .setColor(ContextCompat.getColor(context, R.color.primary))
+            .setContentTitle("Haven't synced today's attendance")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPublicVersion(publicNotification)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(syncPendingIntent)
+            .setOngoing(false)
+            .setAutoCancel(true)
+            .addAction(0, context.getString(R.string.notif_action_sync), syncPendingIntent)
+            .build()
+
+        return try {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_REMINDER_ID, notification)
             true
         } catch (_: SecurityException) {
             false

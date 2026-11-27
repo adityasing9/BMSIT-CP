@@ -21,6 +21,40 @@ data class UpdateInfo(
     val isUpdateAvailable: Boolean
 )
 
+data class RemoteAnnouncement(
+    val id: String,
+    val enabled: Boolean,
+    val title: String,
+    val message: String,
+    val actionUrl: String = "",
+    val actionLabel: String = "Open Link",
+    val minVersionCode: Int = 0,
+    val maxVersionCode: Int = Int.MAX_VALUE
+) {
+    fun shouldDeliver(currentVersionCode: Int, lastSeenId: String): Boolean {
+        if (!enabled) return false
+        if (id.isBlank() || id == lastSeenId) return false
+        if (title.isBlank() && message.isBlank()) return false
+        return currentVersionCode in minVersionCode..maxVersionCode
+    }
+
+    fun sanitizedActionUrl(): String {
+        val trimmed = actionUrl.trim()
+        return if (trimmed.startsWith("https://", ignoreCase = true) ||
+            trimmed.startsWith("http://", ignoreCase = true)
+        ) {
+            trimmed
+        } else {
+            ""
+        }
+    }
+}
+
+data class RemoteConfigSnapshot(
+    val updateInfo: UpdateInfo?,
+    val announcement: RemoteAnnouncement?
+)
+
 object UpdateManager {
 
     private const val GITHUB_REPO_OWNER = "adityasing9"
@@ -49,49 +83,108 @@ object UpdateManager {
         }
     }
 
-    suspend fun checkForUpdates(context: Context): Result<UpdateInfo> = withContext(Dispatchers.IO) {
-        val currentVersion = getCurrentVersionName(context)
-        var fallbackInfo: UpdateInfo? = null
-
-        // Strategy 1: Check raw version.json (Fastly CDN, zero rate limit)
-        try {
-            val timestamp = System.currentTimeMillis()
-            val rawUrl = URL(
-                "https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/main/version.json?_t=$timestamp"
-            )
-            val conn = (rawUrl.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 6000
-                readTimeout = 6000
-                useCaches = false
-                requestMethod = "GET"
-                setRequestProperty("User-Agent", "BMSIT-CP-Android")
-                setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
-                setRequestProperty("Pragma", "no-cache")
+    fun getCurrentVersionCode(context: Context): Int {
+        return try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
             }
-            if (conn.responseCode in 200..299) {
-                val text = conn.inputStream.bufferedReader().use { it.readText() }
-                val json = JSONObject(text)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode.toInt()
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode
+            }
+        } catch (_: Exception) {
+            1
+        }
+    }
+
+    suspend fun fetchVersionJsonSnapshot(context: Context): Result<RemoteConfigSnapshot> =
+        withContext(Dispatchers.IO) {
+            val currentVersion = getCurrentVersionName(context)
+            try {
+                val json = fetchVersionJsonObject()
+                    ?: return@withContext Result.failure(Exception("Unable to fetch version.json"))
+
                 val remoteVersion = json.optString("versionName", "")
                 val title = json.optString("releaseTitle", "Version $remoteVersion")
                 val notes = json.optString("releaseNotes", "")
                 val download = json.optString("downloadUrl", DIRECT_APK_URL)
                 val html = json.optString("htmlUrl", RELEASES_PAGE_URL)
 
-                val hasUpdate = isNewerVersion(remoteVersion, currentVersion)
-                val info = UpdateInfo(
+                val updateInfo = UpdateInfo(
                     latestVersionName = remoteVersion.ifBlank { "Latest" },
                     releaseTitle = title,
                     releaseNotes = notes,
                     downloadUrl = download,
                     htmlUrl = html,
-                    isUpdateAvailable = hasUpdate
+                    isUpdateAvailable = isNewerVersion(remoteVersion, currentVersion)
                 )
-                if (hasUpdate) {
+
+                val annObj = json.optJSONObject("announcement")
+                val announcement = if (annObj != null) {
+                    RemoteAnnouncement(
+                        id = annObj.optString("id", "").trim(),
+                        enabled = annObj.optBoolean("enabled", false),
+                        title = annObj.optString("title", "").trim(),
+                        message = annObj.optString("message", "").trim(),
+                        actionUrl = annObj.optString("actionUrl", "").trim(),
+                        actionLabel = annObj.optString("actionLabel", "Open Link").trim().ifBlank { "Open Link" },
+                        minVersionCode = annObj.optInt("minVersionCode", 0),
+                        maxVersionCode = annObj.optInt("maxVersionCode", Int.MAX_VALUE)
+                    )
+                } else {
+                    null
+                }
+
+                Result.success(RemoteConfigSnapshot(updateInfo = updateInfo, announcement = announcement))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+    private fun fetchVersionJsonObject(): JSONObject? {
+        val timestamp = System.currentTimeMillis()
+        val rawUrl = URL(
+            "https://raw.githubusercontent.com/$GITHUB_REPO_OWNER/$GITHUB_REPO_NAME/main/version.json?_t=$timestamp"
+        )
+        val conn = (rawUrl.openConnection() as HttpURLConnection).apply {
+            connectTimeout = 6000
+            readTimeout = 6000
+            useCaches = false
+            requestMethod = "GET"
+            setRequestProperty("User-Agent", "BMSIT-CP-Android")
+            setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate")
+            setRequestProperty("Pragma", "no-cache")
+        }
+        return if (conn.responseCode in 200..299) {
+            val text = conn.inputStream.bufferedReader().use { it.readText() }
+            JSONObject(text)
+        } else {
+            null
+        }
+    }
+
+    suspend fun checkForUpdates(context: Context): Result<UpdateInfo> = withContext(Dispatchers.IO) {
+        val currentVersion = getCurrentVersionName(context)
+        var fallbackInfo: UpdateInfo? = null
+
+        // Strategy 1: Check raw version.json (Fastly CDN, zero rate limit)
+        fetchVersionJsonSnapshot(context).onSuccess { snapshot ->
+            val info = snapshot.updateInfo
+            if (info != null) {
+                if (info.isUpdateAvailable) {
                     return@withContext Result.success(info)
                 }
                 fallbackInfo = info
             }
-        } catch (_: Exception) {}
+        }
 
         // Strategy 2: Check GitHub Releases web redirect (No 60 req/hr API rate limit)
         try {

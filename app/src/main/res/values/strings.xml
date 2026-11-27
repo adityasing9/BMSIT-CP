@@ -93,4 +93,9 @@
     <string name="notif_public_sync_body">Attendance updated — unlock device to view</string>
     <string name="notif_public_alert_body">Low attendance alert — unlock device to view</string>
     <string name="notif_action_sync">Sync Now</string>
+    <string name="notif_channel_announce_name">Announcements &amp; App Updates</string>
+    <string name="notif_channel_announce_desc">Remote BMSIT notices, downtime alerts, and new release updates</string>
+    <string name="notif_channel_reminder_name">Daily Sync Reminders</string>
+    <string name="notif_channel_reminder_desc">Optional evening reminder if attendance has not been synced today</string>
+    <string name="notif_public_reminder_body">Attendance sync reminder — unlock device to view</string>
 </resources>

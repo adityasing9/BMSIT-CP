@@ -14,6 +14,7 @@ import com.continueo.autologin.models.AttendanceSnapshot
 import com.continueo.autologin.models.AttendanceStatus
 import com.continueo.autologin.models.SubjectAttendance
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -248,6 +249,44 @@ object AttendanceUiHelper {
             }
         }
         return displaySubjects.size
+    }
+
+    fun toLocalDayKey(timeMillis: Long): String {
+        if (timeMillis <= 0L) return ""
+        return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(timeMillis))
+    }
+
+    fun shouldSendDailySyncReminder(
+        hasAccount: Boolean,
+        snapshotUpdatedAtMillis: Long,
+        nowMillis: Long,
+        lastReminderDayKey: String
+    ): Boolean {
+        if (!hasAccount) return false
+        val todayKey = toLocalDayKey(nowMillis)
+        if (todayKey.isBlank() || todayKey == lastReminderDayKey) return false
+        val snapshotDayKey = toLocalDayKey(snapshotUpdatedAtMillis)
+        return snapshotDayKey != todayKey
+    }
+
+    fun computeInitialDelayMillis(
+        nowMillis: Long,
+        targetHour: Int,
+        targetMinute: Int
+    ): Long {
+        val safeHour = targetHour.coerceIn(0, 23)
+        val safeMinute = targetMinute.coerceIn(0, 59)
+        val nextRun = Calendar.getInstance().apply {
+            timeInMillis = nowMillis
+            set(Calendar.HOUR_OF_DAY, safeHour)
+            set(Calendar.MINUTE, safeMinute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            if (timeInMillis <= nowMillis) {
+                add(Calendar.DAY_OF_YEAR, 1)
+            }
+        }
+        return (nextRun.timeInMillis - nowMillis).coerceAtLeast(60_000L)
     }
 
     private fun bindSubjectCell(

@@ -11,8 +11,8 @@ android {
         applicationId = "com.continueo.autologin"
         minSdk = 26
         targetSdk = 34
-        versionCode = 22
-        versionName = "1.2.19"
+        versionCode = 23
+        versionName = "1.2.20"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -79,6 +79,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     
     // EncryptedSharedPreferences
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
