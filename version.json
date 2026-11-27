@@ -7,13 +7,13 @@
   "htmlUrl": "https://github.com/adityasing9/BMSIT-CP/releases/latest",
   "web3formsAccessKey": "605e48ce-89a3-44c9-b19c-c2fe53896441",
   "announcement": {
-    "id": "v1.2.20-initial",
-    "enabled": false,
-    "title": "",
-    "message": "",
-    "actionUrl": "",
-    "actionLabel": "Open Link",
-    "minVersionCode": 0,
+    "id": "test-push-2026-11-27-1",
+    "enabled": true,
+    "title": "Live Test Push",
+    "message": "Delivered straight to your notification bar without updating the APK!",
+    "actionUrl": "https://bmsit-cp.vercel.app",
+    "actionLabel": "Open Hub",
+    "minVersionCode": 23,
     "maxVersionCode": 999999
   }
 }
