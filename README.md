@@ -11,9 +11,9 @@
 [![Security](https://img.shields.io/badge/Storage-AES--256--GCM%20Encrypted-green?logo=securityscorecard&logoColor=white)](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**A high-performance Android utility that automates the repetitive two-step login process for the BMSIT&M ContinueO Portal, delivers an authentic responsive desktop portal experience on mobile, supports multiple student accounts, in-app file downloads, and features automated wireless updates.**
+**A high-performance Android utility that automates the two-step login process for the BMSIT&M ContinueO Portal, renders an authentic 1280px desktop experience on mobile, pins a live visual attendance widget on your home screen, delivers visual notification-bar alerts & serverless announcements, supports multiple student accounts, and enables in-app downloads.**
 
-[🌐 **Live Website & Download Hub (bmsit-cp.vercel.app)**](https://bmsit-cp.vercel.app) • [📥 Download Latest APK](#-direct-download) • [✨ Key Features](#-key-features) • [🔄 How It Works](#-how-it-works) • [🔒 Security & Privacy](#-security--privacy-first) • [🏗️ Build from Source](#-building-from-source) • [❓ FAQ](#-frequently-asked-questions-faq)
+[🌐 **Website & Download Hub (bmsit-cp.vercel.app)**](https://bmsit-cp.vercel.app) • [📥 Direct Download](#-direct-download) • [✨ Key Features](#-key-features) • [📊 Widget & Alerts](#-2-visual-home-screen-attendance-widget) • [🔄 How It Works](#-how-it-works) • [🔒 Security](#-13-security--privacy-first) • [🏗️ Build from Source](#-building-from-source) • [❓ FAQ](#-frequently-asked-questions-faq)
 
 </div>
 
@@ -28,33 +28,33 @@ Every visit to the **BMSIT&M ContinueO Parent Portal** (`https://student.bmsit.a
 4. Entering your **ID Card Number** on a separate verification screen.
 5. Submitting again to finally reach your dashboard.
 
-Furthermore, mobile browsers often render the portal in a cramped, single-column responsive layout where navigation headers and tables are cut off or misaligned.
+Furthermore, mobile browsers often render the portal in a cramped single-column layout where tables, Billboard.js charts, and navigation bars are clipped.
 
-**BMSIT CP** eliminates this friction:
-- **One tap** on **LOGIN NOW** completes the entire 2-step authentication flow in seconds.
-- **Multiple Accounts:** Store multiple student profiles (for siblings, friends, or parents managing multiple wards) and switch between them with one tap.
-- **Home Screen Attendance Widget:** Pin a live resizable widget showing your overall circular attendance ring gauge, color-coded subject progress bars, account switcher, and 1-tap Login & Sync.
-- **Notification Bar Visual Alerts:** Get a dismissible mini-dashboard notification after syncing with shortage alerts (<85% / <75%), lowest-attendance subjects highlighted first, quick Sync/Switch actions, and lock-screen privacy.
-- **Full In-App File Downloads:** Download subject notes (`[NOTES]`), circulars, and syllabus PDFs directly through Android's native `DownloadManager` with session cookies preserved.
-- **Open in External Browser:** One-tap option to launch the portal in your preferred browser (Chrome, Brave, Firefox) directly from the Home Screen or from the top navigation bar.
-- **Over-The-Air (OTA) Updates:** Seamlessly checks for new builds via Fastly CDN & GitHub Releases with zero rate-limit issues, and installs updates wirelessly.
-- **Full Desktop Layout:** Renders the portal in its authentic desktop view by default (1280px viewport), with full pinch-to-zoom and smooth panning.
-- **One-Tap Refresh:** Dedicated reload button in the top bar to update attendance, marks, and notices without losing your login session.
-- **Permanent Release Keystore:** Signed with a unified, permanent keystore to guarantee conflict-free Over-The-Air updates.
-- **100% Local Security:** All credentials stay encrypted on your device with hardware-backed **AES-256-GCM**.
+**BMSIT CP** streamlines the entire experience:
+- **One-Tap 2-Step Login:** Completes USN, DOB dropdowns, and ID Card verification in seconds.
+- **Visual Home Screen Attendance Widget:** Pin a live resizable widget showing your overall circular attendance ring, up to **8 subject progress bars** (`≥85%` green, `75–84%` amber, `<75%` red), 1-tap `Switch Account`, `Sync`, and `Portal ↗`.
+- **Notification Bar Mini-Dashboard & Alerts:** Dismissible expanded visual notification sorting lowest-attendance subjects first, **Lock-Screen Privacy** (`VISIBILITY_PRIVATE`), **Daily Sync Reminders**, **6-Hour Background Update Alerts**, and **Serverless Remote Announcements** via `version.json` without needing app updates.
+- **Multiple Accounts:** Store multiple student profiles and switch between them on the Home Screen, Widget, or Notification Bar with one tap.
+- **Full In-App File Downloads:** Download `[NOTES]`, circulars, and syllabus PDFs directly through Android's native `DownloadManager` with session cookies preserved.
+- **Built-In Feedback & Complaint System:** Report bugs or submit suggestions directly in-app or at [bmsit-cp.vercel.app/feedback](https://bmsit-cp.vercel.app/feedback) via Web3Forms, with anonymous submission support and zero credential sharing.
+- **Open in External Browser:** One-tap option to launch the portal in Chrome, Brave, or Firefox from the Home Screen, Login bar, Widget, or Notification.
+- **Over-The-Air (OTA) Update Alerts:** Multi-tier release checker via Fastly CDN & GitHub Releases with 1-tap browser APK handoff.
+- **Full Desktop Layout:** Renders the portal in its authentic 1280px desktop layout by default with smooth pinch-to-zoom.
+- **100% Local Credential Security:** All USN, DOB, and ID Card secrets stay encrypted on-device with hardware-backed **AES-256-GCM**.
 
 ---
 
 ## 📥 Direct Download
 
-Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
+Grab the latest compiled APK directly from GitHub Releases or the web hub:
 
 | Release Asset | Description | Direct Link |
 | :--- | :--- | :--- |
 | **`BMSIT-CP.apk`** | Latest compiled Android APK (`v1.2.20`) | [⬇️ **Download APK**](https://github.com/adityasing9/BMSIT-CP/releases/download/latest/BMSIT-CP.apk) |
 | **GitHub Releases** | Release notes, changelog & assets | [📦 **View Releases**](https://github.com/adityasing9/BMSIT-CP/releases/tag/latest) |
+| **Web Download Hub** | Overview, Android guide & feedback portal | [🌐 **bmsit-cp.vercel.app**](https://bmsit-cp.vercel.app) |
 
-> **Note for Installation:** Since this APK is distributed directly outside Google Play Store, Android will ask you to *"Install apps from unknown sources"* or *"Allow installation from this source"*. If Google Play Protect shows a warning (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #10](#-frequently-asked-questions-faq)).
+> **Note for Installation:** Since BMSIT CP is distributed outside Google Play Store, Android will prompt to *"Allow installation from this source"*. If Google Play Protect shows a generic unrecognized-signer prompt (*"Harmful app blocked"*), tap **"Install anyway"** to proceed (see [FAQ #12](#-frequently-asked-questions-faq)).
 
 ---
 
@@ -63,85 +63,89 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 | Feature / Experience | Standard Web Browser | With BMSIT CP |
 | :--- | :--- | :--- |
 | **Login Time** | 45–60 seconds of repetitive typing | **~2–3 seconds (Single Tap)** |
-| **Multiple Accounts** | Log out, retype USN + DOB + ID Card | **Instant 1-tap account switching** |
-| **Credential Storage** | Manual typing or clunky browser autofill | **Encrypted local hardware keystore (AES-256)** |
-| **Date of Birth Entry** | 3 tedious HTML select dropdowns | **Automated background composition** |
-| **Step 2 (ID Card)** | Waiting for page reload + manual typing | **Automated detection & instant entry** |
-| **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with zoom** |
-| **In-App Downloads** | Often blocked or fails without cookies | **Native DownloadManager with cookies & referers** |
-| **External Browser** | Manual URL copy & paste | **1-tap launch in Chrome / Brave / Firefox** |
-| **Page Refresh** | Reloads from scratch or loses session | **Dedicated one-tap refresh (keeps session)** |
-| **App Updates** | Manual website check & re-download | **Automated Over-The-Air (OTA) update alerts** |
-| **Cloud Dependency** | None | **Zero Cloud — 100% On-Device** |
+| **Home Screen Glance** | None — must log in every time | **Live 8-subject visual attendance widget + circular ring** |
+| **Notification Alerts** | None | **Visual mini-dashboard, shortage alerts & daily reminders** |
+| **Remote Notices** | None | **Serverless `version.json` announcements without APK rebuilds** |
+| **Multiple Accounts** | Log out, retype USN + DOB + ID Card | **Instant 1-tap account switching (App, Widget & Notification)** |
+| **Credential Storage** | Manual typing or browser autofill | **Encrypted local hardware keystore (AES-256-GCM)** |
+| **Layout Quality** | Squished mobile layout; clipped tables | **True 1280px Desktop view with pinch-to-zoom** |
+| **In-App Downloads** | Often fails without portal cookies | **Native `DownloadManager` with `PHPSESSID` & referer headers** |
+| **App Updates** | Manual GitHub checks | **OTA popups + background update notifications** |
+| **Cloud Dependency** | N/A | **Zero credential cloud — 100% on-device secrets** |
 
 ---
 
 ## ✨ Key Features
 
 ### 👥 1. Multiple Account Support
-- **Multi-Profile Management:** Store credentials for multiple students or accounts simultaneously.
-- **Custom Account Labels:** Assign friendly names (e.g., "Aditya", "Sister", "Ward 1") to easily distinguish between accounts.
-- **Instant Account Switcher:** Switch the active account right from the Home Screen with a single tap before logging in.
-- **Account Management in Settings:** Add, edit, switch, or delete accounts individually with confirmation safeguards.
-- **Automatic Migration:** Automatically preserves and migrates any existing saved credentials into the multi-account architecture without data loss.
+- **Multi-Profile Management:** Save credentials for multiple students simultaneously with custom friendly labels (e.g., `"Aaditya Singh"`, `"Ward 2"`).
+- **Instant Account Switcher:** Switch active profiles directly from the **Home Screen**, **Settings**, the **Home Screen Widget**, or the **Notification Bar**.
+- **Safe Privacy Masking:** When an account has no custom display label, the widget and notifications automatically mask the USN (`1T***02`) and never display DOB or ID Card numbers.
 
-### 🔄 2. In-App Update Alerts & 1-Tap Browser Install
-- **Multi-Tier Update Engine:** Checks updates via Fastly CDN (`raw.githubusercontent.com`), HTTP 302 release redirects, and the GitHub REST API. Immune to GitHub API 403 rate limits on mobile networks (Jio, Airtel).
-- **Cache-Busting Fallthrough:** Ensures newly pushed releases are detected immediately without waiting for CDN cache expiration.
-- **Main Screen Update Popup:** Presents release version and release notes preview directly on the Home Screen.
-- **1-Tap Browser Download & Install:** Tapping "Update Now" opens the direct APK download in Chrome/your default browser for clean installation without triggering Play Protect dropper permissions.
-- **Permanent Release Keystore:** Signed with a permanent 10,000-day keystore, eliminating signature mismatch conflicts across updates.
+### 📊 2. Visual Home Screen Attendance Widget
+- **Overall Circular Progress Ring:** Draws an anti-aliased status ring (`≥85%` green, `75–84%` amber, `<75%` red) directly on your home screen showing your average attendance across synced subjects.
+- **Up to 8 Subject Progress Bars:** Clean **4×2 grid** (`widget_attendance.xml`) displaying individual subject percentages and color-coded progress bars; adapts cleanly to 4 cells on compact `2×2` / short resizes via `OPTION_APPWIDGET_MIN_HEIGHT`.
+- **Contineo-Native Sync-on-Login Extractor (`AttendanceExtractor.kt`):**
+  - Parses BMSIT Contineo's **Billboard.js** runtime (`window.bb.instance`, including multi-ring attendance gauges like `BCS501`–`BAI505A`) and SVG `.bb-chart-arc` / `.bb-bars` DOM while cleanly skipping CIE/Marks charts.
+  - Also supports `.sc-progress` / `.cn-att-stat` progress widgets, combined Attendance + CIE course tables, Highcharts, Chart.js, and same-origin `iframe` pages.
+- **1-Tap Widget Controls:** Tap **Switch** to cycle accounts, **Sync** / **Login & Sync** to launch automated login & capture fresh numbers, or **Portal ↗** to open Contineo in your browser.
+- **One-Tap Pinning:** Add directly from **Settings → Home Screen Widget → Pin** (`AppWidgetManager.requestPinAppWidget`).
 
-### 🌐 3. Open Portal in External Browser
-- **Home Screen Access:** A dedicated **"Portal ↗"** button right below the main **"LOGIN NOW 🚀"** button for quick, direct portal access in your default browser.
-- **Top App Bar Action:** An **Open in Browser** icon in the Login Screen top bar allows you to open the currently viewed portal page in your device's browser at any time.
-- **Post-Login Action:** An **"Open in Browser"** button appears next to "View Dashboard" as soon as authentication completes.
-- **Zero Intermediaries:** Directly opens your browser without clipboard copying prompts or annoying redirect dialogs.
+### 🔔 3. Notification Bar Visual Alerts, Serverless Push & Reminders
+- **Dismissible Visual Mini-Dashboard (`NotificationCompat.DecoratedCustomViewStyle`):**
+  - **Collapsed:** Overall attendance ring, shortage/status summary, masked/display account name, and status pill (`ON TRACK`, `WATCH`, or `SHORTAGE`).
+  - **Expanded:** Circular ring + up to 6 subjects sorted **lowest percentage first**, with quick **Sync Now**, **Switch**, and **Portal ↗** action buttons.
+- **Lock-Screen Privacy (`VISIBILITY_PRIVATE`):** Automatically shows a generic redacted message (`"Attendance updated — unlock device to view"`) on the lock screen so names, USNs, subjects, and exact percentages remain private until unlocked.
+- **Smart Threshold Controls:** Choose `85%` (BMSIT warning badge) or `75%` (mandatory minimum) in Settings, toggle **Alert Only Below Threshold**, and test immediately with **Settings → Preview**.
+- **Serverless Remote Announcements (`version.json` + `WorkManager`):**
+  - `RemoteSyncCheckWorker` runs every **6 hours** when connected (plus immediately on app open) to fetch `version.json` via Fastly CDN.
+  - Publishers can deliver portal downtime notices, exam alerts, or feature announcements cleanly by editing the `"announcement"` block in `version.json` — **zero app rebuild or update needed** (deduplicated by announcement `id` and version-range targeted).
+- **Background APK Update Alerts:** Automatically checks every 6 hours and posts a clean status-bar alert with a **Download APK** shortcut when a newer release drops.
+- **Customizable Daily Sync Reminders:** `DailySyncReminderWorker` reminds you once daily (`9 AM`, `6 PM`, or `8 PM`) **only if your attendance hasn't been synced yet today**.
 
-### 📥 4. Direct In-App File Downloads ([NOTES], Syllabus & Circulars)
-- **Native Android DownloadManager:** Downloads PDF notes, syllabus files, and circulars directly to your device's public `Downloads` directory.
-- **Session Cookie Propagation:** Injects active `PHPSESSID` session cookies and `Referer` headers so authenticated downloads succeed without 403 or redirect errors.
-- **MIME & Extension Correction:** Automatically resolves proper `.pdf` extensions even when the portal serves files with `.bin` or generic headers.
-- **Blob & Data URL Support:** Client-side JavaScript bridge handles dynamic `blob:` and base64 `data:` downloads seamlessly.
+### 🔄 4. In-App Update Alerts & 1-Tap Browser Install
+- **Multi-Tier Update Engine:** Checks Fastly CDN (`raw.githubusercontent.com`), HTTP 302 GitHub release redirects, and the GitHub REST API — immune to mobile ISP API rate limits.
+- **1-Tap Browser APK Download:** Tapping **Update Now** hands off the direct APK download to your browser cleanly without requiring invasive `REQUEST_INSTALL_PACKAGES` permissions.
+- **Permanent Release Keystore:** Signed with a permanent unified keystore so OTA updates install cleanly without signature conflicts.
 
-### 💾 5. Data Export & Import (Backup & Restore)
-- **Portable JSON Backup:** Easily export all your configured accounts to a structured JSON format with a single tap.
-- **Direct Clipboard & Share Support:** Copy the backup text directly to your clipboard or use Android's native share sheet to save your backup in Google Drive, Notes, WhatsApp, or Email.
-- **Safe Import & Merge:** Restore or transfer accounts to any device with automatic deduplication, ensuring you never lose your saved profiles when changing phones or reinstalling.
+### 💬 5. Built-In Feedback & Complaint System
+- **Powered by Web3Forms:** Submit bug reports, UI feedback, portal change alerts, or feature suggestions directly inside BMSIT CP (**Home Screen**, **Settings → Send Feedback**, or **Portal Error Screen**) or online at [**bmsit-cp.vercel.app/feedback**](https://bmsit-cp.vercel.app/feedback).
+- **Anonymous Option & Credential Safety:** Email/contact field is optional, device diagnostics (`app_version`, Android OS, device model) are opt-in via a switch, and student credentials are never included in any payload.
 
-### ⚡ 6. Intelligent Two-Step Automation
-- **Step 1 (USN & DOB):** Automatically populates `#username`, selects Day (accounting for portal value whitespace), Month, and Year selectors, invokes internal `putdate()` computation, sets the hidden password field, and triggers form validation.
-- **Step 2 (ID Card Verification):** Automatically polls the DOM for the verification view, locates the input field, injects the ID card number using native prototype setters, and submits.
-- **Native POST Form Preservation:** Web navigation preserves HTTP `POST` requests and form parameters without converting them to blank `GET` requests.
-- **Graceful Error Handling:** If the portal issues a CAPTCHA challenge or OTP, automation pauses and gives you a single-tap **Continue Manually** option without interrupting your session.
+### 🌐 6. Open Portal in External Browser
+- **Home Screen Access:** Dedicated **Portal ↗** button right below **LOGIN NOW 🚀**.
+- **Login Top App Bar & Post-Login Card:** Jump straight into Chrome, Brave, or Firefox from the portal view at any time, or directly from the Home Screen Widget and Notification Bar.
 
-### 🖥️ 7. Genuine Desktop Mode (Default: ON)
-- **Authentic 1280px Viewport:** Bypasses mobile screen-width constraints by reconfiguring the layout viewport to 1280px on page render.
-- **Desktop Grid Breakpoints:** Triggers the portal's native UIkit desktop styles, showing the two-column dashboard layout.
-- **Smooth Navigation:** Built-in overview mode automatically scales the 1280px canvas to fit your phone screen, supported by full pinch-to-zoom and multi-touch gestures.
-- **One-Tap Mode Switcher:** Toggle between `🖥 Desktop ON` and `📱 Mobile` right from the top bar.
-- **Persistent Choice:** Your chosen mode is saved locally and remembered whenever you reopen the app.
+### 📥 7. Direct In-App File Downloads ([NOTES], Syllabus & Circulars)
+- **Native Android DownloadManager:** Saves PDF notes, syllabus files, and circulars directly to your device's `Downloads` folder.
+- **Session Cookie Propagation:** Injects active `PHPSESSID` session cookies and `Referer` headers so authenticated downloads succeed reliably.
+- **MIME & Extension Correction:** Resolves `.pdf` filenames accurately and bridges `blob:` and base64 `data:` downloads.
 
-### 🔄 8. Instant One-Tap Page Refresh
-- **Top App Bar Refresh:** Dedicated reload button placed prominently in the top bar.
-- **Session Preservation:** Reloads the current page safely using existing authenticated cookies without prompting you to log in again.
+### 💾 8. Data Export & Import (Backup & Restore)
+- **Portable JSON Backup:** Export saved accounts to structured JSON with one tap (`Copy to Clipboard` or native Share Sheet).
+- **Safe Import & Merge:** Restore and deduplicate accounts cleanly when moving to a new phone, and automatically refresh Home Widgets upon import.
 
-### 🚀 9. Speed & Performance Optimizations
-- **Hardware-Accelerated WebView:** Enabled `LAYER_TYPE_HARDWARE` for fluid scrolling and 60fps animations.
-- **Optimized Delay Pipelines:** Low-latency element detection (150ms intervals) and reactive coroutines.
-- **Intelligent Caching:** Configured with `LOAD_DEFAULT` caching and automatic image decoding for immediate page loads.
+### ⚡ 9. Intelligent Two-Step Automation
+- **Step 1 (USN & DOB):** Populates `#username`, selects Day/Month/Year dropdowns, triggers `putdate()`, sets the password field, and submits via native `POST`.
+- **Step 2 (ID Card Verification):** Polls for the verification prompt, injects the ID card number using native input setters, and submits.
+- **Manual Handoff:** If a CAPTCHA or OTP appears, automation pauses immediately and provides a **Continue Manually** control without closing your session.
 
-### 🔒 10. Security & Privacy First
-- **Zero Cloud Architecture:** There is **no backend server**, **no telemetry**, **no analytics**, and **no third-party tracking**.
-- **AndroidX Security Crypto:** Your USN, Date of Birth, and ID Card Number are encrypted using Google's `EncryptedSharedPreferences` backed by an Android Keystore `MasterKey` (AES-256-GCM / AES-256-SIV).
-- **No Log Leaks:** Credential strings are never written to Logcat, included in URLs, or exposed in UI status cards.
+### 🖥️ 10. Genuine Desktop Mode (Default: ON)
+- **1280px Viewport & Desktop UIkit Grid:** Forces the 1280px desktop layout so both the CIE Bar chart, multi-ring Attendance Gauge, and full course registration table fit properly.
+- **Instant Mode Toggle:** Switch anytime between `🖥 Desktop ON` and `📱 Mobile` in the Login top bar with persistent preference.
 
-### 🎨 11. Theme & Appearance Engine
-- **Theme Modes:** Choose between **Follow System**, **Light Theme**, or **Dark Theme**.
-- **5 Accent Color Palettes:** Personalize with **Classic Blue**, **Emerald Green**, **Royal Purple**, **Crimson Red**, or **Sunset Amber**.
-- **AMOLED Pure Black:** Optional pitch-black dark mode to maximize battery savings on OLED displays.
-- **Material You Dynamic Colors:** Seamlessly extract and adapt theme colors from your device wallpaper on Android 12+.
-- **Quick Home Screen Toggle:** Tap the theme icon directly on the Home Screen to cycle themes on the fly.
+### 🔄 11. Instant One-Tap Page Refresh
+- Dedicated **Refresh** action in the Login top bar reloads the portal while keeping session cookies intact and re-extracts fresh attendance for your Widget & Notification.
+
+### 🚀 12. Speed & Performance Optimizations
+- Hardware-accelerated WebView (`LAYER_TYPE_HARDWARE`), reactive Kotlin Coroutines + `StateFlow`, and 150ms polling detection pipelines.
+
+### 🔒 13. Security & Privacy First
+- **AES-256 Encrypted Local Vault:** USN, Date of Birth, and ID Card Number are encrypted via `EncryptedSharedPreferences` backed by Android Keystore `MasterKey` (`AES256_GCM` / `AES256_SIV`).
+- **Separated Display Snapshots:** Home screen widgets and notifications read only non-sensitive cached display stats (`AttendanceSnapshotStore`) — credentials never sit unencrypted in widget prefs, Logcat, or lock-screen views.
+
+### 🎨 14. Theme & Appearance Engine
+- **Light, Dark & System Modes** + **AMOLED Pure Black** dark surface option + **Material You Dynamic Colors** (Android 12+) + **5 Accent Palettes** (Classic Blue, Emerald Green, Royal Purple, Crimson Red, Sunset Amber) + quick theme cycle button on the Home Screen.
 
 ---
 
@@ -149,38 +153,37 @@ Ready to use? Grab the latest pre-compiled APK directly from GitHub Releases:
 
 ```mermaid
 flowchart TD
-    A[Launch App] --> B{Accounts Saved?}
-    B -- No --> C[Setup Screen: Enter Label, USN, DOB, ID Card]
-    C --> D[Save to EncryptedSharedPreferences]
-    D --> E[Home Screen]
-    B -- Yes --> E[Home Screen]
-    
-    E --> F[Check for Updates in Background]
-    F -- Update Found --> G[Show Update Banner with OTA Download]
-    
-    E --> H{User Action}
-    H -- Switch Account --> I[Select from Saved Accounts / Add New]
+    A["Launch App"] --> B{"Accounts Saved?"}
+    B -- No --> C["Setup Screen: Enter Label, USN, DOB, ID Card"]
+    C --> D["Save to EncryptedSharedPreferences"]
+    D --> E["Home Screen"]
+    B -- Yes --> E["Home Screen"]
+
+    E --> F["Check version.json for Updates & Announcements"]
+    F -- "Update Found" --> G["Show Update Popup & Browser APK Handoff"]
+    F -- "Announcement Active" --> AN["Show Home Notice & Notification"]
+
+    E --> H{"User Action"}
+    H -- "Switch Account" --> I["Select or Cycle Active Student Profile"]
     I --> E
-    H -- Open in Browser --> J[Launch Portal in External Browser]
-    H -- Tap LOGIN NOW --> K[Initialize WebView in Desktop Mode 1280px]
-    
-    K --> L[Open student.bmsit.ac.in/parents]
-    L --> M[Detect Page 1: USN & DOB Form]
-    M --> N[Inject Active Account USN & DD/MM/YYYY]
-    N --> O[Submit Login Form via Native POST]
-    
-    O --> P{Check Next Page}
-    P -- ID Card Page --> Q[Detect Page 2 Input Field]
-    Q --> R[Inject Active Account ID Card & Submit]
-    R --> S[Verify Success Page]
-    
-    P -- Already Logged In --> S[Verify Success Page]
-    P -- CAPTCHA / OTP Required --> T[Pause & Enable Manual Interaction]
-    
-    S --> U[Display Authenticated Desktop Portal]
-    U --> V[One-Tap Refresh / Desktop Toggle]
-    U --> W[In-App Downloads: Notes, Syllabus, Circulars]
-    U --> X[Open Current Page in External Browser]
+    H -- "Pin Widget" --> WG["Pin Home Screen Attendance Widget"]
+    H -- "Tap LOGIN NOW / Widget Sync" --> K["Initialize WebView in 1280px Desktop Mode"]
+
+    K --> L["Open student.bmsit.ac.in/parents/index.php"]
+    L --> M["Fill USN & DD/MM/YYYY and Submit"]
+    M --> P{"Check Next Page"}
+    P -- "ID Card Page" --> Q["Inject ID Card Number and Submit"]
+    Q --> S["Dashboard Loaded"]
+    P -- "Already Logged In" --> S["Dashboard Loaded"]
+    P -- "CAPTCHA / OTP" --> T["Pause Automation for Manual Completion"]
+
+    S --> EX["AttendanceExtractor parses Billboard.js & Contineo DOM"]
+    EX --> ST["Save Non-Sensitive Snapshot to AttendanceSnapshotStore"]
+    ST --> WG2["Refresh Home Screen Attendance Widget"]
+    ST --> NF["Post Visual Mini-Dashboard Notification (Lock-Screen Private)"]
+
+    BG["WorkManager 6h Remote Check & Daily Sync Reminder"] --> F
+    BG --> RM["Remind if Not Synced Today"]
 ```
 
 ---
@@ -193,20 +196,41 @@ flowchart TD
 | **Target SDK** | Android 14 (API level 34) |
 | **Architecture** | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
 | **Connectivity** | Active Internet connection (Wi-Fi / Mobile Data) |
-| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE`, `WRITE_EXTERNAL_STORAGE` (max API 28) |
+| **Permissions** | `INTERNET`, `ACCESS_NETWORK_STATE`, `POST_NOTIFICATIONS` (Android 13+, runtime), `WRITE_EXTERNAL_STORAGE` (max API 28) |
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **UI & Architecture:** [Jetpack Compose](https://developer.android.com/jetpack/compose) with [Material 3](https://m3.material.io/) design system
-- **State & Concurrency:** Kotlin Coroutines, `StateFlow`, and Android Architecture Components (`ViewModel`)
-- **Web Automation:** Android `WebView`, custom `WebViewClient`, `WebChromeClient`, and dynamic DOM JavaScript evaluation
-- **File Downloads:** Android `DownloadManager` with session cookies, referer headers, and blob JavaScript bridge
+- **UI & Architecture:** [Jetpack Compose](https://developer.android.com/jetpack/compose) with [Material 3](https://m3.material.io/)
+- **State & Background Scheduling:** Kotlin Coroutines, `StateFlow`, `ViewModel`, and Jetpack **WorkManager** (`androidx.work:work-runtime-ktx:2.9.0`)
+- **Home Screen Widget & Notifications:** Android `AppWidgetProvider`, `RemoteViews`, `Canvas` circular gauges, and `NotificationCompat.DecoratedCustomViewStyle` with `VISIBILITY_PRIVATE`
+- **Web Automation & Extraction:** Android `WebView`, custom `WebViewClient` / `WebChromeClient`, Contineo autofill & Billboard.js / UIkit attendance JavaScript extractors
+- **File Downloads:** Android `DownloadManager` with session cookies, referer headers, and blob JS bridge
 - **Storage & Cryptography:** AndroidX Security (`androidx.security:security-crypto:1.1.0-alpha06`) with Android Keystore `MasterKey`
-- **Signing:** Dedicated 2048-bit RSA permanent release keystore
-- **Build System:** Gradle Kotlin DSL (`build.gradle.kts`)
-- **Continuous Integration & OTA Deployment:** GitHub Actions (`.github/workflows/build.yml`)
+- **Feedback & Docs:** **Web3Forms** API + static docs hub hosted on Vercel (`docs/`)
+- **Build & CI:** Gradle Kotlin DSL (`build.gradle.kts`) + GitHub Actions (`.github/workflows/build.yml`)
+
+---
+
+## 📣 Pushing Remote Announcements (No App Update Needed)
+
+Once users are on **`v1.2.20+`**, maintainers can broadcast announcements by editing the `"announcement"` block in [`version.json`](version.json) on `main` (keep `versionCode` / `versionName` unchanged to avoid triggering an APK update prompt):
+
+```json
+"announcement": {
+  "id": "unique-notice-id-2026-11-28",
+  "enabled": true,
+  "title": "Exam Hall Ticket Live",
+  "message": "Portal hall tickets are available. Tap below or Sync inside BMSIT CP.",
+  "actionUrl": "https://bmsit-cp.vercel.app",
+  "actionLabel": "Open Hub",
+  "minVersionCode": 23,
+  "maxVersionCode": 999999
+}
+```
+
+Users receive the notice automatically via `RemoteSyncCheckWorker` (every 6 hours with connectivity) and immediately upon opening the app, deduplicated by `"id"`. Set `"enabled": false` to stop delivering to new opens.
 
 ---
 
@@ -227,14 +251,14 @@ cd BMSIT-CP
 # 2. Compile Debug APK using the Gradle Wrapper
 ./gradlew assembleDebug
 
-# 3. (Optional) Run Unit Tests
+# 3. Run JVM Unit Tests
 ./gradlew testDebugUnitTest
 
-# 4. (Optional) Install directly to an attached Android phone or emulator
+# 4. Install directly to an attached Android phone or emulator
 ./gradlew installDebug
 ```
 
-The output artifact will be generated at:
+The output artifact is generated at:
 ```
 app/build/outputs/apk/debug/app-debug.apk
 ```
@@ -243,38 +267,61 @@ app/build/outputs/apk/debug/app-debug.apk
 
 ## 📂 Codebase Structure
 
-```
+```text
 app/src/main/java/com/continueo/autologin/
-├── ContineoApp.kt                    # Application class
-├── MainActivity.kt                   # Single activity entry point & navigation router
+├── ContineoApp.kt                             # App startup, notification channels & WorkManager scheduler
+├── MainActivity.kt                            # Single-activity entry point, widget/notification deep-links & Compose router
 │
 ├── models/
-│   ├── Credentials.kt                # Credentials & AccountProfile data models
-│   └── AutomationState.kt            # Automation state machine definitions
+│   ├── AttendanceModels.kt                    # AttendanceStatus, SubjectAttendance & AttendanceSnapshot models
+│   └── Credentials.kt                         # Credentials & multi-account AccountProfile models
 │
 ├── security/
-│   └── CredentialManager.kt          # Multi-account AES-256 storage & migration manager
+│   ├── AttendanceSnapshotStore.kt             # Non-sensitive per-account display cache for Widget & Notifications
+│   └── CredentialManager.kt                   # Multi-account AES-256 EncryptedSharedPreferences storage & backup I/O
 │
 ├── automation/
-│   ├── ContineoSelectors.kt          # Portal DOM selectors, URLs, and timing constants
-│   ├── ContineoAdapter.kt            # Robust JavaScript generators for form autofill
-│   ├── AutomationEngine.kt           # Coroutine-based automation state manager
-│   └── WebViewManager.kt             # WebView desktop mode, download pipeline & JS bridge
+│   ├── AttendanceExtractor.kt                 # Multi-strategy JS extractor (Billboard.js gauges/bars, .sc-progress, tables)
+│   ├── AutomationEngine.kt                    # Coroutine automation state machine
+│   ├── ContineoAdapter.kt                     # Robust JS injectors for login & ID card verification
+│   ├── ContineoSelectors.kt                   # Portal URL, DOM selectors & timing constants
+│   └── WebViewManager.kt                      # Desktop viewport, page load callbacks, cookies & DownloadManager bridge
+│
+├── widget/
+│   └── AttendanceWidgetProvider.kt            # Resizable Home Screen Attendance Widget provider & system pinner
+│
+├── notifications/
+│   ├── AttendanceNotificationManager.kt       # Visual mini-dashboard, shortage alerts, lock-screen privacy & remote notices
+│   ├── AttendanceNotificationReceiver.kt      # BroadcastReceiver handling inline Notification "Switch" account cycling
+│   ├── BackgroundNotificationWorkers.kt       # RemoteSyncCheckWorker (6h), DailySyncReminderWorker & NotificationScheduler
+│   └── NotificationPreferences.kt             # Threshold (85%/75%), reminder schedule, dedupe & opt-in settings
 │
 ├── ui/
-│   ├── theme/                        # Material 3 color palettes, typography, and theme
-│   ├── navigation/                   # Compose Navigation graph & destinations
+│   ├── components/
+│   │   └── FeedbackDialog.kt                  # In-app Web3Forms bug/feedback submission modal
+│   ├── navigation/
+│   │   └── NavGraph.kt                        # Compose Navigation routes
 │   ├── screens/
-│   │   ├── SetupScreen.kt            # Add / edit credentials and account profiles
-│   │   ├── HomeScreen.kt             # Account switcher, update banner & "LOGIN NOW"
-│   │   ├── LoginScreen.kt            # WebView display, status timeline, refresh & desktop toggle
-│   │   └── SettingsScreen.kt         # Account management, check updates & app details
+│   │   ├── SetupScreen.kt                     # Add / edit student account credentials
+│   │   ├── HomeScreen.kt                      # Account switcher, announcement banner, OTA popup, Feedback & "LOGIN NOW"
+│   │   ├── LoginScreen.kt                     # WebView dashboard, status timeline, sync toast & desktop toggle
+│   │   └── SettingsScreen.kt                  # Accounts, backup/restore, Widget Pin, Notification alerts & Feedback
+│   ├── theme/                                 # ThemeManager, AMOLED dark mode, Material You & accent palettes
 │   └── viewmodels/
-│       └── LoginViewModel.kt         # UI state orchestration & automation bridge
+│       └── LoginViewModel.kt                  # Automation orchestration & post-login attendance extraction trigger
 │
 └── utils/
-    ├── NetworkUtils.kt               # Real-time network connectivity monitor
-    └── UpdateManager.kt              # Multi-tier GitHub release checker, OTA downloader & installer
+    ├── AttendanceUiHelper.kt                  # Shared Canvas ring bitmap renderer, USN masker, alert summary & reminder helpers
+    ├── FeedbackManager.kt                     # Web3Forms HTTP client & payload sanitizer
+    ├── NetworkUtils.kt                        # Real-time connectivity check
+    ├── ShareUtils.kt                          # WhatsApp / feedback URL intents & share card helpers
+    └── UpdateManager.kt                       # version.json parser (OTA updates + RemoteAnnouncement) & browser download handoff
+
+app/src/test/java/com/continueo/autologin/
+└── UpdateAndAccountTest.kt                    # JVM unit tests (versioning, masking, feedback, attendance, announcements, reminders)
+
+docs/                                          # Static product showcase, Android guide, extension page & Web3Forms feedback page
+version.json                                   # OTA release metadata & serverless remote announcement payload
 ```
 
 ---
@@ -283,82 +330,82 @@ app/src/main/java/com/continueo/autologin/
 
 <details>
 <summary><b>1. How does multiple account login work?</b></summary>
-You can save as many accounts as you need (e.g. for multiple siblings or wards). Each account has its own USN, Date of Birth, ID Card Number, and an optional display label. On the Home Screen, simply tap the account card or the "Switch" button to pick which account you want to use. Tapping "LOGIN NOW" will immediately log in with the selected account.
+You can save as many accounts as you need (e.g. for siblings or multiple wards), each with its own USN, Date of Birth, ID Card Number, and optional display label. Switch profiles on the Home Screen, directly on the Home Screen Widget (<b>Switch</b>), or right inside the expanded Notification card.
 </details>
 
 <details>
-<summary><b>2. How does the in-app update check work?</b></summary>
-On startup or via "Check for Updates" in Settings, BMSIT CP checks for new releases. If an update is found, an update popup appears with release highlights. Tapping "Update Now" launches the direct APK download in your browser so Chrome/your system installer updates the app seamlessly without extra dropper permissions.
+<summary><b>2. How does the Home Screen Attendance Widget work and stay updated?</b></summary>
+Because BMSIT's Contineo portal uses login verification/reCAPTCHA, BMSIT CP uses a <b>Sync-on-Login Snapshot</b>: whenever you log in or refresh your portal dashboard in the app, <code>AttendanceExtractor</code> parses Contineo's Billboard.js attendance gauge/charts and saves non-sensitive subject percentages locally for your active account. Pin the widget from <b>Settings → Home Screen Widget → Pin</b> (or long-press your launcher → <b>Widgets → BMSIT CP</b>), and tap <b>Sync</b> / <b>Login & Sync</b> on the widget anytime to refresh.
 </details>
 
 <details>
-<summary><b>3. Are my college credentials safe?</b></summary>
-Yes, 100%. Your credentials never leave your physical device. They are encrypted using the Android Keystore system with AES-256-GCM encryption. The app has no backend servers, no analytics SDKs, and no tracking code.
+<summary><b>3. How do Notification Bar Alerts & Lock-Screen Privacy work?</b></summary>
+After syncing, BMSIT CP posts a dismissible visual mini-dashboard showing your overall ring and lowest-attendance subjects sorted first, plus <b>Sync Now</b>, <b>Switch</b>, and <b>Portal ↗</b> buttons. With <code>VISIBILITY_PRIVATE</code>, your lock screen hides your name, USN, subject codes, and percentages until you unlock your device. Customize the warning threshold (<code>85%</code> or <code>75%</code>), enable alert-only mode, change daily reminder times (<code>9 AM</code> / <code>6 PM</code> / <code>8 PM</code>), or tap <b>Preview</b> in <b>Settings → Notification Bar Alerts</b>.
 </details>
 
 <details>
-<summary><b>4. Can I download subject notes and circulars inside the app?</b></summary>
-Yes! Tapping <b>[NOTES]</b> or any PDF/circular download link downloads the file directly to your phone's <b>Downloads</b> folder using Android's native <code>DownloadManager</code>. Session cookies and referer headers are forwarded automatically so authenticated files download without permission errors.
+<summary><b>4. How can announcements reach my phone without updating the app?</b></summary>
+On <code>v1.2.20+</code>, BMSIT CP checks <code>version.json</code> via Fastly CDN on startup and every 6 hours via Jetpack <code>WorkManager</code>. Important portal notices or downtime alerts placed in the <code>announcement</code> object appear in your notification bar automatically without waiting for an APK install.
 </details>
 
 <details>
-<summary><b>5. How do I open the portal in an external browser (Chrome / Brave)?</b></summary>
-There are three convenient ways:
-1. <b>Home Screen:</b> Tap <b>"Portal ↗"</b> directly below the "LOGIN NOW" button.
-2. <b>Login Screen Top Bar:</b> Tap the <b>Open in Browser</b> icon anytime while viewing the portal.
-3. <b>Login Complete:</b> Tap <b>"Open in Browser"</b> on the completion card once authenticated.
+<summary><b>5. How does the in-app update check work?</b></summary>
+On startup, via <b>Settings → Check for Updates</b>, or via 6-hour background update notifications, BMSIT CP checks for new releases. Tapping <b>Update Now</b> or <b>Download APK</b> opens the direct APK download in Chrome/your default browser for clean installation.
 </details>
 
 <details>
-<summary><b>6. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
-The app is built to adhere strictly to security best practices. If an anti-bot check or OTP appears, the automated sequence pauses immediately, flags the step, and offers a <b>Continue Manually</b> button so you can solve it yourself in the WebView.
+<summary><b>6. Are my college credentials safe?</b></summary>
+Yes, 100%. Your USN, DOB, and ID Card Number never leave your physical device and are encrypted using <code>EncryptedSharedPreferences</code> + Android Keystore (AES-256-GCM). There is no backend server tracking your credentials, and optional Web3Forms feedback never includes credentials.
 </details>
 
 <details>
-<summary><b>7. How do I refresh the portal to check for new marks or attendance?</b></summary>
-Simply tap the <b>Refresh</b> icon located in the top app bar anytime. The portal page reloads immediately while keeping your authenticated session active.
+<summary><b>7. Can I download subject notes and circulars inside the app?</b></summary>
+Yes! Tapping <b>[NOTES]</b> or any PDF/circular download link downloads the file directly to your phone's <b>Downloads</b> folder using Android's native <code>DownloadManager</code> with active <code>PHPSESSID</code> session cookies and referer headers preserved.
 </details>
 
 <details>
-<summary><b>8. How do I switch between Desktop and Mobile layout?</b></summary>
-At the top right of the login screen, tap the <b>🖥 Desktop ON / 📱 Mobile</b> button. The app will immediately adjust the user-agent and viewport and reload the page while preserving your authenticated session.
+<summary><b>8. How do I open the portal in an external browser (Chrome / Brave)?</b></summary>
+Tap <b>Portal ↗</b> on the Home Screen, Home Screen Widget, or expanded Notification Bar, or tap the <b>Open in Browser</b> icon inside the Login screen top bar or post-login card.
 </details>
 
 <details>
-<summary><b>9. How do I backup or transfer my accounts to another phone?</b></summary>
-Go to <b>Settings → Data Management</b>:
-- Tap <b>Export Accounts Backup</b> to copy or share your JSON backup.
-- On your new device, tap <b>Import Accounts Backup</b>, paste the text, and tap <b>Import</b>. Your accounts will be restored immediately without re-typing.
+<summary><b>9. What happens if the portal displays a CAPTCHA or OTP?</b></summary>
+The app adheres strictly to anti-bot controls: if a CAPTCHA challenge appears, automation pauses immediately and lets you complete it manually right inside the WebView.
 </details>
 
 <details>
-<summary><b>10. Why does Google Play Protect show "Harmful app blocked"?</b></summary>
-Because BMSIT CP is an open-source, sideloaded app that is self-signed and not hosted on the Google Play Store, Google Play Protect displays a generic warning for unrecognized application signatures. 
-
-To proceed with installation, simply tap <b>"Install anyway"</b> (located right above the blue "Got it" button).
+<summary><b>10. How do I refresh the portal or toggle Desktop/Mobile mode?</b></summary>
+Tap the <b>Refresh</b> icon in the Login top bar anytime to reload while staying logged in (which also refreshes your attendance widget & notification). Tap <b>🖥 Desktop ON / 📱 Mobile</b> at top-right to switch viewport modes cleanly.
 </details>
 
 <details>
-<summary><b>11. Why does Android show "App not installed as package conflicts with an existing package"?</b></summary>
-Android requires every app update to be signed with the <b>exact same cryptographic key</b> as the installed app. Earlier automated CI builds used temporary runner keys that changed with every build. Starting from <b>v1.2.0</b>, a permanent release keystore is embedded in the repository so all updates share the exact same signature.
+<summary><b>11. How do I backup or transfer my accounts to another phone?</b></summary>
+Go to <b>Settings → Data Management</b>: tap <b>Export Accounts Backup</b> to copy or share your JSON backup, then on your new device tap <b>Import Accounts Backup</b>, paste the text, and tap <b>Import</b>.
+</details>
 
-If updating from a pre-v1.2.0 version:
-1. Open <b>Settings → Data Management → Export Accounts Backup</b> and tap <b>Copy to Clipboard</b> (or Share).
-2. Uninstall the old conflicting app from your device (one-time requirement).
-3. Install the latest APK from GitHub Releases.
-4. Open <b>Settings → Import Accounts Backup</b>, paste your data, and tap <b>Import</b>.
-All future updates will now install seamlessly over the air with zero signature conflicts.
+<details>
+<summary><b>12. Why does Google Play Protect show "Harmful app blocked"?</b></summary>
+Because BMSIT CP is an open-source, self-signed APK distributed outside the Google Play Store, Google Play Protect displays a generic prompt for unrecognized publishers. Tap <b>"Install anyway"</b> to continue.
+</details>
+
+<details>
+<summary><b>13. Why does Android show "App not installed as package conflicts with an existing package"?</b></summary>
+Android requires updates to share the exact same signing key. Starting from <b>v1.2.0</b>, a permanent release keystore is used across all releases. If upgrading from a pre-v1.2.0 build:
+1. Open <b>Settings → Data Management → Export Accounts Backup</b> and save your JSON backup.
+2. Uninstall the old pre-v1.2.0 app once.
+3. Install the latest APK from GitHub Releases or <a href="https://bmsit-cp.vercel.app">bmsit-cp.vercel.app</a>.
+4. Open <b>Settings → Import Accounts Backup</b> to restore your profiles.
 </details>
 
 ---
 
 ## ⭐ Say Thank You & Show Support
 
-If you want to say thank you or you are happy with **BMSIT CP**, please consider:
-- **Giving this repository a ⭐ star!** It helps more BMSIT students and parents discover the utility.
-- **[Following @adityasing9 on GitHub](https://github.com/adityasing9)** for more interesting tools, utilities, and open-source projects!
-- **Sharing BMSIT CP** with your classmates, batchmates, and friends via WhatsApp!
-- **Sending Feedback or Reporting Issues** right inside the app (**Settings → Send Feedback**) or at [**bmsit-cp.vercel.app/feedback**](https://bmsit-cp.vercel.app/feedback)!
+If you find **BMSIT CP** helpful:
+- **Give this repository a ⭐ star!** It helps more BMSIT students and parents discover the app.
+- **[Follow @adityasing9 on GitHub](https://github.com/adityasing9)** for more utilities and open-source projects!
+- **Share BMSIT CP** with your classmates and friends via WhatsApp!
+- **Send Feedback or Report Issues** right inside the app (**Settings → Send Feedback**) or at [**bmsit-cp.vercel.app/feedback**](https://bmsit-cp.vercel.app/feedback)!
 
 ---
 
